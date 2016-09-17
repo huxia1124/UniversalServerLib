@@ -1,0 +1,10 @@
+import "docobj.idl";
+
+
+[ version(1.0), uuid(91f80f18-8590-3eaa-8a4d-3bf21a431a0a) ]
+library UniversalClient
+{
+	importlib("stdole2.tlb");
+
+}
+

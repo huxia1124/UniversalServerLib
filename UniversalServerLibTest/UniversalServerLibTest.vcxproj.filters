@@ -1,0 +1,245 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="lua_script">
+      <UniqueIdentifier>{1e0d3151-bbef-428b-bd0f-3381cc75c64c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\lua">
+      <UniqueIdentifier>{91efb2ee-5643-438b-a011-dded2897c40b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\lua">
+      <UniqueIdentifier>{529f5138-c9ba-4280-9419-e059dc892913}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\LuaIntf">
+      <UniqueIdentifier>{3d3a709a-852f-4d52-b339-153d4a134348}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\LuaIntf">
+      <UniqueIdentifier>{0990adb9-9233-414e-9793-5311f6d0388f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lobject.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lmem.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\llimits.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\llex.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lgc.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lfunc.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\ldo.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\ldebug.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lctype.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lcode.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lauxlib.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lapi.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lzio.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lvm.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lundump.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lualib.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\luaconf.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lua.hpp">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lua.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\ltm.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\ltable.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lstring.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lstate.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lprefix.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lparser.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\lua\lopcodes.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalServerLibTest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\llex.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\liolib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\linit.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lgc.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lfunc.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\ldump.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\ldo.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\ldebug.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\ldblib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lctype.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lcorolib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lcode.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lbitlib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lbaselib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lauxlib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lapi.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lzio.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lvm.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lutf8lib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lundump.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\ltm.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\ltablib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\ltable.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lstrlib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lstring.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lstate.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lparser.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\loslib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lopcodes.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lobject.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\loadlib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lmem.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\lua\lmathlib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="recv.lua">
+      <Filter>lua_script</Filter>
+    </None>
+    <None Include="server_stop.lua">
+      <Filter>lua_script</Filter>
+    </None>
+    <None Include="server_test.lua">
+      <Filter>lua_script</Filter>
+    </None>
+    <None Include="libcjson.lua">
+      <Filter>lua_script</Filter>
+    </None>
+    <None Include="inspect.lua">
+      <Filter>lua_script</Filter>
+    </None>
+  </ItemGroup>
+</Project>

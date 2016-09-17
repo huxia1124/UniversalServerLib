@@ -1,0 +1,14 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(ba209999-0c6c-11d2-97cf-00c04f8eea68),
+	version(1.0)
+]
+
+interface UniversalServerRPC // The interface is named UniversalServerRPC
+{
+	// A function that takes a zero-terminated string.
+	void RunScriptFile([in, string] const WCHAR* szScriptFile);
+	void RunScriptString([in, string] const WCHAR* szScriptString);
+}

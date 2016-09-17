@@ -1,0 +1,77 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalServerLib", "UniversalServerLib\UniversalServerLib.vcxproj", "{81753DE9-8BAC-43E9-95D9-E4913A732E51}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalServerLibTest", "UniversalServerLibTest\UniversalServerLibTest.vcxproj", "{851DA612-7300-48F6-A8CE-D50CB2BDBF5C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{81753DE9-8BAC-43E9-95D9-E4913A732E51} = {81753DE9-8BAC-43E9-95D9-E4913A732E51}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalClient", "UniversalClient\UniversalClient.vcxproj", "{2560BBD0-0B47-441A-BE4B-AD3586C8B985}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iocp", "iocp\iocp.vcxproj", "{B3171ECB-838D-463C-8804-E3185C06A479}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{81753DE9-8BAC-43E9-95D9-E4913A732E51}.Debug|x64.ActiveCfg = Debug|x64
+		{81753DE9-8BAC-43E9-95D9-E4913A732E51}.Debug|x64.Build.0 = Debug|x64
+		{81753DE9-8BAC-43E9-95D9-E4913A732E51}.Debug|x86.ActiveCfg = Debug|Win32
+		{81753DE9-8BAC-43E9-95D9-E4913A732E51}.Debug|x86.Build.0 = Debug|Win32
+		{81753DE9-8BAC-43E9-95D9-E4913A732E51}.Release|x64.ActiveCfg = Release|x64
+		{81753DE9-8BAC-43E9-95D9-E4913A732E51}.Release|x64.Build.0 = Release|x64
+		{81753DE9-8BAC-43E9-95D9-E4913A732E51}.Release|x86.ActiveCfg = Release|Win32
+		{81753DE9-8BAC-43E9-95D9-E4913A732E51}.Release|x86.Build.0 = Release|Win32
+		{851DA612-7300-48F6-A8CE-D50CB2BDBF5C}.Debug|x64.ActiveCfg = Debug|x64
+		{851DA612-7300-48F6-A8CE-D50CB2BDBF5C}.Debug|x64.Build.0 = Debug|x64
+		{851DA612-7300-48F6-A8CE-D50CB2BDBF5C}.Debug|x86.ActiveCfg = Debug|Win32
+		{851DA612-7300-48F6-A8CE-D50CB2BDBF5C}.Debug|x86.Build.0 = Debug|Win32
+		{851DA612-7300-48F6-A8CE-D50CB2BDBF5C}.Release|x64.ActiveCfg = Release|x64
+		{851DA612-7300-48F6-A8CE-D50CB2BDBF5C}.Release|x64.Build.0 = Release|x64
+		{851DA612-7300-48F6-A8CE-D50CB2BDBF5C}.Release|x86.ActiveCfg = Release|Win32
+		{851DA612-7300-48F6-A8CE-D50CB2BDBF5C}.Release|x86.Build.0 = Release|Win32
+		{2560BBD0-0B47-441A-BE4B-AD3586C8B985}.Debug|x64.ActiveCfg = Debug|x64
+		{2560BBD0-0B47-441A-BE4B-AD3586C8B985}.Debug|x64.Build.0 = Debug|x64
+		{2560BBD0-0B47-441A-BE4B-AD3586C8B985}.Debug|x86.ActiveCfg = Debug|Win32
+		{2560BBD0-0B47-441A-BE4B-AD3586C8B985}.Debug|x86.Build.0 = Debug|Win32
+		{2560BBD0-0B47-441A-BE4B-AD3586C8B985}.Release|x64.ActiveCfg = Release|x64
+		{2560BBD0-0B47-441A-BE4B-AD3586C8B985}.Release|x64.Build.0 = Release|x64
+		{2560BBD0-0B47-441A-BE4B-AD3586C8B985}.Release|x86.ActiveCfg = Release|Win32
+		{2560BBD0-0B47-441A-BE4B-AD3586C8B985}.Release|x86.Build.0 = Release|Win32
+		{B3171ECB-838D-463C-8804-E3185C06A479}.Debug|x64.ActiveCfg = Debug|Win32
+		{B3171ECB-838D-463C-8804-E3185C06A479}.Debug|x86.ActiveCfg = Debug|Win32
+		{B3171ECB-838D-463C-8804-E3185C06A479}.Debug|x86.Build.0 = Debug|Win32
+		{B3171ECB-838D-463C-8804-E3185C06A479}.Release|x64.ActiveCfg = Release|Win32
+		{B3171ECB-838D-463C-8804-E3185C06A479}.Release|x86.ActiveCfg = Release|Win32
+		{B3171ECB-838D-463C-8804-E3185C06A479}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 5
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://huxia.visualstudio.com/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = UniversalServerLib\\UniversalServerLib.vcxproj
+		SccProjectName1 = UniversalServerLib
+		SccLocalPath1 = UniversalServerLib
+		SccProjectUniqueName2 = UniversalServerLibTest\\UniversalServerLibTest.vcxproj
+		SccProjectName2 = UniversalServerLibTest
+		SccLocalPath2 = UniversalServerLibTest
+		SccProjectUniqueName3 = UniversalClient\\UniversalClient.vcxproj
+		SccProjectName3 = UniversalClient
+		SccLocalPath3 = UniversalClient
+		SccProjectUniqueName4 = iocp\\iocp.vcxproj
+		SccProjectName4 = iocp
+		SccLocalPath4 = iocp
+	EndGlobalSection
+EndGlobal

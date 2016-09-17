@@ -1,0 +1,709 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\lua">
+      <UniqueIdentifier>{9705d352-cffe-4d9f-b26c-f04a826990fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\LuaIntf">
+      <UniqueIdentifier>{12811b0b-c1cf-4086-9ed4-686e74371ae7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\LuaIntf">
+      <UniqueIdentifier>{f43b6bbd-5f35-43e3-907a-9fae97ca7f9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\lua">
+      <UniqueIdentifier>{ccd85c6e-c200-4997-9358-da95dfbbe3ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\LuaIntf\impl">
+      <UniqueIdentifier>{4ce17703-7390-447a-8be5-6b68ef372fc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Server">
+      <UniqueIdentifier>{b31288f3-912f-4713-baf3-edf41265ed9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Server">
+      <UniqueIdentifier>{b1dd8f52-d760-49db-8741-500d9940dba3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Server\Network">
+      <UniqueIdentifier>{679bb911-4729-41a3-8d94-9bcabc310ba6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Server\Network">
+      <UniqueIdentifier>{785b817e-3a29-49d8-9e6d-d6edb1e6b0c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Server\Common">
+      <UniqueIdentifier>{bc19b8ef-cb5e-4213-9bca-82c7567d5617}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Server\Common">
+      <UniqueIdentifier>{8064ff0a-79ab-45a4-9371-31077d8d271b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Server\Protocol">
+      <UniqueIdentifier>{a8073c54-bd5c-49fe-af0b-aa7f367f73f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Server\Protocol">
+      <UniqueIdentifier>{aecdd6a8-ae31-4102-bcd7-012f4a242d17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\fastdb">
+      <UniqueIdentifier>{6f6438a2-5a06-4843-b167-3f15ba70cab5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\fastdb">
+      <UniqueIdentifier>{eda048a0-ccf7-4e2d-977b-a23adf897e9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\sqlite">
+      <UniqueIdentifier>{94bb7a64-8788-4436-892f-3711be513d28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\sqlite">
+      <UniqueIdentifier>{2b827e37-49ef-49b9-823e-23f012849534}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\extensions">
+      <UniqueIdentifier>{429e7e59-51de-4e5f-b61f-a2d0e210ca35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\extensions">
+      <UniqueIdentifier>{2be74531-a097-4578-8cac-06badebfbe61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\extensions\luacjson">
+      <UniqueIdentifier>{febe3158-75f0-46cd-b1c2-f9370a080468}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\extensions\luacjson">
+      <UniqueIdentifier>{ec2b6000-b068-417b-b9c9-514dc048771a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IDL">
+      <UniqueIdentifier>{449ccdbe-30f9-44f1-bfff-37cc677a312c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\rpc">
+      <UniqueIdentifier>{451d0eed-23a7-4c7a-ad0e-e1740e38e3af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\LuaExt">
+      <UniqueIdentifier>{dd864f69-7540-4c16-887d-c4e803187776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\LuaExt">
+      <UniqueIdentifier>{431a36a8-243d-441d-8e28-b1d23df7cf63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\extensions\lsqlite3">
+      <UniqueIdentifier>{f5c8c17f-a4c9-4dd1-b76d-b0944d13daf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\extensions\lsqlite3">
+      <UniqueIdentifier>{a8555bd6-2fe0-4c92-b543-8f8b90480aa3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lprefix.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lparser.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lopcodes.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lobject.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lmem.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\llimits.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\llex.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lgc.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lfunc.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\ldo.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\ldebug.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lctype.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lcode.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lauxlib.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lapi.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lzio.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lvm.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lundump.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lualib.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\luaconf.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lua.hpp">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lua.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\ltm.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\ltable.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lstring.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lstate.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\LuaCompat.h">
+      <Filter>头文件\LuaIntf</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\LuaContext.h">
+      <Filter>头文件\LuaIntf</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\LuaIntf.h">
+      <Filter>头文件\LuaIntf</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\LuaRef.h">
+      <Filter>头文件\LuaIntf</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\LuaState.h">
+      <Filter>头文件\LuaIntf</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\impl\CppArg.h">
+      <Filter>头文件\LuaIntf\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\impl\CppBindClass.h">
+      <Filter>头文件\LuaIntf\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\impl\CppBindModule.h">
+      <Filter>头文件\LuaIntf\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\impl\CppFunction.h">
+      <Filter>头文件\LuaIntf\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\impl\CppInvoke.h">
+      <Filter>头文件\LuaIntf\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\impl\CppObject.h">
+      <Filter>头文件\LuaIntf\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\impl\LuaException.h">
+      <Filter>头文件\LuaIntf\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaIntf\impl\LuaType.h">
+      <Filter>头文件\LuaIntf\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\StackWalker.h">
+      <Filter>头文件\Server\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\STXUtility.h">
+      <Filter>头文件\Server\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\XMLNode.h">
+      <Filter>头文件\Server\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\STXLog.h">
+      <Filter>头文件\Server\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SimpleHttpServer.h">
+      <Filter>头文件\Server\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\STXIOCPServer.h">
+      <Filter>头文件\Server\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\STXServerBase.h">
+      <Filter>头文件\Server\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\STXIOCPBuffer.h">
+      <Filter>头文件\Server\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol\STXProtocol.h">
+      <Filter>头文件\Server\Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="UniversalServer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UniversalIOCPServer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerController.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UniversalServerInternal.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UniversalSharedDataController.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\array.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\class.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\cli.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\cliproto.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\compiler.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\config.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\container.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\cursor.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\database.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\date.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\datetime.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\exception.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\fastdb.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\fastdbShim.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\file.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\harray.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\hashtab.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\iqsort.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\localcli.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\query.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\rectangle.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\reference.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\repsock.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\rtree.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\server.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\set.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\sockio.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\stdtp.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\subsql.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\symtab.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\sync.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\sync_unix.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\sync_w32.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\timeseries.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\ttree.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\unisock.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\w32sock.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\wince.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\wince_time.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastdb\inc\wwwapi.h">
+      <Filter>头文件\fastdb</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite\sqlite3.h">
+      <Filter>头文件\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite\sqlite3ext.h">
+      <Filter>头文件\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\cJSON.h">
+      <Filter>头文件\extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\luacjson\dtoa_config.h">
+      <Filter>头文件\extensions\luacjson</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\luacjson\fpconv.h">
+      <Filter>头文件\extensions\luacjson</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\luacjson\strbuf.h">
+      <Filter>头文件\extensions\luacjson</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\luacjson\lua_cjson.h">
+      <Filter>源文件\extensions\luacjson</Filter>
+    </ClInclude>
+    <ClInclude Include="UniversalStringCache.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\blockingconcurrentqueue.h">
+      <Filter>头文件\Server\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\concurrentqueue.h">
+      <Filter>头文件\Server\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\FastSpinlock.h">
+      <Filter>头文件\Server\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol\STXProtocolLua.h">
+      <Filter>头文件\Server\Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaExt\STXTcpClientLua.h">
+      <Filter>头文件\LuaExt</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Cryptographic.h">
+      <Filter>头文件\Server\Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lzio.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lvm.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lutf8lib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lundump.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\ltm.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\ltablib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\ltable.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lstrlib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lstring.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lstate.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lparser.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\loslib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lopcodes.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lobject.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\loadlib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lmem.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lmathlib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\llex.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\liolib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\linit.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lgc.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lfunc.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\ldump.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\ldo.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\ldebug.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\ldblib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lctype.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lcorolib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lcode.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lbitlib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lbaselib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lauxlib.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lapi.c">
+      <Filter>源文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaIntf\src\LuaRef.cpp">
+      <Filter>源文件\LuaIntf</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaIntf\src\LuaState.cpp">
+      <Filter>源文件\LuaIntf</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaIntf\src\CppBindClass.cpp">
+      <Filter>源文件\LuaIntf</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaIntf\src\CppBindModule.cpp">
+      <Filter>源文件\LuaIntf</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaIntf\src\CppFunction.cpp">
+      <Filter>源文件\LuaIntf</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaIntf\src\CppObject.cpp">
+      <Filter>源文件\LuaIntf</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaIntf\src\LuaCompat.cpp">
+      <Filter>源文件\LuaIntf</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\StackWalker.cpp">
+      <Filter>源文件\Server\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\STXUtility.cpp">
+      <Filter>源文件\Server\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\XMLNode.cpp">
+      <Filter>源文件\Server\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\STXLog.cpp">
+      <Filter>源文件\Server\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\SimpleHttpServer.cpp">
+      <Filter>源文件\Server\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\STXIOCPBuffer.cpp">
+      <Filter>源文件\Server\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\STXIOCPServer.cpp">
+      <Filter>源文件\Server\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\STXServerBase.cpp">
+      <Filter>源文件\Server\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocol\STXProtocol.cpp">
+      <Filter>源文件\Server\Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalServer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalIOCPServer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerController.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalSharedDataController.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\cgistub.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\class.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\compiler.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\container.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\cursor.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\database.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\file.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\hashtab.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\localcli.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\query.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\repsock.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\rtree.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\server.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\stdtp.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\symtab.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\sync.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\ttree.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\w32sock.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\wwwapi.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="fastdb\src\xml.cpp">
+      <Filter>源文件\fastdb</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlite\sqlite3.c">
+      <Filter>源文件\sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\cJSON.c">
+      <Filter>源文件\extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\luacjson\dtoa.c">
+      <Filter>源文件\extensions\luacjson</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\luacjson\g_fmt.c">
+      <Filter>源文件\extensions\luacjson</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\luacjson\strbuf.c">
+      <Filter>源文件\extensions\luacjson</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalStringCache.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalServerInternal.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\FastSpinlock.cpp">
+      <Filter>源文件\Server\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalServerRPC_s.c">
+      <Filter>源文件\rpc</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalServerRPC_c.c">
+      <Filter>源文件\rpc</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaExt\STXTcpClientLua.cpp">
+      <Filter>源文件\LuaExt</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Cryptographic.cpp">
+      <Filter>源文件\Server\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\lsqlite3\lsqlite3.c">
+      <Filter>源文件\extensions\lsqlite3</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Protocol\STXProtocol.java">
+      <Filter>头文件\Server\Protocol</Filter>
+    </None>
+    <None Include="fastdb\inc\acconfig.h.in">
+      <Filter>头文件\fastdb</Filter>
+    </None>
+    <None Include="fastdb\inc\compiler.d">
+      <Filter>头文件\fastdb</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="UniversalServerRPC.idl">
+      <Filter>IDL</Filter>
+    </Midl>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\wtl">
+      <UniqueIdentifier>{f4c90dfa-0f0e-4c37-ac3e-dd517ce9ddd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\protocol">
+      <UniqueIdentifier>{c0a8b671-2dd4-496f-8889-65060c59e072}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\protocol">
+      <UniqueIdentifier>{bcbdf32c-79d1-4d61-9241-c6e6edcf5741}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UniversalClient.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MainWindow.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="STXProtocolDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlapp.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlcrack.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlctrls.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlctrlw.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlctrlx.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlddx.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atldlgs.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atldwm.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlfind.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlframe.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlgdi.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlmisc.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlprint.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlres.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlresce.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlribbon.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlscrl.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlsplit.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atltheme.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atluser.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlwince.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlwinx.h">
+      <Filter>头文件\wtl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\Protocol\STXProtocol.h">
+      <Filter>头文件\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="STXSocket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="STXAnchor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UniversalClientSocket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UniversalServerLib\UniversalServerRPC_h.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="STXProtocolHistory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalClient.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="STXProtocolDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\Protocol\STXProtocol.cpp">
+      <Filter>源文件\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="STXSocket.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="STXAnchor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalClientSocket.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UniversalServerLib\UniversalServerRPC_c.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="STXProtocolHistory.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="UniversalClient.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="UniversalClient.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

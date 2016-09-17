@@ -469,9 +469,9 @@ LRESULT CSTXProtocolDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_edtContent.Attach(GetDlgItem(IDC_EDIT_VALUE));
 	_edtContent2.Attach(GetDlgItem(IDC_EDIT_VALUE2));
 	_lstData.Attach(GetDlgItem(IDC_LIST_VALUES));
-	_lstData.InsertColumn(0, _T("ÐòºÅ"), LVCFMT_LEFT, 60);
-	_lstData.InsertColumn(1, _T("ÀàÐÍ"), LVCFMT_LEFT, 120);
-	_lstData.InsertColumn(2, _T("ÄÚÈÝ"), LVCFMT_LEFT, 480);
+	_lstData.InsertColumn(0, _T("Sequence"), LVCFMT_LEFT, 60);
+	_lstData.InsertColumn(1, _T("Type"), LVCFMT_LEFT, 120);
+	_lstData.InsertColumn(2, _T("Content"), LVCFMT_LEFT, 480);
 	_lstData.SetExtendedListViewStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
 
 	_anchor->AddItem(IDC_EDIT_VALUE, STXANCHOR_LEFT | STXANCHOR_TOP | STXANCHOR_RIGHT);

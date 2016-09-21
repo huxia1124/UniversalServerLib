@@ -6,5 +6,5 @@ A high performance asynchronous TCP/UDP server. It supports Lua scripts.
 * C++ implementation
 * Full asynchronous, high performance
 * Client tools provided
-* Simple HTTP support
+* Simple HTTP support (and Websocket support)
 * Lua script supported (Lua 5.3.1)

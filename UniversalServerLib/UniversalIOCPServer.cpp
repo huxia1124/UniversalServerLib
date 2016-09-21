@@ -873,10 +873,17 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 		if (pClient->m_bLastWebSocketPacketFin)
 		{
 			DWORD dwLen = pClient->GetBufferedWebSocketMessageLength();
-			BYTE *pDataBuffer = (BYTE*)pClient->GetWebSocketMessageBasePtr();
-			BOOL bWSRecvResult = OnWebSocketClientReceived(pClient, pDataBuffer, dwLen);
-			pClient->SkipWebSocketRecvBuffer(dwLen);
-			return bWSRecvResult;
+
+			//dwLen can be 0 because Websocket will generate special message like Ping and Pong
+			//We only proceed when dwLen is greater than 0 (means actual data was received)
+			if (dwLen > 0)
+			{
+				BYTE *pDataBuffer = (BYTE*)pClient->GetWebSocketMessageBasePtr();
+				BOOL bWSRecvResult = OnWebSocketClientReceived(pClient, pDataBuffer, dwLen);
+				pClient->SkipWebSocketRecvBuffer(dwLen);
+				return bWSRecvResult;
+			}
+			return TRUE;
 		}
 	}
 

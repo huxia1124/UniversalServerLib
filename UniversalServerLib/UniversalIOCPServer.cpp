@@ -227,38 +227,35 @@ BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContex
 			return serverParam;
 		}).endModule();
 
-		RunScriptCache(_scriptCacheClientConnected);
+		//RunScriptCache(_scriptCacheClientConnected);
 	}
 
 	return TRUE;
 }
 
-#if (0)
 static inline uint32_t swap32(uint32_t a)
 {
-	asm("bswap %0" : "=r" (a) : "0" (a));
-	return a;
+	return _byteswap_ulong(a);
 }
-#else
+/*
 static inline uint32_t swap32(uint32_t a)
 {
 	return (a << 24) | ((a & 0xff00) << 8) | ((a >> 8) & 0xff00) | (a >> 24);
 }
-#endif
+*/
 
-#if (0)
 static inline uint64_t swap64(uint64_t a)
 {
-	asm("bswap %0" : "=r" (a) : "0" (a));
-	return a;
+	return _byteswap_uint64(a);
 }
-#else
+
+/*
 static inline uint64_t swap64(uint64_t a)
 {
 	return ((uint64_t)swap32((unsigned int)(a >> 32))) |
 		(((uint64_t)swap32((unsigned int)a)) << 32);
 }
-#endif
+*/
 
 DWORD CUniversalIOCPServer::IsClientDataReadableWebSocket(CSTXIOCPServerClientContext *pClientContext)
 {
@@ -1209,11 +1206,11 @@ void CUniversalIOCPServer::OnShutDown()
 	StopServerRPC();
 
 	TCHAR szTemp[MAX_PATH];
-	STXTRACELOGE(_T("Total Connected: \t%I64d"), _totalConnected);
+	STXTRACELOGE(_T("Total Connected: \t%I64d"), __int64(_totalConnected));
 	StrFormatByteSize64(_totalSentBytes, szTemp, MAX_PATH);
-	STXTRACELOGE(_T("Total Sent: \t%I64d Times \t%I64d Bytes (%s)"), _totalSentCount, _totalSentBytes, szTemp);
+	STXTRACELOGE(_T("Total Sent: \t%I64d Times \t%I64d Bytes (%s)"), __int64(_totalSentCount), __int64(_totalSentBytes), szTemp);
 	StrFormatByteSize64(_totalReceivedBytes, szTemp, MAX_PATH);
-	STXTRACELOGE(_T("Total Received: \t%I64d Times \t%I64d Bytes (%s)"), _totalReceivedCount, _totalReceivedBytes, szTemp);
+	STXTRACELOGE(_T("Total Received: \t%I64d Times \t%I64d Bytes (%s)"), __int64(_totalReceivedCount), __int64(_totalReceivedBytes), szTemp);
 	STXTRACELOGE(_T("Total Graceful Disconnect: %d,  \t Total Unexpected Disconnect: %d"), _numGracefulDisconnect, _numUnexpectDisconnect);
 
 	CSTXIOCPServer::OnShutDown();

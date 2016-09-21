@@ -25,7 +25,6 @@
 #include <tchar.h>
 #include "FastSpinlock.h"
 #include "STXUtility.h"
-#include "STXUtility.h"
 #include <concurrent_vector.h>
 
 #define DEFAULT_STRING_CACHE_HISTORY_MAX_COUNT		3

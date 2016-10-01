@@ -17,13 +17,27 @@
 
 #pragma once
 
-#include <WTypes.h>
+#include <cstdint>
+#include <string>
+#include <functional>
+
+#ifdef WIN32
+#include <windows.h>
+#else
+typedef struct _GUID {
+	unsigned long  Data1;
+	unsigned short Data2;
+	unsigned short Data3;
+	unsigned char  Data4[8];
+} GUID;
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 
 #define STXPROTOCOL_DATA_TYPE_FLAG_LENGTH_PREFIX	0x80
 #define STXPROTOCOL_DATA_TYPE_FLAG_SECOND_PREFIX	0x40
 #define STXPROTOCOL_DATA_TYPE_FLAG_PAIR				0x20
+
 #define STXPROTOCOL_DATA_TYPE_INVALID				0
 #define STXPROTOCOL_DATA_TYPE_BYTE					1
 #define STXPROTOCOL_DATA_TYPE_WORD					2
@@ -50,25 +64,25 @@ class CSTXProtocolUtility;
 
 struct STXPROTOCOLVALUE
 {
-	BYTE nValueType;
+	unsigned char nValueType;
 	union
 	{
-		BYTE byteVal;
-		WORD wVal;
-		DWORD dwVal;
-		__int64 nVal64;
+		unsigned char byteVal;
+		uint16_t wVal;
+		uint32_t dwVal;
+		int64_t nVal64;
 		GUID guidVal;
-		FLOAT floatVal;
-		DOUBLE doubleVal;
+		float floatVal;
+		double doubleVal;
 		struct
 		{
 			int cchUTF8StringLen;
-			LPCSTR pszUTF8String;
+			const char* pszUTF8String;
 		};
 		struct
 		{
 			int cchUnicodeStringLen;
-			LPCWSTR pszUnicodeString;
+			const char16_t* pszUnicodeString;
 		};
 		struct
 		{
@@ -81,7 +95,7 @@ struct STXPROTOCOLVALUE
 };
 
 
-typedef void (CALLBACK*STXProtocolEnumFunc)(STXPROTOCOLVALUE *pVal, STXPROTOCOLVALUE *pValExtra, void *pUserData);
+typedef void (*STXProtocolEnumFunc)(STXPROTOCOLVALUE *pVal, STXPROTOCOLVALUE *pValExtra, void *pUserData);
 
 //////////////////////////////////////////////////////////////////////////
 // CSTXProtocolUtility
@@ -89,10 +103,28 @@ typedef void (CALLBACK*STXProtocolEnumFunc)(STXPROTOCOLVALUE *pVal, STXPROTOCOLV
 class CSTXProtocolUtility
 {
 public:
-	static int ConvertString(LPCSTR pszUTF8, int cchUTF8, LPTSTR pszBuffer, int cchBuffer);
-	static int ConvertString(LPCWSTR pszUnicode, int cchUnicode, LPTSTR pszBuffer, int cchBuffer);
-	static int ConvertStringToUTF8(LPCTSTR pszSrc, LPSTR pszBuffer, int cchBuffer);
-	static int ConvertStringToUnicode(LPCTSTR pszSrc, LPWSTR pszBuffer, int cchBuffer);
+	//UTF8 to char/wchar
+	static int ConvertString(const char* pszUTF8, int cchUTF8, char* pszBuffer, int cchBuffer);
+	static int ConvertString(const char* pszUTF8, int cchUTF8, char16_t* pszBuffer, int cchBuffer);
+	static int ConvertString(const char16_t* pszUTF8, int cchUTF8, char* pszBuffer, int cchBuffer);
+	static int ConvertString(const char16_t* pszUTF8, int cchUTF8, char16_t* pszBuffer, int cchBuffer);
+
+
+	//static int ConvertString(const char16_t* pszUnicode, int cchUnicode, LPTSTR pszBuffer, int cchBuffer);
+	static int ConvertStringToUTF8(const char* pszSrc, char *pszBuffer, int cchBuffer);
+	static int ConvertStringToUTF8(const char16_t* pszSrc, char* pszBuffer, int cchBuffer);
+
+	static int ConvertStringToUnicode(const char* pszSrc, char16_t *pszBuffer, int cchBuffer);
+	static int ConvertStringToUnicode(const char16_t* pszSrc, char16_t *pszBuffer, int cchBuffer);
+
+	static std::string ConvertGUIDToUTF8(GUID *guid);
+	static long ConvertToHexString(unsigned char* lpData, uint32_t cbDataLen, char *lpszHexBuf, bool bUpperCased);
+
+	static std::string UTF16ToUTF8(std::u16string utf16_string);
+	static std::string UTF16ToUTF8(const char16_t *begin, const char16_t *end);
+	static std::u16string UTF8ToUTF16(std::string utf8_string);
+	static std::u16string UTF8ToUTF16(const char *begin, const char *end);
+
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -106,25 +138,21 @@ public:
 	~CSTXProtocolString();
 
 protected:
-	LPTSTR m_pBuffer;
+	char16_t *m_pBuffer;
+	std::string m_convertedUTF8;
 	int m_cchBufferSize;
-
-#ifdef UNICODE
-	LPSTR m_pBufferA;
-	int m_cchBufferSizeA;
-#endif
 
 protected:
 	void ExpandTo(int cchMax);
-	LONG ConvertToHexString(LPBYTE lpData, DWORD cbDataLen, LPTSTR lpszHexBuf, BOOL bUpperCased);
+	long ConvertToHexString(unsigned char* lpData, uint32_t cbDataLen, char *lpszHexBuf, bool bUpperCased);
+	long ConvertToHexString(unsigned char* lpData, uint32_t cbDataLen, char16_t *lpszHexBuf, bool bUpperCased);
 
 public:
-	operator LPCTSTR();
-#ifdef UNICODE
-	operator LPCSTR();
-#endif
-	LPTSTR GetBuffer(int nBufferLength = 0);		// nBufferLength = 0 : no expand
-	int GetLength();
+	operator const char16_t*();
+	operator const char*();
+
+	char16_t *GetBuffer(int nBufferLength = 0);		// nBufferLength = 0 : no expand
+	int GetLength();		//in characters
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -137,228 +165,118 @@ public:
 	virtual ~CSTXProtocol(void);
 
 protected:
-	LONG m_nCurentWriteOffset;								//当前写入位置偏移量(字节)。此偏移量是相对于数据首地址。新追加的数据将从该位置开始写入
-	LONG m_nBufferLen;										//当前数据缓冲区的总大小
+	long m_nCurentWriteOffset;								//当前写入位置偏移量(字节)。此偏移量是相对于数据首地址。新追加的数据将从该位置开始写入
+	long m_nBufferLen;										//当前数据缓冲区的总大小
 	char *m_pBuffer;										//数据缓冲区首地址
-	LONG m_nCurentReadOffset;								//当前读取位置偏移量(字节)。此偏移量是相对于数据首地址。新读取数据将从这里开始获取
-	BYTE m_nPrefixLen;										//长度前缀占用多少字节
+	long m_nCurentReadOffset;								//当前读取位置偏移量(字节)。此偏移量是相对于数据首地址。新读取数据将从这里开始获取
+	unsigned char m_nPrefixLen;										//长度前缀占用多少字节
 
 	//-Prefix-C++++data++++....
 	//长度前缀的值是包含CRC在内的消息数据长度，不包括长度前缀本身的长度。
 
 protected:
-	LONG Expand(LONG nAdd);
-	LONG GetTypedDataLen(BYTE nType);
-	LONG WriteDataType(BYTE nType);
-	LONG WriteCompactInteger(UINT nValue);
-	LONG WriteRawData(void *pData, LONG cbDataLen);
-	LONG GetCompactIntegerLen(UINT nValue);
+	long Expand(long nAdd);
+	long GetTypedDataLen(unsigned char nType);
+	long WriteDataType(unsigned char nType);
+	long WriteCompactInteger(unsigned int nValue);
+	long WriteRawData(void *pData, long cbDataLen);
 	char* GetDataContentBasePtr();
 	void UpdatePrefix();
-	void UpdateCRC(BYTE *pAddedData, UINT cbDataLen);
+	void UpdateCRC(unsigned char *pAddedData, unsigned int cbDataLen);
 	void ResetPosition();
 
-	BOOL IsValidDataType(BYTE nType);
-	void AssertBreak(LPCTSTR lpszError);
-	BOOL SkipTypeIndicator(BYTE *pTypeSkipped = NULL);
-	void CheckDataAvailability(BYTE nType);
-	int DecodeUTF8String(void *pDataPtr, LPTSTR lpBuffer, int cchBufferLen, int *pOriginalStringPrefixLen, int *pOriginalStringLen);
-	int DecodeUnicodeString(void *pDataPtr, LPTSTR lpBuffer, int cchBufferLen, int *pOriginalStringPrefixLen, int *pOriginalStringLen);
-	BOOL DecodeEmbeddedObject(void *pData, LONG *pDataReadLen);
+	bool IsValidDataType(unsigned char nType);
+	//void AssertBreak(LPCTSTR lpszError);
+	bool SkipTypeIndicator(unsigned char *pTypeSkipped = nullptr);
+	void CheckDataAvailability(unsigned char nType);
+	int DecodeUTF8String(void *pDataPtr, char *lpBuffer, int cchBufferLen, int *pOriginalStringPrefixLen, int *pOriginalStringLen);
+	int DecodeUTF8String(void *pDataPtr, char16_t *lpBuffer, int cchBufferLen, int *pOriginalStringPrefixLen, int *pOriginalStringLen);
+	int DecodeUnicodeString(void *pDataPtr, char *lpBuffer, int cchBufferLen, int *pOriginalStringPrefixLen, int *pOriginalStringLen);
+	int DecodeUnicodeString(void *pDataPtr, char16_t *lpBuffer, int cchBufferLen, int *pOriginalStringPrefixLen, int *pOriginalStringLen);
+	bool DecodeEmbeddedObject(void *pData, long *pDataReadLen);
 
 	static char EncryptByte(char data, char key);
 	static char DecryptByte(char data, char key);
 
 public:
-	static LONG DecodeCompactInteger(void *pData, BYTE *pLengthBytes);		//pLengthBytes : out, size in bytes of the length prefix 
-	void IncreaseDWORDAtOffset(LONG nOffset);
+	static long GetCompactIntegerLen(unsigned int nValue);
+	static long DecodeCompactInteger(void *pData, unsigned char *pLengthBytes);		//pLengthBytes : out, size in bytes of the length prefix 
+	void IncreaseDWORDAtOffset(long nOffset);
 
-	LONG AppendData(BYTE val);
-	LONG AppendData(WORD val);
-	LONG AppendData(DWORD val, LONG *pOffset = NULL);
-	LONG AppendData(__int64 val);
-	LONG AppendData(LPCTSTR lpszVal);		//Always convert and append as UTF8 string
-	LONG AppendData(FLOAT val);
-	LONG AppendData(DOUBLE val);
-#ifdef UNICODE
-	LONG AppendData(LPCSTR lpszVal);		//Accept ANSI string, convert and append as UTF8 string
-#endif
-	LONG AppendData(GUID &val);
-	LONG AppendData(CSTXProtocol *pVal);	//Object
-	LONG AppendRawData(void *pData, LONG cbDataLen);
-	LONG AppendUnicodeString(LPCWSTR lpszVal);								//Append as Unicode string
-	LONG AppendUnicodeStringPair(LPCWSTR lpszVal1, LPCWSTR lpszVal2);		//Append as Unicode string
-	LONG AppendDataPair(LPCTSTR lpszVal1, LPCTSTR lpszVal2);				//Always convert and append as UTF8 pair
-	LONG AppendDataPair(LPCTSTR lpszVal, DWORD dwVal);						//UTF8-DWORD pair
+	long AppendData(unsigned char val);
+	long AppendData(uint16_t val);
+	long AppendData(uint32_t val, long *pOffset = nullptr);
+	long AppendData(int64_t val);
+	long AppendData(char *lpszVal);		//Always convert and append as UTF8 string
+	long AppendData(const char *lpszVal);		//Always convert and append as UTF8 string
+	long AppendData(char16_t *lpszVal);		//Always convert and append as UTF8 string
+	long AppendData(const char16_t *lpszVal);		//Always convert and append as UTF8 string
+	long AppendData(float val);
+	long AppendData(double val);
+	long AppendData(GUID &val);
+	long AppendData(CSTXProtocol *pVal);	//Object
+	long AppendRawData(void *pData, long cbDataLen);
+	long AppendUnicodeString(const char* lpszVal);								//Append as Unicode string
+	long AppendUnicodeString(const char16_t* lpszVal);								//Append as Unicode string
+	long AppendUnicodeStringPair(const char* lpszVal1, const char* lpszVal2);		//Append as Unicode string
+	long AppendUnicodeStringPair(const char16_t* lpszVal1, const char16_t* lpszVal2);		//Append as Unicode string
+	long AppendDataPair(const char *lpszVal1, const char *lpszVal2);				//Always convert and append as UTF8 pair
+	long AppendDataPair(const char16_t *lpszVal1, const char16_t *lpszVal2);				//Always convert and append as UTF8 pair
+	long AppendDataPair(const char *lpszVal, uint32_t dwVal);						//UTF8-uint32_t pair
+	long AppendDataPair(const char16_t *lpszVal, uint32_t dwVal);						//UTF8-uint32_t pair
 
 	// the length of the prefix and all content (prefix + CRC + content)
-	LONG GetDataLen();
+	long GetDataLen();
 
 	// The address of the length-prefix (This is the address of all valid data: prefix + CRC + content)
+	// When the data size increases, the base pointer might change.
 	void* GetBasePtr();
 
 	// The address of the CRC byte.
 	void* GetCRCBytePtr();
 
-	LONG GetEncryptedData(void *pBuffer, LONG cbBufferLen, DWORD dwKey);
+	long GetEncryptedData(void *pBuffer, long cbBufferLen, uint32_t dwKey);
 
 	//pData : address of the pure data (address of length-prefix)
 	//pDataReadLen [out, opt] : data length parsed
-	int Decode(void *pData, LONG *pDataReadLen);
-	int Decode(void *pData, LONG *pDataReadLen, LONG cbInputDataLen);
-	int DecodeWithDecrypt(void *pData, LONG *pDataReadLen, DWORD dwKey);
+	//return: 0 if success, non-zero otherwise
+	int Decode(void *pData, long *pDataReadLen);
+	int Decode(void *pData, long *pDataReadLen, long cbInputDataLen);
+	int DecodeWithDecrypt(void *pData, long *pDataReadLen, uint32_t dwKey);
 
-	BYTE GetNextByte();
-	WORD GetNextWORD();
-	DWORD GetNextDWORD();
-	__int64 GetNextI64();
-	FLOAT GetNextFloat();
-	DOUBLE GetNextDouble();
+	unsigned char GetNextByte();
+	uint16_t GetNextWORD();
+	uint32_t GetNextDWORD();
+	int64_t GetNextI64();
+	float GetNextFloat();
+	double GetNextDouble();
 	GUID GetNextGUID();
 	CSTXProtocol* GetNextObject();
-	int GetNextString(LPTSTR lpBuffer, int cchBufferLen);
-	BOOL GetNextString(CSTXProtocolString *pString);
-	int GetNextUnicodeString(LPTSTR lpBuffer, int cchBufferLen);
-	BOOL GetNextUnicodeString(CSTXProtocolString *pString);
+	int GetNextString(char *lpBuffer, int cchBufferLen);
+	int GetNextString(char16_t *lpBuffer, int cchBufferLen);
+	std::string GetNextString();
+	bool GetNextString(CSTXProtocolString *pString);
+	int GetNextUnicodeString(char *lpBuffer, int cchBufferLen);
+	int GetNextUnicodeString(char16_t *lpBuffer, int cchBufferLen);
+	bool GetNextUnicodeString(CSTXProtocolString *pString);
+	std::u16string GetNextUnicodeString();
 	int GetNextRawData(void *pBuffer, int cbBufferSize);
-	DWORD GetNextStringPair(LPTSTR lpBuffer1, int cchBufferLen1, LPTSTR lpBuffer2, int cchBufferLen2);
-	DWORD GetNextUnicodeStringPair(LPTSTR lpBuffer1, int cchBufferLen1, LPTSTR lpBuffer2, int cchBufferLen2);
-	DWORD GetNextStringToDWORDPair(LPTSTR lpBuffer, int cchBufferLen);
+	uint32_t GetNextStringPair(char *lpBuffer1, int cchBufferLen1, char *lpBuffer2, int cchBufferLen2);
+	uint32_t GetNextStringPair(char16_t *lpBuffer1, int cchBufferLen1, char16_t *lpBuffer2, int cchBufferLen2);
 
-	int EnumValues(STXProtocolEnumFunc pfnEnum, void *pUserData);
+	uint32_t GetNextUnicodeStringPair(char *lpBuffer1, int cchBufferLen1, char *lpBuffer2, int cchBufferLen2);
+	uint32_t GetNextUnicodeStringPair(char16_t *lpBuffer1, int cchBufferLen1, char16_t *lpBuffer2, int cchBufferLen2);
 
-	template<typename T>
-	int EnumValues(T pfnEnum, void *pUserData)
-	{
-		int nValEnumCount = 0;
-		STXPROTOCOLVALUE val;
-		STXPROTOCOLVALUE valExtra;
-		valExtra.nValueType = STXPROTOCOL_DATA_TYPE_INVALID;
-		while (IsDataAvailable())
-		{
-			val.nValueType = GetNextFieldType();
-			switch (val.nValueType)
-			{
-			case STXPROTOCOL_DATA_TYPE_BYTE:
-				val.byteVal = GetNextByte();
-				break;
-			case STXPROTOCOL_DATA_TYPE_WORD:
-				val.wVal = GetNextWORD();
-				break;
-			case STXPROTOCOL_DATA_TYPE_DWORD:
-				val.dwVal = GetNextDWORD();
-				break;
-			case STXPROTOCOL_DATA_TYPE_I64:
-				val.nVal64 = GetNextI64();
-				break;
-			case STXPROTOCOL_DATA_TYPE_FLOAT:
-				val.floatVal = GetNextFloat();
-				break;
-			case STXPROTOCOL_DATA_TYPE_DOUBLE:
-				val.doubleVal = GetNextDouble();
-				break;
-			case STXPROTOCOL_DATA_TYPE_GUID:
-				val.guidVal = GetNextGUID();
-				break;
-			case STXPROTOCOL_DATA_TYPE_UTF8:
-			{
-				BYTE nLengthBytes = 0;
-				LONG nFieldLen = DecodeCompactInteger(GetDataContentBasePtr() + m_nCurentReadOffset + 1, &nLengthBytes);
-				val.cchUTF8StringLen = nFieldLen;
-				val.pszUTF8String = (LPCSTR)(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes);
-				SkipNextField();
-			}
-			break;
-			case STXPROTOCOL_DATA_TYPE_OBJECT:
-			{
-				val.pObject = GetNextObject();
-			}
-			break;
-			case STXPROTOCOL_DATA_TYPE_RAW:
-			{
-				BYTE nLengthBytes = 0;
-				LONG nFieldLen = DecodeCompactInteger(GetDataContentBasePtr() + m_nCurentReadOffset + 1, &nLengthBytes);
-				val.cbDataLen = nFieldLen;
-				val.pDataPtr = (void*)(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes);
-				SkipNextField();
-			}
-			break;
-			case STXPROTOCOL_DATA_TYPE_UNICODE:
-			{
-				BYTE nLengthBytes = 0;
-				LONG nFieldLen = DecodeCompactInteger(GetDataContentBasePtr() + m_nCurentReadOffset + 1, &nLengthBytes);
-				val.cchUnicodeStringLen = nFieldLen / sizeof(WCHAR);
-				val.pszUnicodeString = (LPCWSTR)(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes);
-				SkipNextField();
-			}
-			break;
-			case STXPROTOCOL_DATA_TYPE_UTF8_PAIR:
-			{
-				valExtra.nValueType = val.nValueType;
+	uint32_t GetNextStringToDWORDPair(char *lpBuffer, int cchBufferLen);
+	uint32_t GetNextStringToDWORDPair(char16_t *lpBuffer, int cchBufferLen);
 
-				BYTE nLengthBytes = 0;
-				LONG nFieldLen = DecodeCompactInteger(GetDataContentBasePtr() + m_nCurentReadOffset + 1, &nLengthBytes);
-				val.cchUTF8StringLen = nFieldLen;
-				val.pszUTF8String = (LPCSTR)(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes);
-
-				BYTE nLengthBytes2 = 0;
-				LONG nFieldLen2 = DecodeCompactInteger(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes + nFieldLen, &nLengthBytes2);
-				valExtra.cchUTF8StringLen = nFieldLen2;
-				valExtra.pszUTF8String = (LPCSTR)(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes + nFieldLen + nLengthBytes2);
-
-				SkipNextField();
-			}
-			break;
-			case STXPROTOCOL_DATA_TYPE_UNICODE_PAIR:
-			{
-				valExtra.nValueType = val.nValueType;
-
-				BYTE nLengthBytes = 0;
-				LONG nFieldLen = DecodeCompactInteger(GetDataContentBasePtr() + m_nCurentReadOffset + 1, &nLengthBytes);
-				val.cchUnicodeStringLen = nFieldLen / sizeof(WCHAR);
-				val.pszUnicodeString = (LPCWSTR)(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes);
-
-				BYTE nLengthBytes2 = 0;
-				LONG nFieldLen2 = DecodeCompactInteger(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes + nFieldLen, &nLengthBytes2);
-				valExtra.cchUnicodeStringLen = nFieldLen2 / sizeof(WCHAR);
-				valExtra.pszUnicodeString = (LPCWSTR)(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes + nFieldLen + nLengthBytes2);
-
-				SkipNextField();
-			}
-			break;
-			case STXPROTOCOL_DATA_TYPE_UTF8_DWORD_PAIR:
-			{
-				valExtra.nValueType = val.nValueType;
-
-				BYTE nLengthBytes = 0;
-				LONG nFieldLen = DecodeCompactInteger(GetDataContentBasePtr() + m_nCurentReadOffset + 1, &nLengthBytes);
-				val.cchUTF8StringLen = nFieldLen;
-				val.pszUTF8String = (LPCSTR)(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes);
-
-				valExtra.dwVal = *((DWORD*)(GetDataContentBasePtr() + m_nCurentReadOffset + 1 + nLengthBytes + nFieldLen));
-
-				SkipNextField();
-			}
-			break;
-			default:
-				//Unknown field type
-				AssertBreak(_T("EnumValues() : Unknown field type"));
-			}
-
-			pfnEnum(&val, &valExtra, pUserData);
-
-			if (val.nValueType == STXPROTOCOL_DATA_TYPE_OBJECT && val.pObject)
-				delete val.pObject;
-
-			nValEnumCount++;
-		}
-		return nValEnumCount;
-	}
+	int EnumValues(std::function<void (unsigned char originalType, STXPROTOCOLVALUE *pVal, STXPROTOCOLVALUE *pValExtra, void *pUserData)> pfnEnum, void *pUserData);
 
 	void SkipNextField();
-	BOOL IsDataAvailable();
+	bool IsDataAvailable();
 	int GetNextFieldLength();
-	BYTE GetNextFieldType();
-	static LPCTSTR GetTypeString(BYTE nType);
+	unsigned char GetNextFieldType();
+	static const char *GetTypeString(unsigned char nType);
 	void SeekReadToBegin();
+	void Clear();
 };

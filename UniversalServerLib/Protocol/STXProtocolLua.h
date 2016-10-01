@@ -128,9 +128,7 @@ public:
 
 	std::string GetNextFieldTypeString()
 	{
-		USES_CONVERSION;
-		LPCTSTR lpszType = CSTXProtocol::GetTypeString(_protocol.GetNextFieldType());
-		return (LPCSTR)ATL::CW2A(lpszType);
+		return CSTXProtocol::GetTypeString(_protocol.GetNextFieldType());
 	};
 
 	int GetNextFieldType()

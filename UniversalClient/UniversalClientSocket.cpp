@@ -61,18 +61,18 @@ void CUniversalClientSocketConnectionContext::OnReceived(LPVOID lpDataRecv, DWOR
 	{
 		p.Decode(lpDataRecv, &nLenParsed);
 	}
-	p.EnumValues([&responseMsg](STXPROTOCOLVALUE *pVal, STXPROTOCOLVALUE *pValExtra, void *pUserData)
+	p.EnumValues([&responseMsg](unsigned char, STXPROTOCOLVALUE *pVal, STXPROTOCOLVALUE *pValExtra, void *pUserData)
 	{
 		CSTXProtocolString val(pVal);
 		CSTXProtocolString valExtra(pValExtra);
-		TCHAR szText[512];
+		TCHAR szText[4096];
 		if (pValExtra->nValueType != STXPROTOCOL_DATA_TYPE_INVALID)
 		{
-			_stprintf_s(szText, _T("  %16s :\t %s / %s"), CSTXProtocol::GetTypeString(pVal->nValueType), (LPCTSTR)val, (LPCTSTR)valExtra);
+			_stprintf_s(szText, _T("  %16S :\t %s / %s"), CSTXProtocol::GetTypeString(pVal->nValueType), (const char16_t*)val, (const char16_t*)valExtra);
 		}
 		else
 		{
-			_stprintf_s(szText, _T("  %16s :\t %s"), CSTXProtocol::GetTypeString(pVal->nValueType), (LPCTSTR)val);
+			_stprintf_s(szText, _T("  %16S :\t %s"), CSTXProtocol::GetTypeString(pVal->nValueType), (const char16_t*)val);
 		}
 
 		OutputDebugString(szText);

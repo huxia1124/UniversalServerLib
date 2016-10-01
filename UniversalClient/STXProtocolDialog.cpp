@@ -112,7 +112,7 @@ void CSTXProtocolDialog::AddPackageDataWord(CSTXProtocol &p, ATL::CString value)
 
 void CSTXProtocolDialog::AddPackageDataDWord(CSTXProtocol &p, ATL::CString value)
 {
-	p.AppendData((DWORD)_ttoi(value));
+	p.AppendData((uint32_t)_ttoi(value));
 }
 
 void CSTXProtocolDialog::AddPackageDataI64(CSTXProtocol &p, ATL::CString value)
@@ -132,7 +132,7 @@ void CSTXProtocolDialog::AddPackageDataDouble(CSTXProtocol &p, ATL::CString valu
 
 void CSTXProtocolDialog::AddPackageDataUTF8(CSTXProtocol &p, ATL::CString value)
 {
-	p.AppendData((LPCTSTR)value);
+	p.AppendData((const char16_t*)(LPCTSTR)value);
 }
 
 void CSTXProtocolDialog::AddPackageDataUTF8Pair(CSTXProtocol &p, ATL::CString value)
@@ -142,7 +142,7 @@ void CSTXProtocolDialog::AddPackageDataUTF8Pair(CSTXProtocol &p, ATL::CString va
 
 	if (next_token)
 	{
-		p.AppendDataPair(sep, next_token);
+		p.AppendDataPair((const char16_t*)sep, (const char16_t*)next_token);
 		*next_token = 1;	//restore
 	}
 }
@@ -154,7 +154,7 @@ void CSTXProtocolDialog::AddPackageDataUnicodePair(CSTXProtocol &p, ATL::CString
 
 	if (next_token)
 	{
-		p.AppendUnicodeStringPair(sep, next_token);
+		p.AppendUnicodeStringPair((const char16_t*)sep, (const char16_t*)next_token);
 		*next_token = 1;	//restore
 	}
 }
@@ -166,14 +166,14 @@ void CSTXProtocolDialog::AddPackageDataUTF8DWordPair(CSTXProtocol &p, ATL::CStri
 
 	if (next_token)
 	{
-		p.AppendDataPair(sep, (DWORD)_ttoi(next_token));
+		p.AppendDataPair((const char16_t*)sep, (DWORD)_ttoi(next_token));
 		*next_token = 1;	//restore
 	}
 }
 
 void CSTXProtocolDialog::AddPackageDataUnicode(CSTXProtocol &p, ATL::CString value)
 {
-	p.AppendUnicodeString((LPCTSTR)value);
+	p.AppendUnicodeString((const char16_t*)(LPCTSTR)value);
 }
 
 void CSTXProtocolDialog::AddPackageDataGUID(CSTXProtocol &p, ATL::CString value)

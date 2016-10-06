@@ -1,7 +1,6 @@
 
 function start()
 
-
 	local err, ret = xpcall(function()
 
 	--local sss=utils.GetServer()
@@ -24,30 +23,12 @@ function start()
 	end
 end
 
-
-waitTime = 30000
 function stop()
 
 print("stop called!") 
 
 	local err, ret = xpcall(function()
 	server:Terminate()
-	end, debug.traceback)
-	
-	if(ret) then
-	print("complicated(true) --> ", err, ret)
-	end
-end
-
-function show_stop_time()
-
-	local err, ret = xpcall(function()
-	local waitSec = waitTime / 1000
-	if(waitSec == 0)then
-		print("-------------------Server will never terminate automatically--------------------");
-	else
-		print("-------------------Server will be shutdown in "..waitSec.." seconds--------------------");
-	end
 	end, debug.traceback)
 	
 	if(ret) then

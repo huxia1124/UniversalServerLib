@@ -241,5 +241,8 @@
     <None Include="inspect.lua">
       <Filter>lua_script</Filter>
     </None>
+    <None Include="recv_test.lua">
+      <Filter>lua_script</Filter>
+    </None>
   </ItemGroup>
 </Project>

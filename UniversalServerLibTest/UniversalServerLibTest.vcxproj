@@ -399,6 +399,7 @@
     <None Include="inspect.lua" />
     <None Include="libcjson.lua" />
     <None Include="recv.lua" />
+    <None Include="recv_test.lua" />
     <None Include="server_stop.lua" />
     <None Include="server_test.lua" />
   </ItemGroup>

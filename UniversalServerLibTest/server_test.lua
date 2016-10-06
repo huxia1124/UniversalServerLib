@@ -5,7 +5,7 @@ function start()
 
 	--local sss=utils.GetServer()
 		server:StartServer(0, 10000, 10000, 2048)
-		server:SetTcpServerReceiveScript(6800, "recv_stream.lua");		--Associate the script to be executed when tcp server received data from client
+		server:SetTcpServerReceiveScript(6800, "recv_test.lua");		--Associate the script to be executed when tcp server received data from client
 		utils.Sleep(300)
 		server:BeginTcpStreamServer(6800, "tcpStream", 10000)
 		local n = server:CreateTcpStreamConnection("127.0.0.1", 16800)

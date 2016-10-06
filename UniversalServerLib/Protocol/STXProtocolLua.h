@@ -51,9 +51,9 @@ public:
 				bSuccess = CryptStringToBinaryA(s.c_str(), s.size(), CRYPT_STRING_BASE64, pBuffer, &dwBufferLen, NULL, NULL);
 				if (bSuccess)
 				{
-					LONG nLenParsed = 0;
+					size_t nLenParsed = 0;
 					int nError = 0;
-					if (nError = _protocol.Decode(pBuffer, &nLenParsed, dwBufferLen))
+					if (nError = _protocol.Decode((void*)pBuffer, &nLenParsed, (size_t)dwBufferLen))
 					{
 						static LPCTSTR pErrors[5] = {
 							_T("Success!"),
@@ -158,7 +158,7 @@ public:
 	}
 	LONG AppendDWord(DWORD val)
 	{
-		LONG nOffset = 0;
+		size_t nOffset = 0;
 		_protocol.AppendData(val, &nOffset);
 		return nOffset;
 	}
@@ -181,7 +181,7 @@ public:
 
 	void IncreaseDWORDAtOffset(LONG nOffset)
 	{
-		_protocol.IncreaseDWORDAtOffset(nOffset);
+		_protocol.IncreaseDWORDAtOffset(nOffset, 1);
 	}
 /*
 	static LONG DecodeCompactInteger(void *pData, BYTE *pLengthBytes);		//pLengthBytes : out, size in bytes of the length prefix 

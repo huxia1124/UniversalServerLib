@@ -56,9 +56,9 @@ namespace Lua
      * Push value onto Lua stack
      */
     template <typename T>
-    inline void push(lua_State* L, T&& v)
+    inline void push(lua_State* L, const T& v)
     {
-        LuaType<T>::push(L, std::forward<T>(v));
+        LuaType<T>::push(L, v);
     }
 
     /**
@@ -130,7 +130,7 @@ namespace Lua
     {
         luaL_checktype(L, index, LUA_TTABLE);
         LIST list;
-        int n = luaL_len(L, index);
+        int n = int(luaL_len(L, index));
         for (int i = 1; i <= n; i++) {
             lua_rawgeti(L, index, i);
             list.push_back(pop<typename LIST::value_type>(L));
@@ -199,9 +199,9 @@ namespace Lua
      * Set the named global to the specified value, the Lua stack is not changed
      */
     template <typename T>
-    inline void setGlobal(lua_State* L, const char* name, T&& v)
+    inline void setGlobal(lua_State* L, const char* name, const T& v)
     {
-        LuaType<T>::push(L, std::forward<T>(v));
+        LuaType<T>::push(L, v);
         popToGlobal(L, name);
     }
 
@@ -584,8 +584,8 @@ public:
     void getTableLen(int table_idx) const
         { lua_len(L, table_idx); }
 
-    long long tableLen(int table_idx) const
-        { return luaL_len(L, table_idx); }
+    int tableLen(int table_idx) const
+        { return int(luaL_len(L, table_idx)); }
 
 // set functions (stack -> Lua)
 

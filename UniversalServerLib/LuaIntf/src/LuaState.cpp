@@ -24,8 +24,6 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-#pragma once
-
 #ifndef LUAINTF_H
     #include "LuaIntf/LuaIntf.h"
     using namespace LuaIntf;

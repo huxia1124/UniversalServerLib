@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <string>
 #include <functional>
+#include <memory>
 
 #ifdef WIN32
 #include <windows.h>
@@ -61,6 +62,8 @@ class CSTXProtocol;
 class CSTXProtocolUtility;
 
 //////////////////////////////////////////////////////////////////////////
+// STXPROTOCOLVALUE
+// Only used in CSTXProtocol::EnumValues
 
 struct STXPROTOCOLVALUE
 {
@@ -76,17 +79,17 @@ struct STXPROTOCOLVALUE
 		double doubleVal;
 		struct
 		{
-			int cchUTF8StringLen;
+			size_t cchUTF8StringLen;
 			const char* pszUTF8String;
 		};
 		struct
 		{
-			int cchUnicodeStringLen;
+			size_t cchUnicodeStringLen;
 			const char16_t* pszUnicodeString;
 		};
 		struct
 		{
-			int cbDataLen;
+			size_t cbDataLen;
 			void *pDataPtr;
 		};
 		CSTXProtocolString *pString;
@@ -104,21 +107,22 @@ class CSTXProtocolUtility
 {
 public:
 	//UTF8 to char/wchar
-	static int ConvertString(const char* pszUTF8, int cchUTF8, char* pszBuffer, int cchBuffer);
-	static int ConvertString(const char* pszUTF8, int cchUTF8, char16_t* pszBuffer, int cchBuffer);
-	static int ConvertString(const char16_t* pszUTF8, int cchUTF8, char* pszBuffer, int cchBuffer);
-	static int ConvertString(const char16_t* pszUTF8, int cchUTF8, char16_t* pszBuffer, int cchBuffer);
+	static size_t ConvertString(const char* pszUTF8, size_t cchUTF8, char* pszBuffer, size_t cchBuffer);
+	static size_t ConvertString(const char* pszUTF8, size_t cchUTF8, char16_t* pszBuffer, size_t cchBuffer);
+	static size_t ConvertString(const char16_t* pszUTF8, size_t cchUTF8, char* pszBuffer, size_t cchBuffer);
+	static size_t ConvertString(const char16_t* pszUTF8, size_t cchUTF8, char16_t* pszBuffer, size_t cchBuffer);
 
 
 	//static int ConvertString(const char16_t* pszUnicode, int cchUnicode, LPTSTR pszBuffer, int cchBuffer);
-	static int ConvertStringToUTF8(const char* pszSrc, char *pszBuffer, int cchBuffer);
-	static int ConvertStringToUTF8(const char16_t* pszSrc, char* pszBuffer, int cchBuffer);
+	static size_t ConvertStringToUTF8(const char* pszSrc, char *pszBuffer, size_t cchBuffer);
+	static size_t ConvertStringToUTF8(const char16_t* pszSrc, char* pszBuffer, size_t cchBuffer);
 
-	static int ConvertStringToUnicode(const char* pszSrc, char16_t *pszBuffer, int cchBuffer);
-	static int ConvertStringToUnicode(const char16_t* pszSrc, char16_t *pszBuffer, int cchBuffer);
+	static size_t ConvertStringToUnicode(const char* pszSrc, char16_t *pszBuffer, size_t cchBuffer);
+	static size_t ConvertStringToUnicode(const char16_t* pszSrc, char16_t *pszBuffer, size_t cchBuffer);
 
 	static std::string ConvertGUIDToUTF8(GUID *guid);
-	static long ConvertToHexString(unsigned char* lpData, uint32_t cbDataLen, char *lpszHexBuf, bool bUpperCased);
+	static size_t ConvertToHexString(unsigned char* lpData, size_t cbDataLen, char *lpszHexBuf, bool bUpperCased);
+	static size_t ConvertToHexString(unsigned char* lpData, size_t cbDataLen, char16_t *lpszHexBuf, bool bUpperCased);
 
 	static std::string UTF16ToUTF8(std::u16string utf16_string);
 	static std::string UTF16ToUTF8(const char16_t *begin, const char16_t *end);
@@ -140,19 +144,17 @@ public:
 protected:
 	char16_t *m_pBuffer;
 	std::string m_convertedUTF8;
-	int m_cchBufferSize;
+	size_t m_cchBufferSize;
 
 protected:
-	void ExpandTo(int cchMax);
-	long ConvertToHexString(unsigned char* lpData, uint32_t cbDataLen, char *lpszHexBuf, bool bUpperCased);
-	long ConvertToHexString(unsigned char* lpData, uint32_t cbDataLen, char16_t *lpszHexBuf, bool bUpperCased);
+	void ExpandTo(size_t cchMax);
 
 public:
 	operator const char16_t*();
 	operator const char*();
 
-	char16_t *GetBuffer(int nBufferLength = 0);		// nBufferLength = 0 : no expand
-	int GetLength();		//in characters
+	char16_t *GetBuffer(size_t nBufferLength = 0);		// nBufferLength = 0 : no expand
+	size_t GetLength();		//in characters
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -165,68 +167,167 @@ public:
 	virtual ~CSTXProtocol(void);
 
 protected:
-	long m_nCurentWriteOffset;								//当前写入位置偏移量(字节)。此偏移量是相对于数据首地址。新追加的数据将从该位置开始写入
-	long m_nBufferLen;										//当前数据缓冲区的总大小
-	char *m_pBuffer;										//数据缓冲区首地址
-	long m_nCurentReadOffset;								//当前读取位置偏移量(字节)。此偏移量是相对于数据首地址。新读取数据将从这里开始获取
-	unsigned char m_nPrefixLen;										//长度前缀占用多少字节
+	size_t m_nCurentWriteOffset;			//Position for writing new data.
+	size_t m_nBufferLen;					//The capacity of the internal buffer
+	char *m_pBuffer;						//Base address of the internal buffer
+	size_t m_nCurentReadOffset;				//Position for reading data
+	unsigned char m_nPrefixLen;				//Length, in bytes, of the length prefix
 
 	//-Prefix-C++++data++++....
-	//长度前缀的值是包含CRC在内的消息数据长度，不包括长度前缀本身的长度。
+	//The value of the length prefix indicates the length of CRC and actual data (not including the length prefix)
 
 protected:
-	long Expand(long nAdd);
-	long GetTypedDataLen(unsigned char nType);
-	long WriteDataType(unsigned char nType);
-	long WriteCompactInteger(unsigned int nValue);
-	long WriteRawData(void *pData, long cbDataLen);
+	//Expand the buffer to make it capable for containing nAdd more bytes of data
+	size_t Expand(size_t nAdd);
+
+	//Get the content length in bytes of a specific field type. for variable fields, always return 0 
+	size_t GetTypedDataLen(unsigned char nType);
+
+	//Write a single byte of field type indicator. always return 1
+	size_t WriteDataType(unsigned char nType);
+
+	//Write a compact unsigned integer which represents the given value
+	size_t WriteCompactInteger(size_t nValue);
+
+	//Write the data directly to the internal buffer.
+	//It will update the length prefix and CRC.
+	size_t WriteRawData(void *pData, size_t cbDataLen);
+
+	//Returns the address of the beginning of actual data. (right after length prefix and CRC)
 	char* GetDataContentBasePtr();
+
+	//Update the length prefix base on the current write position
 	void UpdatePrefix();
-	void UpdateCRC(unsigned char *pAddedData, unsigned int cbDataLen);
+
+	//Update the CRC by adding specific data
+	void UpdateCRC(unsigned char *pAddedData, size_t cbDataLen);
+
+	//Reset the read/write position, make everything fresh, as it was created without any data
 	void ResetPosition();
 
+	//Check if the field right after the current read position is of given type
+	//if no more field available, return false.
 	bool IsValidDataType(unsigned char nType);
-	//void AssertBreak(LPCTSTR lpszError);
-	bool SkipTypeIndicator(unsigned char *pTypeSkipped = nullptr);
-	void CheckDataAvailability(unsigned char nType);
-	int DecodeUTF8String(void *pDataPtr, char *lpBuffer, int cchBufferLen, int *pOriginalStringPrefixLen, int *pOriginalStringLen);
-	int DecodeUTF8String(void *pDataPtr, char16_t *lpBuffer, int cchBufferLen, int *pOriginalStringPrefixLen, int *pOriginalStringLen);
-	int DecodeUnicodeString(void *pDataPtr, char *lpBuffer, int cchBufferLen, int *pOriginalStringPrefixLen, int *pOriginalStringLen);
-	int DecodeUnicodeString(void *pDataPtr, char16_t *lpBuffer, int cchBufferLen, int *pOriginalStringPrefixLen, int *pOriginalStringLen);
-	bool DecodeEmbeddedObject(void *pData, long *pDataReadLen);
 
+	//void AssertBreak(LPCTSTR lpszError);
+
+	//Just skip one byte if there is more data available.
+	bool SkipTypeIndicator(unsigned char *pTypeSkipped = nullptr);
+
+	//For fixed-length data field, check if there is enough data which can represent the data
+	//If there is not enough data, an exception thrown
+	void CheckDataAvailability(unsigned char nType);
+
+	//Decode UTF8 string (array of char) into char array or char16_t array
+	//These functions assume the input data starts with length prefix followed by actual data
+	//The length prefix is always in bytes
+	//the output buffer must be big enough to hold the decoded characters including the termination NULL character
+	//  cchBufferLen specify the length, in characters, of the output buffer
+	//  pOriginalStringPrefixLen receive the length in bytes of the length prefix
+	//  pOriginalStringLen receive the length in bytes of the original input data (without length prefix)
+	size_t DecodeUTF8String(void *pDataPtr, char *lpBuffer, size_t cchBufferLen, size_t *pOriginalStringPrefixLen, size_t *pOriginalStringLen);
+	size_t DecodeUTF8String(void *pDataPtr, char16_t *lpBuffer, size_t cchBufferLen, size_t *pOriginalStringPrefixLen, size_t *pOriginalStringLen);
+
+
+	//Decode Unicode string (array if char16_t) into char array or char16_t array
+	//These functions assume the input data starts with length prefix followed by actual data
+	//The length prefix is always in bytes
+	//the output buffer must be big enough to hold the decoded characters including the termination NULL character
+	//  cchBufferLen specify the length, in characters, of the output buffer
+	//  pOriginalStringPrefixLen receive the length in bytes of the length prefix
+	//  pOriginalStringLen receive the length in bytes of the original input data (without length prefix)
+	size_t DecodeUnicodeString(void *pDataPtr, char *lpBuffer, size_t cchBufferLen, size_t *pOriginalStringPrefixLen, size_t *pOriginalStringLen);
+	size_t DecodeUnicodeString(void *pDataPtr, char16_t *lpBuffer, size_t cchBufferLen, size_t *pOriginalStringPrefixLen, size_t *pOriginalStringLen);
+	
+	//Initialize this object from given input data
+	//This method is used for extracting an embedded CSTXProtocol object from another CSTXProtocol object
+	// pData should start with a length prefix.
+	bool DecodeEmbeddedObject(void *pData, size_t *pDataReadLen);
+
+	//Encrypt and decrypt a single byte
 	static char EncryptByte(char data, char key);
 	static char DecryptByte(char data, char key);
 
 public:
-	static long GetCompactIntegerLen(unsigned int nValue);
-	static long DecodeCompactInteger(void *pData, unsigned char *pLengthBytes);		//pLengthBytes : out, size in bytes of the length prefix 
-	void IncreaseDWORDAtOffset(long nOffset);
+	//Calculate how many bytes needed to represent the given value in a compact integer
+	static size_t GetCompactIntegerLen(size_t nValue);
 
-	long AppendData(unsigned char val);
-	long AppendData(uint16_t val);
-	long AppendData(uint32_t val, long *pOffset = nullptr);
-	long AppendData(int64_t val);
-	long AppendData(char *lpszVal);		//Always convert and append as UTF8 string
-	long AppendData(const char *lpszVal);		//Always convert and append as UTF8 string
-	long AppendData(char16_t *lpszVal);		//Always convert and append as UTF8 string
-	long AppendData(const char16_t *lpszVal);		//Always convert and append as UTF8 string
-	long AppendData(float val);
-	long AppendData(double val);
-	long AppendData(GUID &val);
-	long AppendData(CSTXProtocol *pVal);	//Object
-	long AppendRawData(void *pData, long cbDataLen);
-	long AppendUnicodeString(const char* lpszVal);								//Append as Unicode string
-	long AppendUnicodeString(const char16_t* lpszVal);								//Append as Unicode string
-	long AppendUnicodeStringPair(const char* lpszVal1, const char* lpszVal2);		//Append as Unicode string
-	long AppendUnicodeStringPair(const char16_t* lpszVal1, const char16_t* lpszVal2);		//Append as Unicode string
-	long AppendDataPair(const char *lpszVal1, const char *lpszVal2);				//Always convert and append as UTF8 pair
-	long AppendDataPair(const char16_t *lpszVal1, const char16_t *lpszVal2);				//Always convert and append as UTF8 pair
-	long AppendDataPair(const char *lpszVal, uint32_t dwVal);						//UTF8-uint32_t pair
-	long AppendDataPair(const char16_t *lpszVal, uint32_t dwVal);						//UTF8-uint32_t pair
+	//Decode the compact integer from input bytes
+	static size_t DecodeCompactInteger(void *pData, unsigned char *pLengthBytes);		//pLengthBytes : out, size in bytes of the length prefix
 
-	// the length of the prefix and all content (prefix + CRC + content)
-	long GetDataLen();
+	//Increase/Decrease the value at specific offset.
+	//the offset is obtained through the second parameter of AppendData(uint32_t, size_t*)
+	//Sometimes, it is necessary to append the number of loop iterations before appending each item. In this case,
+	//  the increment method is useful.
+	// These increment/decrement methods is safe even after appending more data because they are based on the offset
+	void IncreaseDWORDAtOffset(size_t nOffset, uint32_t number);
+	void DecreaseDWORDAtOffset(size_t nOffset, uint32_t number);
+
+	//Get the value of a DWORD value at specified offset.
+	uint32_t GetDWORDAtOffset(size_t nOffset);
+
+	//Get a reference of some type at specified offset.
+	//The returned reference might become invalid after appending more data.
+	//Remember to always call GetReferenceAtOffset again after adding some data. 
+	template<typename T>
+	T& GetReferenceAtOffset(size_t nOffset)
+	{
+		static T temp;
+		if (nOffset >= m_nCurentWriteOffset)
+		{
+			throw std::runtime_error("GetReferenceAtOffset<T>(long) : offset is out of the range of valid data.");
+			return temp;
+		}
+		if (nOffset + sizeof(T) > m_nCurentWriteOffset)
+		{
+			throw std::runtime_error("GetReferenceAtOffset<T>(long) : not enough data.");
+			return temp;
+		}
+
+		return *((T*)(GetDataContentBasePtr() + nOffset));
+	}
+
+	//Append custom type of data
+	//Data will be stored as raw data type
+	//To retrieve the data, use the template version of GetNextData() method
+	template<typename T>
+	size_t AppendData(T &&val, size_t *pOffset = nullptr)
+	{
+		return AppendRawData(&val, sizeof(val), pOffset);
+	}
+	template<typename T>
+	size_t AppendData(T &val, size_t *pOffset = nullptr)
+	{
+		return AppendRawData(&val, sizeof(val), pOffset);
+	}
+
+	//Methods to append common type of data.
+	size_t AppendData(unsigned char val);
+	size_t AppendData(uint16_t val);
+	size_t AppendData(uint32_t val, size_t *pOffset = nullptr);
+	size_t AppendData(int64_t val);
+	size_t AppendData(char *lpszVal);		//Always convert and append as UTF8 string
+	size_t AppendData(const char *lpszVal);		//Always convert and append as UTF8 string
+	size_t AppendData(char16_t *lpszVal);		//Always convert and append as UTF8 string
+	size_t AppendData(const char16_t *lpszVal);		//Always convert and append as UTF8 string
+	size_t AppendData(float val);
+	size_t AppendData(double val);
+	size_t AppendData(GUID &val);
+	size_t AppendData(CSTXProtocol *pVal);	//Object
+	size_t AppendRawData(void *pData, size_t cbDataLen, size_t *pOffset = nullptr);
+	size_t AppendUnicodeString(const char* lpszVal);								//Append as Unicode string
+	size_t AppendUnicodeString(const char16_t* lpszVal);								//Append as Unicode string
+	size_t AppendUnicodeStringPair(const char* lpszVal1, const char* lpszVal2);		//Append as Unicode string
+	size_t AppendUnicodeStringPair(const char16_t* lpszVal1, const char16_t* lpszVal2);		//Append as Unicode string
+	size_t AppendDataPair(const char *lpszVal1, const char *lpszVal2);				//Always convert and append as UTF8 pair
+	size_t AppendDataPair(const char16_t *lpszVal1, const char16_t *lpszVal2);				//Always convert and append as UTF8 pair
+	size_t AppendDataPair(const char *lpszVal, uint32_t dwVal);						//UTF8-uint32_t pair
+	size_t AppendDataPair(const char16_t *lpszVal, uint32_t dwVal);						//UTF8-uint32_t pair
+
+	// The length of the prefix and all content (prefix + CRC + content)
+	// This method returns the length, in bytes, of all valid data, which is exactly the amount of actual data
+	//  ready for transferring or storing.
+	size_t GetDataLen();
 
 	// The address of the length-prefix (This is the address of all valid data: prefix + CRC + content)
 	// When the data size increases, the base pointer might change.
@@ -235,15 +336,29 @@ public:
 	// The address of the CRC byte.
 	void* GetCRCBytePtr();
 
-	long GetEncryptedData(void *pBuffer, long cbBufferLen, uint32_t dwKey);
+	//Get the encrypted data. Data is encrypted using the given key through the dwKey parameter
+	//the size of encrypted data keeps the same as the original data.
+	size_t GetEncryptedData(void *pBuffer, size_t cbBufferLen, uint32_t dwKey);
 
 	//pData : address of the pure data (address of length-prefix)
 	//pDataReadLen [out, opt] : data length parsed
 	//return: 0 if success, non-zero otherwise
-	int Decode(void *pData, long *pDataReadLen);
-	int Decode(void *pData, long *pDataReadLen, long cbInputDataLen);
-	int DecodeWithDecrypt(void *pData, long *pDataReadLen, uint32_t dwKey);
+	int Decode(void *pData, size_t *pDataReadLen);
+	int Decode(void *pData, size_t *pDataReadLen, size_t cbInputDataLen);
+	int DecodeWithDecrypt(void *pData, size_t *pDataReadLen, uint32_t dwKey);
 
+	//Retrieve custom data of given type.
+	//This method can only perform on RAW data field. It will not check the actual type of the data.
+	template<typename T>
+	T GetNextData()
+	{
+		T tmp;
+		GetNextRawData(&tmp, sizeof(tmp));
+		return tmp;
+	}
+
+	//These methods are used to retrieve data from this object.
+	//After each call, the read position will be updated to point to the next field.
 	unsigned char GetNextByte();
 	uint16_t GetNextWORD();
 	uint32_t GetNextDWORD();
@@ -251,16 +366,16 @@ public:
 	float GetNextFloat();
 	double GetNextDouble();
 	GUID GetNextGUID();
-	CSTXProtocol* GetNextObject();
-	int GetNextString(char *lpBuffer, int cchBufferLen);
-	int GetNextString(char16_t *lpBuffer, int cchBufferLen);
+	std::shared_ptr<CSTXProtocol> GetNextObject();
+	size_t GetNextString(char *lpBuffer, size_t cchBufferLen);
+	size_t GetNextString(char16_t *lpBuffer, size_t cchBufferLen);
 	std::string GetNextString();
 	bool GetNextString(CSTXProtocolString *pString);
-	int GetNextUnicodeString(char *lpBuffer, int cchBufferLen);
-	int GetNextUnicodeString(char16_t *lpBuffer, int cchBufferLen);
+	size_t GetNextUnicodeString(char *lpBuffer, size_t cchBufferLen);
+	size_t GetNextUnicodeString(char16_t *lpBuffer, size_t cchBufferLen);
 	bool GetNextUnicodeString(CSTXProtocolString *pString);
 	std::u16string GetNextUnicodeString();
-	int GetNextRawData(void *pBuffer, int cbBufferSize);
+	size_t GetNextRawData(void *pBuffer, size_t cbBufferSize);
 	uint32_t GetNextStringPair(char *lpBuffer1, int cchBufferLen1, char *lpBuffer2, int cchBufferLen2);
 	uint32_t GetNextStringPair(char16_t *lpBuffer1, int cchBufferLen1, char16_t *lpBuffer2, int cchBufferLen2);
 
@@ -270,13 +385,29 @@ public:
 	uint32_t GetNextStringToDWORDPair(char *lpBuffer, int cchBufferLen);
 	uint32_t GetNextStringToDWORDPair(char16_t *lpBuffer, int cchBufferLen);
 
+	//Iterate through all the fields starting at the current read position
+	//After calling this method, the read position will point to the end of all fields
 	int EnumValues(std::function<void (unsigned char originalType, STXPROTOCOLVALUE *pVal, STXPROTOCOLVALUE *pValExtra, void *pUserData)> pfnEnum, void *pUserData);
 
+	//Move read position to next data field
 	void SkipNextField();
+
+	//Is there more data can be read
 	bool IsDataAvailable();
-	int GetNextFieldLength();
+
+	//Get the length of next field, including everything in that field except the type indicator
+	size_t GetNextFieldLength();
+
+	//Returns the type of the next data field.
+	// refer to STXPROTOCOL_DATA_TYPE_*** macros
 	unsigned char GetNextFieldType();
+
+	//Return the textual representation of a field type
 	static const char *GetTypeString(unsigned char nType);
+
+	//Reset the read position, make this object ready to be read from the beginning.
 	void SeekReadToBegin();
+
+	//Reset all the content and read/write pointers in this object. Will become empty.
 	void Clear();
 };

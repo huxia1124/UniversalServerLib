@@ -31,7 +31,7 @@ DWORD CUniversalClientSocketConnectionContext::IsDataReadable()
 		return 0;
 
 	BYTE nLengthBytes = 0;
-	LONG nLength = CSTXProtocol::DecodeCompactInteger(pBuffer, &nLengthBytes);
+	size_t nLength = CSTXProtocol::DecodeCompactInteger(pBuffer, &nLengthBytes);
 
 	if (nLength < 0)
 		return 0;
@@ -51,7 +51,7 @@ DWORD CUniversalClientSocketConnectionContext::IsDataReadable()
 void CUniversalClientSocketConnectionContext::OnReceived(LPVOID lpDataRecv, DWORD cbRecvLen)
 {
 	CString responseMsg;
-	LONG nLenParsed = 0;
+	size_t nLenParsed = 0;
 	CSTXProtocol p;
 	if (_dialog->_encryptionEnabled)
 	{

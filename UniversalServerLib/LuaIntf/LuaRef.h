@@ -775,15 +775,15 @@ public:
      *
      * local a, b = ref:memberFunction(arg1, arg2)
      *
-     * @param member the name of member function
+     * @param func the name of member function
      * @param args arguments to pass to function
      * @return values of function
      */
     template <typename R = void, typename... P>
-    R dispatch(const char* member, P&&... args)
+    R dispatch(const char* func, P&&... args)
     {
         assert(L);
-        return Call<R, const LuaRef&, P...>::invoke(L, get(member), *this, std::forward<P>(args)...);
+        return Call<R, const LuaRef&, P...>::invoke(L, get(func), *this, std::forward<P>(args)...);
     }
 
     /**
@@ -794,21 +794,21 @@ public:
      * To return multiple values from Lua function, use std::tuple as return type:
      *
      * int a, b;
-     * std::tie(a, b) = ref.dispatchStatic<std::tuple<int, int>>("memberFunction", arg1, arg2);
+     * std::tie(a, b) = ref.dispatchStatic<std::tuple<int, int>>("staticFunction", arg1, arg2);
      *
      * The above code works like the following in Lua, please note the '.' syntax:
      *
-     * local a, b = ref.memberFunction(arg1, arg2)
+     * local a, b = ref.staticFunction(arg1, arg2)
      *
-     * @param member the name of member function
+     * @param func the name of static function
      * @param args arguments to pass to function
      * @return values of function
      */
     template <typename R = void, typename... P>
-    R dispatchStatic(const char* member, P&&... args)
+    R dispatchStatic(const char* func, P&&... args)
     {
         assert(L);
-        return Call<R, P...>::invoke(L, get(member), std::forward<P>(args)...);
+        return Call<R, P...>::invoke(L, get(func), std::forward<P>(args)...);
     }
 
     /**
@@ -887,7 +887,7 @@ public:
      * @return field value
      */
     template <typename V = LuaRef>
-    V rawget(void* p) const
+    V rawgetp(void* p) const
     {
         pushToStack();
         lua_rawgetp(L, -1, p);
@@ -899,6 +899,39 @@ public:
     /**
      * Look up field in table in raw mode (not via metatable).
      * This may raise Lua error or throw LuaException if V is not convertible.
+     * This is the same as rawgetp, just for convienence.
+     *
+     * @param p field key
+     * @return field value
+     */
+    template <typename V = LuaRef>
+    V rawget(void* p) const
+    {
+        return rawgetp<V>(p);
+    }
+
+    /**
+     * Look up field in table in raw mode (not via metatable).
+     * This may raise Lua error or throw LuaException if V is not convertible.
+     *
+     * @param p field key
+     * @param def default value if the field is missing
+     * @return field value
+     */
+    template <typename V>
+    V rawgetp(void* p, const V& def) const
+    {
+        pushToStack();
+        lua_rawgetp(L, -1, p);
+        V v = Lua::opt<V>(L, -1, def);
+        lua_pop(L, 2);
+        return v;
+    }
+
+    /**
+     * Look up field in table in raw mode (not via metatable).
+     * This may raise Lua error or throw LuaException if V is not convertible.
+     * This is the same as rawgetp, just for convienence.
      *
      * @param p field key
      * @param def default value if the field is missing
@@ -907,11 +940,7 @@ public:
     template <typename V>
     V rawget(void* p, const V& def) const
     {
-        pushToStack();
-        lua_rawgetp(L, -1, p);
-        V v = Lua::opt<V>(L, -1, def);
-        lua_pop(L, 2);
-        return v;
+        return rawgetp(p, def);
     }
 
     /**
@@ -922,12 +951,26 @@ public:
      * @param value field value
      */
     template <typename V>
-    void rawset(void* p, const V& value)
+    void rawsetp(void* p, const V& value)
     {
         pushToStack();
         Lua::push(L, value);
         lua_rawsetp(L, -2, p);
         lua_pop(L, 1);
+    }
+
+    /**
+     * Set field in table in raw mode (not via metatable).
+     * This may raise Lua error or throw LuaException if V is not convertible.
+     * This is the same as rawsetp, just for convienence.
+     *
+     * @param p field key
+     * @param value field value
+     */
+    template <typename V>
+    void rawset(void* p, const V& value)
+    {
+        rawsetp(p, value);
     }
 
     /**
@@ -987,7 +1030,7 @@ public:
     int rawlen() const
     {
         pushToStack();
-        int n = lua_rawlen(L, -1);
+        int n = int(lua_rawlen(L, -1));
         lua_pop(L, 1);
         return n;
     }
@@ -1083,10 +1126,10 @@ public:
     /**
      * Get the length of this table (the same as # operator of Lua).
      */
-	long long len() const
+    int len() const
     {
         pushToStack();
-		long long n = luaL_len(L, -1);
+        int n = int(luaL_len(L, -1));
         lua_pop(L, 1);
         return n;
     }
@@ -1176,7 +1219,7 @@ private:
             obj->~T();
             return 0;
         } catch (std::exception& e) {
-            return luaL_error(L, e.what());
+            return luaL_error(L, "%s", e.what());
         }
     }
 

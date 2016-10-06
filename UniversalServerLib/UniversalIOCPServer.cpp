@@ -954,7 +954,7 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 		if (pClient->_serverType == TcpServerTypeBinaryHeaderV)
 		{
 			LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetMessage", [&] {
-				LONG nLenParsed = 0;
+				size_t nLenParsed = 0;
 				std::shared_ptr<CSTXProtocolLua> spInner(new CSTXProtocolLua());
 				spInner->_protocol.Decode(pDataBuffer, &nLenParsed);
 
@@ -1035,7 +1035,7 @@ void CUniversalIOCPServer::OnTcpReceived(CSTXIOCPTcpConnectionContext *pTcpConnC
 		if (pTcpConnCtx->GetServerParam() == TcpConnectionTypeBinaryHeaderV)
 		{
 			LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetMessage", [&] {
-				LONG nLenParsed = 0;
+				size_t nLenParsed = 0;
 				std::shared_ptr<CSTXProtocolLua> spInner(new CSTXProtocolLua());
 				spInner->_protocol.Decode(pDataBuffer, &nLenParsed);
 

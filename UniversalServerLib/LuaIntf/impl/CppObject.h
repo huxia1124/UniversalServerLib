@@ -34,7 +34,7 @@ struct CppSignature
      */
     static void* value()
     {
-        static char v;
+        static bool v = false;
         return &v;
     }
 };
@@ -63,17 +63,11 @@ class CppObject
 protected:
     CppObject() {}
 
-    template <typename T>
-    static void* getClassID(bool is_const)
-    {
-        return is_const ? CppConstSignature<T>::value() : CppClassSignature<T>::value();
-    }
-
-    template <typename OBJ, typename T>
-    static void* allocate(lua_State* L, bool is_const)
+    template <typename OBJ>
+    static void* allocate(lua_State* L, void* class_id)
     {
         void* mem = lua_newuserdata(L, sizeof(OBJ));
-        lua_rawgetp(L, LUA_REGISTRYINDEX, getClassID<T>(is_const));
+        lua_rawgetp(L, LUA_REGISTRYINDEX, class_id);
         luaL_checktype(L, -1, LUA_TTABLE);
         lua_setmetatable(L, -2);
         return mem;
@@ -99,13 +93,22 @@ public:
     virtual void* objectPtr() = 0;
 
     /**
+     * Get internal class id of the given class
+     */
+    template <typename T>
+    static void* getClassID(bool is_const)
+    {
+        return is_const ? CppConstSignature<T>::value() : CppClassSignature<T>::value();
+    }
+
+    /**
      * Returns the CppObject* if the class on the Lua stack is exact the same class (not one of the subclass).
      * If the class does not match, a Lua error is raised.
      */
     template <typename T>
     static CppObject* getExactObject(lua_State* L, int index, bool is_const)
     {
-        return getExactObject(L, index, getClassID<T>(is_const));
+        return getObject(L, index, getClassID<T>(is_const), is_const, true, true);
     }
 
     /**
@@ -115,7 +118,19 @@ public:
     template <typename T>
     static CppObject* getObject(lua_State* L, int index, bool is_const)
     {
-        return getObject(L, index, getClassID<T>(is_const), is_const);
+        return getObject(L, index, getClassID<T>(is_const), is_const, false, true);
+    }
+
+    /**
+     * Get a pointer to the class from the Lua stack.
+     *
+     * If the object is not the class or a subclass, return nullptr.
+     */
+    template <typename T>
+    static T* cast(lua_State* L, int index, bool is_const)
+    {
+        CppObject* object = getObject(L, index, getClassID<T>(is_const), is_const, false, false);
+        return object ? static_cast<T*>(object->objectPtr()) : nullptr;
     }
 
     /**
@@ -131,8 +146,101 @@ public:
 
 private:
     static void typeMismatchError(lua_State* L, int index);
-    static CppObject* getExactObject(lua_State* L, int index, void* classid);
-    static CppObject* getObject(lua_State* L, int index, void* base_classid, bool is_const);
+    static CppObject* getObject(lua_State* L, int index, void* class_id,
+        bool is_const, bool is_exact, bool raise_error);
+};
+
+//----------------------------------------------------------------------------
+
+class CppAutoDowncast
+{
+#if LUAINTF_AUTO_DOWNCAST
+
+private:
+    template <typename T, typename SUPER, bool IS_CONST>
+    static void* tryDowncast(SUPER* obj) {
+        void* casted = dynamic_cast<T*>(obj);
+        if (casted == obj) {
+            return CppObject::getClassID<T>(IS_CONST);
+        } else {
+            return nullptr;
+        }
+    }
+
+    template <typename T, typename SUPER, bool IS_CONST>
+    static void addDowncast(LuaRef super) {
+        lua_State* L = super.state();
+        LuaRef downcast = LuaRef::createUserDataFrom(L, &tryDowncast<T, SUPER, IS_CONST>);
+
+        void* class_id = CppObject::getClassID<SUPER>(IS_CONST);
+        bool* class_may_downcast = static_cast<bool*>(class_id);
+        *class_may_downcast = true;
+
+        LuaRef list = super.rawget("__downcast");
+        if (list == nullptr) {
+            list = LuaRef::createTable(L);
+            super.rawset("__downcast", list);
+        }
+        list.rawset(list.rawlen() + 1, downcast);
+    }
+
+    static void* findClassID(lua_State* L, void* obj, void* class_id) {
+        bool class_may_downcast = *static_cast<bool*>(class_id);
+        if (!class_may_downcast) return class_id;
+
+        // <class_meta>
+        lua_rawgetp(L, LUA_REGISTRYINDEX, class_id);
+        luaL_checktype(L, -1, LUA_TTABLE);
+
+        // <class_meta> <downcast>
+        lua_pushliteral(L, "__downcast");
+        lua_rawget(L, -2);
+
+        if (!lua_isnil(L, -1)) {
+            int len = int(lua_rawlen(L, -1));
+            for (int i = 1; i <= len; i++) {
+                // <class_meta> <downcast> <cast_func>
+                lua_rawgeti(L, -1, i);
+                auto downcast = *reinterpret_cast<void*(**)(void*)>(lua_touserdata(L, -1));
+
+                void* cast_class_id = downcast(obj);
+                if (cast_class_id) {
+                    lua_pop(L, 3);
+                    return findClassID(L, obj, cast_class_id);
+                }
+
+                lua_pop(L, 1);
+            }
+        }
+
+        lua_pop(L, 2);
+        return class_id;
+    }
+
+public:
+    template <typename T, typename SUPER>
+    static void add(lua_State* L) {
+        LuaRef registry(L, LUA_REGISTRYINDEX);
+        LuaRef super = registry.rawgetp(CppSignature<SUPER>::value());
+        addDowncast<T, SUPER, false>(super.rawget("___class"));
+        addDowncast<T, SUPER, true>(super.rawget("___const"));
+    }
+
+    template <typename T>
+    static void* getClassID(lua_State* L, T* obj, bool is_const) {
+        void* class_id = CppObject::getClassID<T>(is_const);
+        return findClassID(L, obj, class_id);
+    }
+
+#else
+
+public:
+    template <typename T>
+    static void* getClassID(lua_State*, T*, bool is_const) {
+        return CppObject::getClassID<T>(is_const);
+    }
+
+#endif
 };
 
 //----------------------------------------------------------------------------
@@ -176,7 +284,7 @@ public:
     template <typename... P>
     static void pushToStack(lua_State* L, bool is_const, P&&... args)
     {
-        void* mem = allocate<CppObjectValue<T>, T>(L, is_const);
+        void* mem = allocate<CppObjectValue<T>>(L, getClassID<T>(is_const));
         CppObjectValue<T>* v = ::new (mem) CppObjectValue<T>();
         ::new (v->objectPtr()) T(std::forward<P>(args)...);
     }
@@ -184,14 +292,14 @@ public:
     template <typename... P>
     static void pushToStack(lua_State* L, std::tuple<P...>& args, bool is_const)
     {
-        void* mem = allocate<CppObjectValue<T>, T>(L, is_const);
+        void* mem = allocate<CppObjectValue<T>>(L, getClassID<T>(is_const));
         CppObjectValue<T>* v = ::new (mem) CppObjectValue<T>();
         CppInvokeClassConstructor<T>::call(v->objectPtr(), args);
     }
 
     static void pushToStack(lua_State* L, const T& obj, bool is_const)
     {
-        void* mem = allocate<CppObjectValue<T>, T>(L, is_const);
+        void* mem = allocate<CppObjectValue<T>>(L, getClassID<T>(is_const));
         CppObjectValue<T>* v = ::new (mem) CppObjectValue<T>();
         ::new (v->objectPtr()) T(obj);
     }
@@ -227,7 +335,7 @@ public:
     template <typename T>
     static void pushToStack(lua_State* L, T* obj, bool is_const)
     {
-        void* mem = allocate<CppObjectPtr, T>(L, is_const);
+        void* mem = allocate<CppObjectPtr>(L, CppAutoDowncast::getClassID(L, obj, is_const));
         ::new (mem) CppObjectPtr(obj);
     }
 
@@ -272,13 +380,15 @@ public:
 
     static void pushToStack(lua_State* L, T* obj, bool is_const)
     {
-        void* mem = allocate<CppObjectSharedPtr<SP, T>, T>(L, is_const);
+        void* mem = allocate<CppObjectSharedPtr<SP, T>>(L,
+            CppAutoDowncast::getClassID(L, obj, is_const));
         ::new (mem) CppObjectSharedPtr<SP, T>(obj);
     }
 
     static void pushToStack(lua_State* L, const SP& sp, bool is_const)
     {
-        void* mem = allocate<CppObjectSharedPtr<SP, T>, T>(L, is_const);
+        void* mem = allocate<CppObjectSharedPtr<SP, T>>(L,
+            CppAutoDowncast::getClassID(L, const_cast<T*>(&*sp), is_const));
         ::new (mem) CppObjectSharedPtr<SP, T>(sp);
     }
 
@@ -387,12 +497,13 @@ struct LuaClassMapping
         return LuaCppObjectFactory<T, ObjectType, isShared, isRef>::cast(L, obj);
     }
 
-    static T& opt(lua_State* L, int index, const T&)
+    static const T& opt(lua_State* L, int index, const T& def)
     {
-        if (!lua_isnoneornil(L, index)) {
-            luaL_error(L, "nil passed to reference");
+        if (lua_isnoneornil(L, index)) {
+            return def;
+        } else {
+            return get(L, index);
         }
-        return get(L, index);
     }
 };
 
@@ -444,6 +555,27 @@ namespace Lua
     inline void pushNew(lua_State* L, P&&... args)
     {
         CppObjectValue<typename std::remove_cv<T>::type>::pushToStack(L, std::is_const<T>::value, std::forward<P>(args)...);
+    }
+
+    /**
+     * Cast stack value at the index to the given class, return nullptr if it is not.
+     */
+    template <typename T>
+    inline T* objectCast(lua_State* L, int index)
+    {
+        return CppObject::cast<typename std::remove_cv<T>::type>(L, index, std::is_const<T>::value);
+    }
+
+    /**
+     * Cast LuaRef to the given class, return nullptr if it is not.
+     */
+    template <typename T>
+    inline T* objectCast(const LuaRef& ref)
+    {
+        ref.pushToStack();
+        T* object = objectCast<T>(ref.state(), -1);
+        lua_pop(ref.state(), 1);
+        return object;
     }
 }
 

@@ -20,34 +20,41 @@ extern "C"
 
 #pragma comment(lib, "Comctl32.lib")
 
-IUniversalServer *g_pServer = NULL;
+IUniversalServer *g_pServer = NULL;		//Global pointer to the server object
+
+//////////////////////////////////////////////////////////////////////////
+// CMyCallback - Callback to respond with server events
+
 class CMyCallback : public IUniversalServerCallback
 {
 public:
-	virtual void OnServerFileChanged(DWORD dwAction, LPCTSTR lpszRelativePathName, LPCTSTR lpszFileFullPathName)
+	virtual void OnServerFileChanged(DWORD dwAction, LPCTSTR lpszRelativePathName, LPCTSTR lpszFileFullPathName, BOOL *pSkipScript)
 	{
 		static LPCTSTR actionText[10] = { 0, _T("Added"), _T("Removed"), _T("Modified"), _T("Renaming"), _T("Renamed"), 0, 0, _T("Refreshed"), 0 };
 		printf("------OnServerFileChanged Callback Called----%S: %S\n", actionText[dwAction], lpszRelativePathName);
 
 	}
-	virtual void OnOutputDebugString(LPCTSTR lpszContent)
+	virtual void OnOutputDebugString(LPCTSTR lpszContent, BOOL *pSkipScript)
 	{
 	};
-	virtual void OnOutputLog(LPCTSTR lpszContent)
+	virtual void OnOutputLog(LPCTSTR lpszContent, BOOL *pSkipScript)
 	{
 	};
 
 };
 
-
-HANDLE hEvent = NULL;
+//////////////////////////////////////////////////////////////////////////
+// ConsoleHandler to respond the event when the user click tne close box of the console window
 
 BOOL WINAPI ConsoleHandlerRoutine(DWORD dwCtrlType)
 {
 	g_pServer->CallFunction(_T("stop"));
-	SetEvent(hEvent);
 	return TRUE;
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// TaskDialog
 
 HRESULT CALLBACK TaskDialogCallbackProc(
 	_In_ HWND     hwnd,
@@ -69,23 +76,35 @@ HRESULT CALLBACK TaskDialogCallbackProc(
 	return 0;
 }
 
+//////////////////////////////////////////////////////////////////////////
+// Entry point
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+	//Get the path of the executable file, saved in szPath
 	TCHAR szPath[MAX_PATH];
 	GetModuleFileName(NULL, szPath, MAX_PATH);
 	LPTSTR lpszName = PathFindFileName(szPath);
 	*lpszName = 0;
+
+	//Set the working directory to szPath
 	SetCurrentDirectory(szPath);
 
-	hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	//Set the console window event handler
 	SetConsoleCtrlHandler(ConsoleHandlerRoutine, TRUE);
+
+	//Create the server
 	IUniversalServer *pServer = CreateUniversalServer();
 	g_pServer = pServer;
-	CMyCallback callback;
 
+	//Set callback for server events
+	CMyCallback callback;
 	pServer->SetServerCallback(&callback);
+
+	//Lua version
 	printf("Lua version: %S\n", pServer->GetLuaVersion());
 
+	//Execute a lua script
 	int nLuaResult = pServer->Run(_T("scripts/server_test.lua"));
 	if (nLuaResult == LUA_ERRSYNTAX)
 	{
@@ -96,22 +115,13 @@ int _tmain(int argc, _TCHAR* argv[])
 		return nLuaResult;
 	}
 
-
-	//pServer->CallFunction(_T("show_stop_time"));
+	//Execute the function in lua previously loaded
 	pServer->CallFunction(_T("start"));
 
-	
+
 	std::future<int> f2 = std::async(std::launch::async, [&]() {
 		
 		int nButtonPressed = 0;
-
-		//TaskDialog(NULL, NULL,
-		//	_T("UniversalServerLibTest"),
-		//	_T("Server is running"),
-		//	_T("Close this dialog to terminate the server."),
-		//	TDCBF_OK_BUTTON,
-		//	TD_INFORMATION_ICON,
-		//	&nButtonPressed);
 
 		HRESULT hr;
 		TASKDIALOGCONFIG tdc = { sizeof(TASKDIALOGCONFIG) };
@@ -127,6 +137,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		hr = TaskDialogIndirect(&tdc, &nButtonPressed, NULL, NULL);
 
+		/*
 		if (SUCCEEDED(hr) && IDYES == nButtonPressed)
 		{
 			// download the update...
@@ -140,27 +151,15 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			// Cancel pressed
 		}
+		*/
 
-		//LuaIntf::LuaRef waitTime((lua_State*)pServer->GetMainLuaState(), "waitTime");
-		//int nWaitTime = waitTime.toValue<int>();
-		//if (nWaitTime != 0)
-		//{
-		//	Sleep(nWaitTime);
-		//}
-		//else
-		//{
-		//	Sleep(0x7FFFFFFF);
-		//}
+
 		pServer->Terminate();
-		//pServer->CallFunction(_T("stop"));
 		return 0;
 
 	});
-	f2.wait(); //output: 8
+	f2.wait();
 	
-
-	//WaitForSingleObject(hEvent, INFINITE);
-
 	return 0;
 }
 

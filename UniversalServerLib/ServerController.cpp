@@ -210,3 +210,18 @@ void CServerController::Log(std::wstring logText, int nLogLevel)
 {
 	STXTRACELOGE(nLogLevel, _T("%s"), logText.c_str());
 }
+
+void CServerController::SetTcpServerReceiveScript(int nPort, std::wstring scriptFile)
+{
+	_server->SetTcpServerReceiveScript(nPort, scriptFile.c_str());
+}
+
+void CServerController::SetTcpConnectionReceiveScript(long nConnectionID, std::wstring scriptFile)
+{
+	_server->SetTcpConnectionReceiveScript(nConnectionID, scriptFile.c_str());
+}
+
+void CServerController::SetTcpServerConnectedScript(int nPort, std::wstring scriptFile)
+{
+	_server->SetTcpServerConnectedScript(nPort, scriptFile.c_str());
+}

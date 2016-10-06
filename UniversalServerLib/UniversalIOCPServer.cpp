@@ -176,6 +176,11 @@ void CUniversalIOCPServer::OnClientDisconnect(CSTXIOCPServerClientContext *pClie
 	_mapLogMonitorClients.erase(pClient->_uid);
 }
 
+CSTXServerContextBase* CUniversalIOCPServer::OnCreateServerContext()
+{
+	return new CUniversalServerContext();
+}
+
 CSTXIOCPServerClientContext * CUniversalIOCPServer::OnCreateClientContext(tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext)
 {
 	static __int64 nUIDBase = 0;
@@ -228,6 +233,13 @@ BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContex
 		}).endModule();
 
 		//RunScriptCache(_scriptCacheClientConnected);
+
+		auto serverContext = pClientContext->GetServerContext();
+		auto scriptCache = GetTcpServerConnectedScript(dynamic_cast<CUniversalServerContext*>(serverContext.get()));
+		if (scriptCache)
+		{
+			RunScriptCache(*scriptCache.get());
+		}
 	}
 
 	return TRUE;
@@ -338,6 +350,69 @@ DWORD CUniversalIOCPServer::IsClientDataReadableWebSocket(CSTXIOCPServerClientCo
 
 	return dwPackageLen;
 
+}
+
+std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerReceiveScript(CUniversalServerContext *pServerContext)
+{
+	if (pServerContext->_tcpServerRecvScript)
+		return pServerContext->_tcpServerRecvScript;
+
+	std::shared_ptr<CUniversalStringCache> result;
+	auto port = pServerContext->GetListeningPort();
+	_mapTcpServerRecvScripts.lock(port);
+	auto it = _mapTcpServerRecvScripts.find(port);
+	if (it != _mapTcpServerRecvScripts.end(port))
+	{
+		result = it->second;
+	}
+	_mapTcpServerRecvScripts.unlock(port);
+	
+	if (result)
+		pServerContext->_tcpServerRecvScript = result;
+
+	return result;
+}
+
+std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpConnectionReceiveScript(CUniversalIOCPTcpConnectionContext *pConnectionContext)
+{
+	if (pConnectionContext->_tcpConnectionRecvScript)
+		return pConnectionContext->_tcpConnectionRecvScript;
+
+	std::shared_ptr<CUniversalStringCache> result;
+	auto connectionID = pConnectionContext->GetConnectionID();
+	_mapTcpConnectionRecvScripts.lock(connectionID);
+	auto it = _mapTcpConnectionRecvScripts.find(connectionID);
+	if (it != _mapTcpConnectionRecvScripts.end(connectionID))
+	{
+		result = it->second;
+	}
+	_mapTcpConnectionRecvScripts.unlock(connectionID);
+
+	if (result)
+		pConnectionContext->_tcpConnectionRecvScript = result;
+
+	return result;
+}
+
+std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerConnectedScript(CUniversalServerContext *pServerContext)
+{
+	if (pServerContext->_tcpServerConnectedScript)
+		return pServerContext->_tcpServerConnectedScript;
+
+	std::shared_ptr<CUniversalStringCache> result;
+	auto port = pServerContext->GetListeningPort();
+	_mapTcpServerConnectedScripts.lock(port);
+	auto it = _mapTcpServerConnectedScripts.find(port);
+	if (it != _mapTcpServerConnectedScripts.end(port))
+	{
+		result = it->second;
+	}
+	_mapTcpServerConnectedScripts.unlock(port);
+
+	if (result)
+		pServerContext->_tcpServerConnectedScript = result;
+
+	return result;
 }
 
 DWORD CUniversalIOCPServer::IsClientDataReadable(CSTXIOCPServerClientContext *pClientContext)
@@ -855,7 +930,14 @@ BOOL CUniversalIOCPServer::OnWebSocketClientReceived(CUniversalIOCPServerClientC
 		return strMsg;
 	}).endModule();
 
-	RunScriptCache(_scriptCacheClientReceived);
+	//RunScriptCache(_scriptCacheClientReceived);
+
+	auto serverContext = pClientContext->GetServerContext();
+	auto scriptCache = GetTcpServerReceiveScript(dynamic_cast<CUniversalServerContext*>(serverContext.get()));
+	if (scriptCache)
+	{
+		RunScriptCache(*scriptCache.get());
+	}
 
 	return TRUE;
 }
@@ -974,7 +1056,14 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 
 		//RunScriptCache(_scriptCacheClientReceived, &GetCurrentThreadData()->_scriptVersions[0]);
 
-		RunScriptCache(_scriptCacheClientReceived);
+		auto serverContext = pClient->GetServerContext();
+		auto scriptCache = GetTcpServerReceiveScript(dynamic_cast<CUniversalServerContext*>(serverContext.get()));
+		if (scriptCache)
+		{
+			RunScriptCache(*scriptCache.get());
+		}
+
+		//RunScriptCache(_scriptCacheClientReceived);
 
 		//RunScript(_T("recv.lua"));	
 	}
@@ -1043,7 +1132,13 @@ void CUniversalIOCPServer::OnTcpReceived(CSTXIOCPTcpConnectionContext *pTcpConnC
 			}).endModule();
 		}
 
-		RunScriptCache(_scriptCacheTcpConnectionReceived);
+		//RunScriptCache(_scriptCacheTcpConnectionReceived);
+
+		auto scriptCache = GetTcpConnectionReceiveScript(dynamic_cast<CUniversalIOCPTcpConnectionContext*>(pTcpConnCtx));
+		if (scriptCache)
+		{
+			RunScriptCache(*scriptCache.get());
+		}
 	}
 }
 
@@ -1299,17 +1394,18 @@ UINT WINAPI CUniversalIOCPServer::UniversalServerRPCThread(LPVOID lpParameter)
 
 void CUniversalIOCPServer::OnServerInitialized()
 {
-	_scriptCacheClientConnected.SetNeedUpdate(TRUE);
-	_scriptCacheClientConnected.EnableTraceThreadVersion();
-	_scriptCacheClientConnected.SetStringName(_T("scripts/accepted.lua"));
 
-	_scriptCacheClientReceived.SetNeedUpdate(TRUE);
-	_scriptCacheClientReceived.EnableTraceThreadVersion();
-	_scriptCacheClientReceived.SetStringName(_T("scripts/recv.lua"));
+	//_scriptCacheClientConnected.SetNeedUpdate(TRUE);
+	//_scriptCacheClientConnected.EnableTraceThreadVersion();
+	//_scriptCacheClientConnected.SetStringName(_T("scripts/accepted.lua"));
 
-	_scriptCacheTcpConnectionReceived.SetNeedUpdate(TRUE);
-	_scriptCacheTcpConnectionReceived.EnableTraceThreadVersion();
-	_scriptCacheTcpConnectionReceived.SetStringName(_T("scripts/tcp_recv.lua"));
+	//_scriptCacheClientReceived.SetNeedUpdate(TRUE);
+	//_scriptCacheClientReceived.EnableTraceThreadVersion();
+	//_scriptCacheClientReceived.SetStringName(_T("scripts/recv.lua"));
+
+	//_scriptCacheTcpConnectionReceived.SetNeedUpdate(TRUE);
+	//_scriptCacheTcpConnectionReceived.EnableTraceThreadVersion();
+	//_scriptCacheTcpConnectionReceived.SetStringName(_T("scripts/tcp_recv.lua"));
 
 
 	ULONGLONG tick = GetTickCount64();
@@ -1415,6 +1511,183 @@ BOOL CUniversalIOCPServer::GetClientUserDataString(__int64 nClientUID, LPCTSTR l
 	}
 	_mapClients.unlock(nClientUID);
 	return bResult;
+}
+
+void CUniversalIOCPServer::SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScriptFile)
+{
+	std::shared_ptr<CUniversalStringCache> scriptCache;
+	std::wstring originalName;
+	_mapTcpServerRecvScripts.lock(nPort);
+	auto it = _mapTcpServerRecvScripts.find(nPort);
+	if (it == _mapTcpServerRecvScripts.end(nPort))
+	{
+		scriptCache = std::make_shared<CUniversalStringCache>();
+		originalName = scriptCache->GetStringName();
+		scriptCache->SetNeedUpdate(true);
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->SetStringName(lpszScriptFile);
+		_mapTcpServerRecvScripts[nPort] = scriptCache;
+	}
+	else
+	{
+		it->second->SetStringName(lpszScriptFile);
+		it->second->SetNeedUpdate(true);
+		scriptCache = it->second;
+	}
+	_mapTcpServerRecvScripts.unlock(nPort);
+
+	LockServersMap();
+	auto itServer = m_mapTcpServers.find(nPort);
+	if (itServer != m_mapTcpServers.end())
+	{
+		CUniversalServerContext *serverContext = dynamic_cast<CUniversalServerContext*>(itServer->second.get());
+		if (serverContext)
+		{
+			serverContext->_tcpServerRecvScript = scriptCache;
+		}
+	}
+	UnlockServersMap();
+
+	_mapScriptFileCaches.lock(lpszScriptFile);
+	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
+	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+	{
+		itCache->second.insert(scriptCache.get());
+	}
+	else
+	{
+		_mapScriptFileCaches[lpszScriptFile].insert(scriptCache.get());
+	}
+
+	//If the script file name changed, remove the previous mapping
+	if (originalName.size() > 0)
+	{
+		itCache = _mapScriptFileCaches.find(originalName);
+		if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+		{
+			itCache->second.erase(scriptCache.get());
+		}
+	}
+	_mapScriptFileCaches.unlock(lpszScriptFile);
+}
+
+void CUniversalIOCPServer::SetTcpConnectionReceiveScript(LONG nConnectionID, LPCTSTR lpszScriptFile)
+{
+	std::shared_ptr<CUniversalStringCache> scriptCache;
+	std::wstring originalName;
+	_mapTcpConnectionRecvScripts.lock(nConnectionID);
+	auto it = _mapTcpConnectionRecvScripts.find(nConnectionID);
+	if (it == _mapTcpConnectionRecvScripts.end(nConnectionID))
+	{
+		scriptCache = std::make_shared<CUniversalStringCache>();
+		originalName = scriptCache->GetStringName();
+		scriptCache->SetNeedUpdate(true);
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->SetStringName(lpszScriptFile);
+		_mapTcpConnectionRecvScripts[nConnectionID] = scriptCache;
+	}
+	else
+	{
+		it->second->SetStringName(lpszScriptFile);
+		it->second->SetNeedUpdate(true);
+		scriptCache = it->second;
+	}
+	_mapTcpConnectionRecvScripts.unlock(nConnectionID);
+
+	LockConnectionMap();
+	auto itConnection = m_mapConnections.find(nConnectionID);
+	if (itConnection != m_mapConnections.end())
+	{
+		CUniversalIOCPTcpConnectionContext *connectionContext = dynamic_cast<CUniversalIOCPTcpConnectionContext*>((CSTXIOCPTcpConnectionContext*)itConnection->second);
+		if (connectionContext)
+		{
+			connectionContext->_tcpConnectionRecvScript = scriptCache;
+		}
+	}
+	LockConnectionMap();
+
+	_mapScriptFileCaches.lock(lpszScriptFile);
+	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
+	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+	{
+		itCache->second.insert(scriptCache.get());
+	}
+	else
+	{
+		_mapScriptFileCaches[lpszScriptFile].insert(scriptCache.get());
+	}
+
+	//If the script file name changed, remove the previous mapping
+	if (originalName.size() > 0)
+	{
+		itCache = _mapScriptFileCaches.find(originalName);
+		if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+		{
+			itCache->second.erase(scriptCache.get());
+		}
+	}
+	_mapScriptFileCaches.unlock(lpszScriptFile);
+}
+
+void CUniversalIOCPServer::SetTcpServerConnectedScript(UINT nPort, LPCTSTR lpszScriptFile)
+{
+	std::shared_ptr<CUniversalStringCache> scriptCache;
+	std::wstring originalName;
+	_mapTcpServerConnectedScripts.lock(nPort);
+	auto it = _mapTcpServerConnectedScripts.find(nPort);
+	if (it == _mapTcpServerConnectedScripts.end(nPort))
+	{
+		scriptCache = std::make_shared<CUniversalStringCache>();
+		originalName = scriptCache->GetStringName();
+		scriptCache->SetNeedUpdate(true);
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->SetStringName(lpszScriptFile);
+		_mapTcpServerConnectedScripts[nPort] = scriptCache;
+	}
+	else
+	{
+		it->second->SetStringName(lpszScriptFile);
+		it->second->SetNeedUpdate(true);
+		scriptCache = it->second;
+	}
+	_mapTcpServerConnectedScripts.unlock(nPort);
+
+	LockServersMap();
+	auto itServer = m_mapTcpServers.find(nPort);
+	if (itServer != m_mapTcpServers.end())
+	{
+		CUniversalServerContext *serverContext = dynamic_cast<CUniversalServerContext*>(itServer->second.get());
+		if (serverContext)
+		{
+			serverContext->_tcpServerConnectedScript = scriptCache;
+		}
+	}
+	UnlockServersMap();
+
+	_mapScriptFileCaches.lock(lpszScriptFile);
+	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
+	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+	{
+		itCache->second.insert(scriptCache.get());
+	}
+	else
+	{
+		_mapScriptFileCaches[lpszScriptFile].insert(scriptCache.get());
+	}
+
+	//If the script file name changed, remove the previous mapping
+	if (originalName.size() > 0)
+	{
+		itCache = _mapScriptFileCaches.find(originalName);
+		if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+		{
+			itCache->second.erase(scriptCache.get());
+		}
+	}
+	_mapScriptFileCaches.unlock(lpszScriptFile);
 }
 
 UniversalTcpClientRole CUniversalIOCPServer::GetTcpClientRole(__int64 nClientUID)
@@ -1856,21 +2129,46 @@ void CUniversalIOCPServer::ProcessInternalScriptFileChange(DWORD dwAction, LPCTS
 	ULONGLONG tick = GetTickCount64();
 	if (dwAction != FILE_ACTION_RENAMED_OLD_NAME)
 	{
-		if (_tcsicmp(lpszRelativePathName, _scriptCacheClientReceived.GetStringName()) == 0)
+		//if (_tcsicmp(lpszRelativePathName, _scriptCacheClientReceived.GetStringName()) == 0)
+		//{
+		//	STXTRACELOGE(_T("%s changed. schedule reloading..."), _scriptCacheClientReceived.GetStringName());
+		//	_scriptCacheClientReceived.SetNeedUpdate(TRUE);
+		//}
+		//else if (_tcsicmp(lpszRelativePathName, _scriptCacheTcpConnectionReceived.GetStringName()) == 0)
+		//{
+		//	STXTRACELOGE(_T("%s changed. schedule reloading..."), _scriptCacheTcpConnectionReceived.GetStringName());
+		//	_scriptCacheTcpConnectionReceived.SetNeedUpdate(TRUE);
+		//}
+		//else if (_tcsicmp(lpszRelativePathName, _scriptCacheClientConnected.GetStringName()) == 0)
+		//{
+		//	STXTRACELOGE(_T("%s changed. schedule reloading..."), _scriptCacheClientConnected.GetStringName());
+		//	_scriptCacheClientConnected.SetNeedUpdate(TRUE);
+		//}
+
+		std::wstring strRelativePathName = lpszRelativePathName;
+		std::replace(strRelativePathName.begin(), strRelativePathName.end(), '\\', '/');
+		LPCTSTR pszUnifiedRelativePathName = strRelativePathName.c_str();
+		//Refresh script caches
+		_mapScriptFileCaches.lock(pszUnifiedRelativePathName);
+		auto itCache = _mapScriptFileCaches.find(pszUnifiedRelativePathName);
+		if (itCache != _mapScriptFileCaches.end(pszUnifiedRelativePathName))
 		{
-			STXTRACELOGE(_T("%s changed. schedule reloading..."), _scriptCacheClientReceived.GetStringName());
-			_scriptCacheClientReceived.SetNeedUpdate(TRUE);
+			STXTRACELOGE(_T("%s changed. there are some script caches for this file. schedule reloading..."), pszUnifiedRelativePathName);
+			std::for_each(itCache->second.begin(), itCache->second.end(), [](auto cache) {cache->SetNeedUpdate(TRUE); });
 		}
-		else if (_tcsicmp(lpszRelativePathName, _scriptCacheTcpConnectionReceived.GetStringName()) == 0)
+		_mapScriptFileCaches.unlock(pszUnifiedRelativePathName);
+
+		std::replace(strRelativePathName.begin(), strRelativePathName.end(), '/', '\\');
+		pszUnifiedRelativePathName = strRelativePathName.c_str();
+		_mapScriptFileCaches.lock(pszUnifiedRelativePathName);
+		itCache = _mapScriptFileCaches.find(pszUnifiedRelativePathName);
+		if (itCache != _mapScriptFileCaches.end(pszUnifiedRelativePathName))
 		{
-			STXTRACELOGE(_T("%s changed. schedule reloading..."), _scriptCacheTcpConnectionReceived.GetStringName());
-			_scriptCacheTcpConnectionReceived.SetNeedUpdate(TRUE);
+			STXTRACELOGE(_T("%s changed. there are some script caches for this file. schedule reloading..."), pszUnifiedRelativePathName);
+			std::for_each(itCache->second.begin(), itCache->second.end(), [](auto cache) {cache->SetNeedUpdate(TRUE); });
 		}
-		else if (_tcsicmp(lpszRelativePathName, _scriptCacheClientConnected.GetStringName()) == 0)
-		{
-			STXTRACELOGE(_T("%s changed. schedule reloading..."), _scriptCacheClientConnected.GetStringName());
-			_scriptCacheClientConnected.SetNeedUpdate(TRUE);
-		}
+		_mapScriptFileCaches.unlock(pszUnifiedRelativePathName);
+
 	}
 }
 

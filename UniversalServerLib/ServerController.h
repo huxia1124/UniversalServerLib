@@ -64,6 +64,9 @@ public:
 	void PutString(std::wstring key, std::wstring value);
 	std::wstring GetString(std::wstring key);
 	void Log(std::wstring logText, int nLogLevel);
+	void SetTcpServerReceiveScript(int nPort, std::wstring scriptFile);
+	void SetTcpConnectionReceiveScript(long nConnectionID, std::wstring scriptFile);
+	void SetTcpServerConnectedScript(int nPort, std::wstring scriptFile);
 
 };
 

@@ -957,6 +957,7 @@ protected:
 	volatile LONG64 _currentClientCount;
 	LONG64 _maximumClientCount;
 	BOOL m_bClosed;
+	UINT m_nListeningPort;
 
 public:
 	virtual void OnDestroy();
@@ -970,6 +971,8 @@ public:
 	LONG64 GetCurrentClientCount();
 	LONG64 GetClientCountLimit();
 	BOOL IsReachedMaximumClient();
+	void SetListeningPort(UINT nPort);
+	UINT GetListeningPort();
 };
 
 

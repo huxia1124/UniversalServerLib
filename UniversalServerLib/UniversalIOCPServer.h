@@ -82,6 +82,17 @@ struct CUniversalServerWorkerThreadData
 	LPVOID _pUserData;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+class CUniversalServerContext : public CSTXIOCPTcpServerContext
+{
+	friend class CUniversalIOCPServer;
+protected:
+	std::shared_ptr<CUniversalStringCache> _tcpServerRecvScript;
+	std::shared_ptr<CUniversalStringCache> _tcpServerConnectedScript;
+
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class CUniversalIOCPTcpConnectionContext : public CSTXIOCPTcpConnectionContext
@@ -90,6 +101,9 @@ class CUniversalIOCPTcpConnectionContext : public CSTXIOCPTcpConnectionContext
 public:
 	CUniversalIOCPTcpConnectionContext();
 	virtual ~CUniversalIOCPTcpConnectionContext();
+
+protected:
+	std::shared_ptr<CUniversalStringCache> _tcpConnectionRecvScript;
 
 public:
 	__int64 _uid;
@@ -165,15 +179,21 @@ protected:
 	CSTXHashMap<UINT, lua_State *> _mapLuaState;
 	CSTXHashMap<std::wstring, std::set<CUniversalStringCache*>, 4, 1, CSTXNoCaseWStringHash<4, 1> > _mapLuaModuleReference;
 
+	//Scripts configuration
+	CSTXHashMap<std::wstring, std::set<CUniversalStringCache*>, 4, 1, CSTXNoCaseWStringHash<4, 1> > _mapScriptFileCaches;
+	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerRecvScripts;				//Port -> ScriptCache
+	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerConnectedScripts;		//Port -> ScriptCache
+	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionRecvScripts;			//ConnectionID -> ScriptCache
+
 public:
 	STXSERVERINIT _serverInitializationInfo;
 	CUniversalServer *_pServer;
 	HANDLE _hRPCThread;
 	UINT m_nRPCServerPort;
 
-	CUniversalStringCache _scriptCacheClientConnected;
-	CUniversalStringCache _scriptCacheClientReceived;
-	CUniversalStringCache _scriptCacheTcpConnectionReceived;
+	//CUniversalStringCache _scriptCacheClientConnected;
+	//CUniversalStringCache _scriptCacheClientReceived;
+	//CUniversalStringCache _scriptCacheTcpConnectionReceived;
 
 protected:
 	std::atomic<__int64> _totalSentBytes;
@@ -183,6 +203,7 @@ protected:
 	std::atomic<__int64> _totalReceivedCount;
 
 protected:
+	virtual CSTXServerContextBase* OnCreateServerContext();
 	virtual CSTXIOCPServerClientContext *OnCreateClientContext(tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext);
 	virtual CSTXIOCPTcpConnectionContext*OnCreateTcpConnectionContext();
 	virtual BOOL OnAccepted(CSTXIOCPServerClientContext *pClientContext);
@@ -246,6 +267,9 @@ protected:
 	lua_State *GetLuaStateForCurrentThread();
 	CUniversalServerWorkerThreadData *GetCurrentThreadData();
 	DWORD IsClientDataReadableWebSocket(CSTXIOCPServerClientContext *pClientContext);
+	std::shared_ptr<CUniversalStringCache> GetTcpServerReceiveScript(CUniversalServerContext *pServerContext);
+	std::shared_ptr<CUniversalStringCache> GetTcpConnectionReceiveScript(CUniversalIOCPTcpConnectionContext *pConnectionContext);
+	std::shared_ptr<CUniversalStringCache> GetTcpServerConnectedScript(CUniversalServerContext *pServerContext);
 
 	template<class T>
 	BOOL CheckLuaObject(lua_State *L, const char *name)
@@ -298,6 +322,9 @@ public:
 	__int64 GetTotalReceivedBytes() const;
 	void SetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, LPCTSTR lpszValue);
 	BOOL GetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, std::wstring& valueOut);
+	void SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScriptFile);
+	void SetTcpConnectionReceiveScript(LONG nConnectionID, LPCTSTR lpszScriptFile);
+	void SetTcpServerConnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 
 public:
 	template<typename T>

@@ -257,6 +257,8 @@ LRESULT CSTXProtocolDialog::OnConnectNotify(UINT msg, WPARAM wParam, LPARAM lPar
 		_connectionContext->AddRef();
 
 	::EnableWindow(GetDlgItem(IDC_BUTTON_SEND), lParam == 0);
+
+	InvalidateRect(NULL);
 	return 0;
 }
 
@@ -272,6 +274,7 @@ LRESULT CSTXProtocolDialog::OnDisconnectNotify(UINT msg, WPARAM wParam, LPARAM l
 	}
 
 	::EnableWindow(GetDlgItem(IDC_BUTTON_SEND), FALSE);
+	InvalidateRect(NULL);
 	return 0;
 }
 
@@ -367,6 +370,7 @@ LRESULT CSTXProtocolDialog::OnSendClicked(WORD, UINT, HWND, BOOL&)
 LRESULT CSTXProtocolDialog::OnConnectClicked(WORD, UINT, HWND, BOOL&)
 {
 	::EnableWindow(GetDlgItem(IDC_BUTTON_CONNECT), FALSE);
+	InvalidateRect(NULL);
 	_socket.SetDialogPtr(this);
 	_socket.Close();
 	_socket.Create();
@@ -493,6 +497,69 @@ LRESULT CSTXProtocolDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	LoadHistory();
 
 	return 1; // Let dialog manager set initial focus
+}
+
+LRESULT CSTXProtocolDialog::OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
+{
+	PAINTSTRUCT ps;
+	BeginPaint(&ps);
+
+	CDCHandle dc;
+	dc.Attach(ps.hdc);
+
+	const int HEIGHT = 120;
+
+	TRIVERTEX        vert[2];
+	GRADIENT_RECT    gRect;
+	RECT rcClient;
+	GetClientRect(&rcClient);
+
+	BOOL bConnected = ::IsWindowEnabled(GetDlgItem(IDC_BUTTON_SEND));
+	BOOL bConnecting = !::IsWindowEnabled(GetDlgItem(IDC_BUTTON_CONNECT));
+
+	COLORREF colorBK = GetSysColor(COLOR_BTNFACE);
+
+	vert[0].x = rcClient.left;
+	vert[0].y = rcClient.bottom - HEIGHT;
+	vert[0].Red = MAKEWORD(0, GetRValue(colorBK));
+	vert[0].Green = MAKEWORD(0, GetGValue(colorBK));
+	vert[0].Blue = MAKEWORD(0, GetBValue(colorBK));
+	vert[0].Alpha = 0;
+
+	vert[1].x = rcClient.right;
+	vert[1].y = rcClient.bottom;
+
+	if (bConnected)
+	{
+		vert[1].Red = MAKEWORD(0, 192);
+		vert[1].Green = MAKEWORD(0, 255);
+		vert[1].Blue = MAKEWORD(0, 192);
+	}
+	else
+	{
+		if (bConnecting)
+		{
+			vert[1].Red = MAKEWORD(0, 248);
+			vert[1].Green = MAKEWORD(0, 248);
+			vert[1].Blue = MAKEWORD(0, 168);
+		}
+		else
+		{
+			vert[1].Red = MAKEWORD(0, 255);
+			vert[1].Green = MAKEWORD(0, 192);
+			vert[1].Blue = MAKEWORD(0, 192);
+		}
+	}
+
+	vert[1].Alpha = 0;
+
+	gRect.UpperLeft = 0;
+	gRect.LowerRight = 1;
+
+	GradientFill(ps.hdc, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_V);
+
+	EndPaint(&ps);
+	return 0;
 }
 
 LRESULT CSTXProtocolDialog::OnCbTypeSelChange(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)

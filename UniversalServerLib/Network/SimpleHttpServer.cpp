@@ -202,18 +202,6 @@ void CSimpleHttpServer::OnHttpRequest(CSTXIOCPServerClientContext *pClientContex
 	{
 		SendResponseData(pClientContext, 200, "text", (LPVOID)szDefaultResponse, nLen);
 	}
-
-	//ShowCallStack();
-
-	//BeginDownloadURL(_T("ximserver.oicp.net"), _T("/Report_W530.htm"), 1);
-	//BeginDownloadURL(_T("10.10.26.129"), _T("/pic1.png"), 1);
-
-	//AddTimerObject(this, 20000);
-
-	//this->KillAllConnections();
-	//Test:Error!!!!
-	int *p = (int*)0x1777;
-	*p = 1;
 }
 
 void CSimpleHttpServer::OnHttpRequestInternal( const char *pszHeader, void* pUserData)
@@ -282,16 +270,6 @@ void CSimpleHttpServer::Parse( const char *pszHeader, void* pUserData )
 
 void CSimpleHttpServer::SendReplyMessage( CSTXIOCPServerClientContext *pClientContext, std::string strReplyLine )
 {
-	//std::string strHeader = "HTTP/1.1 200 OK\r\nServer: SimpleHttpServer/1.0\r\nContent-Type: text/html\r\nContent-Length: ";
-	//int nLen = strReplyLine.size();
-	//char szLen[32];
-	//_itoa_s(nLen, szLen, 10);
-	//strHeader += szLen;
-	//strHeader += "\r\n\r\n";
-
-	//strHeader += strReplyLine;
-	//SendClientData(pClientContext, (void*)strHeader.c_str(), strHeader.size());
-
 	SendResponseData(pClientContext, 200, "text/html", (LPVOID)strReplyLine.c_str(), strReplyLine.size());
 }
 

@@ -54,6 +54,12 @@
 #define CJSON_VERSION   "2.1devel"
 #endif
 
+#ifdef _MSC_VER
+#define CJSON_EXPORT    __declspec(dllexport)
+#else
+#define CJSON_EXPORT    extern
+#endif
+
 #include <float.h>
 #define isnan(x) ((x) != (x))
 #define isinf(x) (!_finite(x) && !_isnan(x))
@@ -1412,7 +1418,7 @@ static int lua_cjson_safe_new(lua_State *l)
     return 1;
 }
 
-int luaopen_cjson(lua_State *l)
+CJSON_EXPORT int luaopen_cjson(lua_State *l)
 {
     lua_cjson_new(l);
 
@@ -1426,7 +1432,7 @@ int luaopen_cjson(lua_State *l)
     return 1;
 }
 
-int luaopen_cjson_safe(lua_State *l)
+CJSON_EXPORT int luaopen_cjson_safe(lua_State *l)
 {
     lua_cjson_safe_new(l);
 

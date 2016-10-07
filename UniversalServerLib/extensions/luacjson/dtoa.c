@@ -2488,7 +2488,7 @@ fpconv_strtod
 	U aadj2, adj, rv, rv0;
 	ULong y, z;
 	BCinfo bc;
-	Bigint *bb = 0, *bb1 = 0, *bd = 0, *bd0 = 0, *bs = 0, *delta = 0;
+	Bigint *bb, *bb1, *bd, *bd0, *bs, *delta;
 #ifdef Avoid_Underflow
 	ULong Lsb, Lsb1;
 #endif
@@ -3695,7 +3695,7 @@ dtoa
 	int denorm;
 	ULong x;
 #endif
-	Bigint *b = 0, *b1 = 0, *delta = 0, *mlo = 0, *mhi = 0, *S = 0;
+	Bigint *b, *b1, *delta, *mlo, *mhi, *S;
 	U d2, eps, u;
 	double ds;
 	char *s, *s0;

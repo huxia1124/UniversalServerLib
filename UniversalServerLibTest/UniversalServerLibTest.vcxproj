@@ -99,6 +99,14 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)scripts" mkdir "$(OutDir)scripts"
+ copy /Y "$(ProjectDir)*.lua" "$(OutDir)scripts"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -113,6 +121,14 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)scripts" mkdir "$(OutDir)scripts"
+ copy /Y "$(ProjectDir)*.lua" "$(OutDir)scripts"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -131,6 +147,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)scripts" mkdir "$(OutDir)scripts"
+ copy /Y "$(ProjectDir)*.lua" "$(OutDir)scripts"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -149,6 +173,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)scripts" mkdir "$(OutDir)scripts"
+ copy /Y "$(ProjectDir)*.lua" "$(OutDir)scripts"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -400,6 +432,7 @@
     <None Include="libcjson.lua" />
     <None Include="recv.lua" />
     <None Include="recv_test.lua" />
+    <None Include="recv_var.lua" />
     <None Include="server_stop.lua" />
     <None Include="server_test.lua" />
   </ItemGroup>

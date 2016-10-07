@@ -5,16 +5,17 @@ function start()
 
 	--local sss=utils.GetServer()
 		server:StartServer(0, 10000, 10000, 2048)
-		server:SetTcpServerReceiveScript(6800, "recv_test.lua");		--Associate the script to be executed when tcp server received data from client
 		utils.Sleep(300)
+		server:SetTcpServerReceiveScript(6800, "scripts/recv_test.lua")
+		server:SetTcpServerReceiveScript(9000, "scripts/recv_var.lua")
 		server:BeginTcpStreamServer(6800, "tcpStream", 10000)
-		local n = server:CreateTcpStreamConnection("127.0.0.1", 16800)
-		local n2 = server:PendingTcpStreamConnection("127.0.0.1", 16800)
-		print("Connection ID = "..n.." and "..n2)
-		server:SendStringToConnection(n, "aaaaaaaaaa")
+		--local n = server:CreateTcpStreamConnection("127.0.0.1", 16800)
+		--local n2 = server:PendingTcpStreamConnection("127.0.0.1", 16800)
+		--print("Connection ID = "..n.." and "..n2)
+		--server:SendStringToConnection(n, "aaaaaaaaaa")
 		
-		--server:BeginHttpServer(8080, "http", 10)
-		--server:BeginTcpServerV(9000, "tcpV", 10)
+		server:BeginHttpServer(8090, "http", 10)
+		server:BeginTcpServerV(9000, "tcpV", 10)
 		
 		server:PutString("k1", "Abcd")
 		
@@ -23,6 +24,7 @@ function start()
 	print("complicated(true) --> ", err, ret)
 	end
 end
+
 
 function stop()
 
@@ -36,3 +38,4 @@ print("stop called!")
 	print("complicated(true) --> ", err, ret)
 	end
 end
+

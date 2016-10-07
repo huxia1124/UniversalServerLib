@@ -104,8 +104,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	//Lua version
 	printf("Lua version: %S\n", pServer->GetLuaVersion());
 
+	LPCTSTR pszStartupScriptFile = _T("scripts/server_test.lua");
+	LPCTSTR pszStartupFunction = _T("start");
+
 	//Execute a lua script
-	int nLuaResult = pServer->Run(_T("scripts/server_test.lua"));
+	int nLuaResult = pServer->Run(pszStartupScriptFile);
 	if (nLuaResult == LUA_ERRSYNTAX)
 	{
 		printf("Error: Syntax error!\n");
@@ -116,7 +119,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	//Execute the function in lua previously loaded
-	pServer->CallFunction(_T("start"));
+	pServer->CallFunction(pszStartupFunction);
 
 
 	std::future<int> f2 = std::async(std::launch::async, [&]() {
@@ -126,14 +129,22 @@ int _tmain(int argc, _TCHAR* argv[])
 		HRESULT hr;
 		TASKDIALOGCONFIG tdc = { sizeof(TASKDIALOGCONFIG) };
 
+		std::wstring content = _T("This server is configured as following:\n");
+		content += _T("\nStartup script file:  ");
+		content += pszStartupScriptFile;
+		content += _T("\nEntry function:  ");
+		content += pszStartupFunction;
+
 		tdc.hwndParent = NULL;
 		tdc.dwCommonButtons = TDCBF_CLOSE_BUTTON;
 		tdc.pszWindowTitle = _T("UniversalServerLibTest");
 		tdc.pszMainIcon = TD_INFORMATION_ICON;
 		tdc.pszMainInstruction = _T("Server is running");
-		tdc.pszContent = _T("Close this dialog to terminate the server.");
+		tdc.pszContent = content.c_str();
 		tdc.pfCallback = TaskDialogCallbackProc;
 		tdc.dwFlags = TDF_CALLBACK_TIMER;
+		tdc.pszFooterIcon = TD_WARNING_ICON;
+		tdc.pszFooter = _T("Close this dialog to terminate the server.");
 
 		hr = TaskDialogIndirect(&tdc, &nButtonPressed, NULL, NULL);
 

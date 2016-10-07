@@ -196,8 +196,11 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		//	Sleep(dwTimeMS);
 		//}, LUA_ARGS(int));
 
+
+	//Additional libraries
 	luaopen_cjson(pLuaState);
 	luaopen_lsqlite3(pLuaState);
+
 	int n = luaL_dostring(pLuaState, "server=utils.GetServer()");
 
 }

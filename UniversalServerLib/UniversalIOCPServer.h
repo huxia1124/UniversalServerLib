@@ -48,11 +48,11 @@ class CUniversalServer;
 
 enum TcpServerType
 {
-	TcpServerTypeStream = 1,
-	TcpServerTypeHttp = 2,
-	TcpServerTypeBinaryHeader2 = 3,
-	TcpServerTypeBinaryHeader4 = 4,
-	TcpServerTypeBinaryHeaderV = 5
+	TcpServerTypeStream = 1,				//Stream data. 
+	TcpServerTypeHttp = 2,					//HTTP server
+	TcpServerTypeBinaryHeader2 = 3,			//Package starts with 2 bytes header
+	TcpServerTypeBinaryHeader4 = 4,			//Package starts with 4 bytes header
+	TcpServerTypeBinaryHeaderV = 5			//Package starts with variable length header
 };
 
 enum UniversalTcpClientRole
@@ -66,9 +66,9 @@ enum UniversalTcpClientRole
 enum TcpConnectionType
 {
 	TcpConnectionTypeStream = 1,
-	TcpConnectionTypeBinaryHeader2 = 3,
-	TcpConnectionTypeBinaryHeader4 = 4,
-	TcpConnectionTypeBinaryHeaderV = 5
+	TcpConnectionTypeBinaryHeader2 = 3,		//Package starts with 2 bytes header
+	TcpConnectionTypeBinaryHeader4 = 4,		//Package starts with 4 bytes header
+	TcpConnectionTypeBinaryHeaderV = 5		//Package starts with variable length header
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,10 +190,6 @@ public:
 	CUniversalServer *_pServer;
 	HANDLE _hRPCThread;
 	UINT m_nRPCServerPort;
-
-	//CUniversalStringCache _scriptCacheClientConnected;
-	//CUniversalStringCache _scriptCacheClientReceived;
-	//CUniversalStringCache _scriptCacheTcpConnectionReceived;
 
 protected:
 	std::atomic<__int64> _totalSentBytes;
@@ -317,7 +313,6 @@ public:
 	void DisconnectTcpClient(__int64 nClientUID);
 
 public:
-	void SetUserData(LPVOID pUserData);
 	__int64 GetTotalSentBytes() const;
 	__int64 GetTotalReceivedBytes() const;
 	void SetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, LPCTSTR lpszValue);

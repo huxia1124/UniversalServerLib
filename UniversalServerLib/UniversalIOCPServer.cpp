@@ -222,8 +222,11 @@ BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContex
 
 	if (!bSkipScript)
 	{
-		lua_State *L = GetLuaStateForCurrentThread();
+		//Lua script preparation. The following methods can be used in lua script:
+		// utils.GetClientUid()
+		// utils.GetServerParam()
 
+		lua_State *L = GetLuaStateForCurrentThread();
 		LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetClientUid", [&] {
 			return pClient->_uid;
 		}).addFunction("GetServerParam", [&] {
@@ -232,8 +235,8 @@ BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContex
 			return serverParam;
 		}).endModule();
 
-		//RunScriptCache(_scriptCacheClientConnected);
-
+		
+		//Run script
 		auto serverContext = pClientContext->GetServerContext();
 		auto scriptCache = GetTcpServerConnectedScript(dynamic_cast<CUniversalServerContext*>(serverContext.get()));
 		if (scriptCache)
@@ -906,6 +909,12 @@ BOOL CUniversalIOCPServer::OnWebSocketClientPong(CUniversalIOCPServerClientConte
 
 BOOL CUniversalIOCPServer::OnWebSocketClientReceived(CUniversalIOCPServerClientContext *pClientContext, BYTE *pDataBuffer, DWORD cbDataLen)
 {
+	//Lua script preparation. The following methods can be used in lua script:
+	// utils.GetClientUid()
+	// utils.GetServerParam()
+	// utils.GetMessageBase64()
+	// utils.GetMessage() - text message
+
 	lua_State *L = GetLuaStateForCurrentThread();
 
 	LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetClientUid", [&] {
@@ -930,8 +939,7 @@ BOOL CUniversalIOCPServer::OnWebSocketClientReceived(CUniversalIOCPServerClientC
 		return strMsg;
 	}).endModule();
 
-	//RunScriptCache(_scriptCacheClientReceived);
-
+	//Run script
 	auto serverContext = pClientContext->GetServerContext();
 	auto scriptCache = GetTcpServerReceiveScript(dynamic_cast<CUniversalServerContext*>(serverContext.get()));
 	if (scriptCache)
@@ -969,14 +977,14 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 		}
 	}
 
-
+	//Event handler callback
 	BOOL bSkipScript = FALSE;
 	if (_pServer && _pServer->_callback)
 		_pServer->_callback->OnTcpClientReceived(pClient->GetServerContext()->GetServerParamString().c_str(), pClient->_uid, pBuffer->GetBufferPtr(), pBuffer->GetDataLength(), &bSkipScript);
 
 
 	if (!bSkipScript &&
-		(pClient->_serverType == TcpServerTypeStream					//Raw Data
+		(pClient->_serverType == TcpServerTypeStream				//Raw Data
 		|| pClient->_serverType == TcpServerTypeBinaryHeaderV		//VariableHeader Server
 		|| pClient->_serverType == TcpServerTypeBinaryHeader4		//4 bytes header size prefix
 		|| pClient->_serverType == TcpServerTypeBinaryHeader2))		//2 bytes header size prefix
@@ -984,41 +992,12 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 		long nBufferLen = pBuffer->GetDataLength();
 		BYTE *pDataBuffer = (BYTE*)pBuffer->GetBufferPtr();
 
-		//SendClientData(pClient, pDataBuffer, nBufferLen);
-
-		/*
-		if (pClient->_serverType == TcpServerTypeBinaryHeaderV)
-		{
-			STXTRACE(_T("BinaryHeaderV received... Package length = %d"), pBuffer->GetDataLength());
-			LONG nLenParsed = 0;
-			CSTXProtocol p;
-			p.Decode(pDataBuffer, &nLenParsed);
-			p.EnumValues([](STXPROTOCOLVALUE *pVal, STXPROTOCOLVALUE *pValExtra, void *pUserData)
-			{
-				CSTXProtocolString val(pVal);
-				CSTXProtocolString valExtra(pValExtra);
-				if (pValExtra->nValueType != STXPROTOCOL_DATA_TYPE_INVALID)
-				{
-					STXTRACE(_T("\t\t%16s :\t %s / %s"), CSTXProtocol::GetTypeString(pVal->nValueType), (LPCTSTR)val, (LPCTSTR)valExtra);
-				}
-				else
-				{
-					STXTRACE(_T("\t\t%16s :\t %s"), CSTXProtocol::GetTypeString(pVal->nValueType), (LPCTSTR)val);
-				}
-				//CSTXProtocolString
-			}, 0);
-			p.SeekReadToBegin();
-			//CSTXProtocolString s;
-			//p.GetNextString(&s);
-		}
-
-		*/
-
-		
+		//Lua script preparation. The following methods can be used in lua script:
+		// utils.GetClientUid()
+		// utils.GetServerParam()
+		// utils.GetMessageBase64()
 
 		lua_State *L = GetLuaStateForCurrentThread();
-		
-
 		LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetClientUid", [&] {
 			return pClient->_uid;
 		}).addFunction("GetServerParam", [&] {
@@ -1035,6 +1014,8 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 
 		if (pClient->_serverType == TcpServerTypeBinaryHeaderV)
 		{
+			//For variable header server:
+			// utils.GetMessage()
 			LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetMessage", [&] {
 				size_t nLenParsed = 0;
 				std::shared_ptr<CSTXProtocolLua> spInner(new CSTXProtocolLua());
@@ -1045,17 +1026,6 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 		}
 		
 
-		//Consume CPU time
-		//for (long k = 0; k < nBufferLen * 10; k++)
-		//{
-		//	pDataBuffer[k % nBufferLen] = ~pDataBuffer[k % nBufferLen];
-		//}
-
-		//__declspec(thread) static LONGLONG recvScriptVersionInThread = 0;
-		//RunScriptCache(_scriptCacheClientReceived, &recvScriptVersionInThread);
-
-		//RunScriptCache(_scriptCacheClientReceived, &GetCurrentThreadData()->_scriptVersions[0]);
-
 		auto serverContext = pClient->GetServerContext();
 		auto scriptCache = GetTcpServerReceiveScript(dynamic_cast<CUniversalServerContext*>(serverContext.get()));
 		if (scriptCache)
@@ -1063,9 +1033,6 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 			RunScriptCache(*scriptCache.get());
 		}
 
-		//RunScriptCache(_scriptCacheClientReceived);
-
-		//RunScript(_T("recv.lua"));	
 	}
 	else if (pClient->_serverType == TcpServerTypeHttp)		//HTTP Server
 	{
@@ -1075,11 +1042,6 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 			pClient->AppendChar(pszBuffer[i], pClientContext, pszBuffer + i);
 		}
 	}
-
-	//ULONG_PTR aa[2];
-	//aa[0] = (ULONG_PTR)_T("aa0");
-	//aa[1] = (ULONG_PTR)_T("aa1");
-	//RaiseCustomException(0x20000001, 2, aa);
 
 	return TRUE;
 }
@@ -1111,6 +1073,10 @@ void CUniversalIOCPServer::OnTcpReceived(CSTXIOCPTcpConnectionContext *pTcpConnC
 		long nBufferLen = pBuffer->GetDataLength();
 		BYTE *pDataBuffer = (BYTE*)pBuffer->GetBufferPtr();
 
+		//Lua script preparation. The following methods can be used in lua script:
+		// utils.GetConnectionId()
+		// utils.GetConnectionParam()
+		// utils.GetMessageBase64()
 		lua_State *L = GetLuaStateForCurrentThread();
 
 		LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetConnectionId", [&] {
@@ -1119,10 +1085,19 @@ void CUniversalIOCPServer::OnTcpReceived(CSTXIOCPTcpConnectionContext *pTcpConnC
 			USES_CONVERSION;
 			std::string connParam = (LPCSTR)ATL::CW2A(pConnection->GetServerParamString().c_str());
 			return connParam;
+		}).addFunction("GetMessageBase64", [&] {
+			std::string strMsg;
+			DWORD dwBase64Len = (nBufferLen / 3 + 4) * 5;
+			strMsg.resize(dwBase64Len);
+			CryptBinaryToStringA(pDataBuffer, nBufferLen, CRYPT_STRING_BASE64, (char*)strMsg.c_str(), &dwBase64Len);
+			return strMsg;
 		}).endModule();
 
 		if (pTcpConnCtx->GetServerParam() == TcpConnectionTypeBinaryHeaderV)
 		{
+			//For variable header server:
+			// utils.GetMessage()
+
 			LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetMessage", [&] {
 				size_t nLenParsed = 0;
 				std::shared_ptr<CSTXProtocolLua> spInner(new CSTXProtocolLua());
@@ -1132,8 +1107,7 @@ void CUniversalIOCPServer::OnTcpReceived(CSTXIOCPTcpConnectionContext *pTcpConnC
 			}).endModule();
 		}
 
-		//RunScriptCache(_scriptCacheTcpConnectionReceived);
-
+		//Run script 
 		auto scriptCache = GetTcpConnectionReceiveScript(dynamic_cast<CUniversalIOCPTcpConnectionContext*>(pTcpConnCtx));
 		if (scriptCache)
 		{
@@ -1394,20 +1368,6 @@ UINT WINAPI CUniversalIOCPServer::UniversalServerRPCThread(LPVOID lpParameter)
 
 void CUniversalIOCPServer::OnServerInitialized()
 {
-
-	//_scriptCacheClientConnected.SetNeedUpdate(TRUE);
-	//_scriptCacheClientConnected.EnableTraceThreadVersion();
-	//_scriptCacheClientConnected.SetStringName(_T("scripts/accepted.lua"));
-
-	//_scriptCacheClientReceived.SetNeedUpdate(TRUE);
-	//_scriptCacheClientReceived.EnableTraceThreadVersion();
-	//_scriptCacheClientReceived.SetStringName(_T("scripts/recv.lua"));
-
-	//_scriptCacheTcpConnectionReceived.SetNeedUpdate(TRUE);
-	//_scriptCacheTcpConnectionReceived.EnableTraceThreadVersion();
-	//_scriptCacheTcpConnectionReceived.SetStringName(_T("scripts/tcp_recv.lua"));
-
-
 	ULONGLONG tick = GetTickCount64();
 	STXTRACELOGE(3, _T("Loading file modify/write time for all files in the server directory..."));
 
@@ -2129,22 +2089,6 @@ void CUniversalIOCPServer::ProcessInternalScriptFileChange(DWORD dwAction, LPCTS
 	ULONGLONG tick = GetTickCount64();
 	if (dwAction != FILE_ACTION_RENAMED_OLD_NAME)
 	{
-		//if (_tcsicmp(lpszRelativePathName, _scriptCacheClientReceived.GetStringName()) == 0)
-		//{
-		//	STXTRACELOGE(_T("%s changed. schedule reloading..."), _scriptCacheClientReceived.GetStringName());
-		//	_scriptCacheClientReceived.SetNeedUpdate(TRUE);
-		//}
-		//else if (_tcsicmp(lpszRelativePathName, _scriptCacheTcpConnectionReceived.GetStringName()) == 0)
-		//{
-		//	STXTRACELOGE(_T("%s changed. schedule reloading..."), _scriptCacheTcpConnectionReceived.GetStringName());
-		//	_scriptCacheTcpConnectionReceived.SetNeedUpdate(TRUE);
-		//}
-		//else if (_tcsicmp(lpszRelativePathName, _scriptCacheClientConnected.GetStringName()) == 0)
-		//{
-		//	STXTRACELOGE(_T("%s changed. schedule reloading..."), _scriptCacheClientConnected.GetStringName());
-		//	_scriptCacheClientConnected.SetNeedUpdate(TRUE);
-		//}
-
 		std::wstring strRelativePathName = lpszRelativePathName;
 		std::replace(strRelativePathName.begin(), strRelativePathName.end(), '\\', '/');
 		LPCTSTR pszUnifiedRelativePathName = strRelativePathName.c_str();

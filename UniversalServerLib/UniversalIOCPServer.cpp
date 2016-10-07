@@ -174,11 +174,22 @@ void CUniversalIOCPServer::OnClientDisconnect(CSTXIOCPServerClientContext *pClie
 	_mapClients.erase(pClient->_uid);
 	_mapDebugMonitorClients.erase(pClient->_uid);
 	_mapLogMonitorClients.erase(pClient->_uid);
+
+	if (!bSkipScript)
+	{
+		//Run script
+		auto serverContext = pClient->GetServerContext();
+		auto scriptCache = GetTcpServerClientDisconnectedScript(dynamic_cast<CUniversalIOCPTcpServerContext*>(serverContext.get()));
+		if (scriptCache)
+		{
+			RunScriptCache(*scriptCache.get());
+		}
+	}
 }
 
 CSTXServerContextBase* CUniversalIOCPServer::OnCreateServerContext()
 {
-	return new CUniversalServerContext();
+	return new CUniversalIOCPTcpServerContext();
 }
 
 CSTXIOCPServerClientContext * CUniversalIOCPServer::OnCreateClientContext(tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext)
@@ -238,7 +249,7 @@ BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContex
 		
 		//Run script
 		auto serverContext = pClientContext->GetServerContext();
-		auto scriptCache = GetTcpServerConnectedScript(dynamic_cast<CUniversalServerContext*>(serverContext.get()));
+		auto scriptCache = GetTcpServerConnectedScript(dynamic_cast<CUniversalIOCPTcpServerContext*>(serverContext.get()));
 		if (scriptCache)
 		{
 			RunScriptCache(*scriptCache.get());
@@ -355,7 +366,7 @@ DWORD CUniversalIOCPServer::IsClientDataReadableWebSocket(CSTXIOCPServerClientCo
 
 }
 
-std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerReceiveScript(CUniversalServerContext *pServerContext)
+std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerReceiveScript(CUniversalIOCPTcpServerContext *pServerContext)
 {
 	if (pServerContext->_tcpServerRecvScript)
 		return pServerContext->_tcpServerRecvScript;
@@ -397,7 +408,7 @@ std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpConnectionRec
 	return result;
 }
 
-std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerConnectedScript(CUniversalServerContext *pServerContext)
+std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerConnectedScript(CUniversalIOCPTcpServerContext *pServerContext)
 {
 	if (pServerContext->_tcpServerConnectedScript)
 		return pServerContext->_tcpServerConnectedScript;
@@ -414,6 +425,27 @@ std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerConnect
 
 	if (result)
 		pServerContext->_tcpServerConnectedScript = result;
+
+	return result;
+}
+
+std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerClientDisconnectedScript(CUniversalIOCPTcpServerContext *pServerContext)
+{
+	if (pServerContext->_tcpServerClientDisconnectedScript)
+		return pServerContext->_tcpServerClientDisconnectedScript;
+
+	std::shared_ptr<CUniversalStringCache> result;
+	auto port = pServerContext->GetListeningPort();
+	_mapTcpServerClientDisconnectedScripts.lock(port);
+	auto it = _mapTcpServerClientDisconnectedScripts.find(port);
+	if (it != _mapTcpServerClientDisconnectedScripts.end(port))
+	{
+		result = it->second;
+	}
+	_mapTcpServerClientDisconnectedScripts.unlock(port);
+
+	if (result)
+		pServerContext->_tcpServerClientDisconnectedScript = result;
 
 	return result;
 }
@@ -941,7 +973,7 @@ BOOL CUniversalIOCPServer::OnWebSocketClientReceived(CUniversalIOCPServerClientC
 
 	//Run script
 	auto serverContext = pClientContext->GetServerContext();
-	auto scriptCache = GetTcpServerReceiveScript(dynamic_cast<CUniversalServerContext*>(serverContext.get()));
+	auto scriptCache = GetTcpServerReceiveScript(dynamic_cast<CUniversalIOCPTcpServerContext*>(serverContext.get()));
 	if (scriptCache)
 	{
 		RunScriptCache(*scriptCache.get());
@@ -1027,7 +1059,7 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 		
 
 		auto serverContext = pClient->GetServerContext();
-		auto scriptCache = GetTcpServerReceiveScript(dynamic_cast<CUniversalServerContext*>(serverContext.get()));
+		auto scriptCache = GetTcpServerReceiveScript(dynamic_cast<CUniversalIOCPTcpServerContext*>(serverContext.get()));
 		if (scriptCache)
 		{
 			RunScriptCache(*scriptCache.get());
@@ -1501,7 +1533,7 @@ void CUniversalIOCPServer::SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScr
 	auto itServer = m_mapTcpServers.find(nPort);
 	if (itServer != m_mapTcpServers.end())
 	{
-		CUniversalServerContext *serverContext = dynamic_cast<CUniversalServerContext*>(itServer->second.get());
+		CUniversalIOCPTcpServerContext *serverContext = dynamic_cast<CUniversalIOCPTcpServerContext*>(itServer->second.get());
 		if (serverContext)
 		{
 			serverContext->_tcpServerRecvScript = scriptCache;
@@ -1591,7 +1623,7 @@ void CUniversalIOCPServer::SetTcpConnectionReceiveScript(LONG nConnectionID, LPC
 	_mapScriptFileCaches.unlock(lpszScriptFile);
 }
 
-void CUniversalIOCPServer::SetTcpServerConnectedScript(UINT nPort, LPCTSTR lpszScriptFile)
+void CUniversalIOCPServer::SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR lpszScriptFile)
 {
 	std::shared_ptr<CUniversalStringCache> scriptCache;
 	std::wstring originalName;
@@ -1619,10 +1651,69 @@ void CUniversalIOCPServer::SetTcpServerConnectedScript(UINT nPort, LPCTSTR lpszS
 	auto itServer = m_mapTcpServers.find(nPort);
 	if (itServer != m_mapTcpServers.end())
 	{
-		CUniversalServerContext *serverContext = dynamic_cast<CUniversalServerContext*>(itServer->second.get());
+		CUniversalIOCPTcpServerContext *serverContext = dynamic_cast<CUniversalIOCPTcpServerContext*>(itServer->second.get());
 		if (serverContext)
 		{
 			serverContext->_tcpServerConnectedScript = scriptCache;
+		}
+	}
+	UnlockServersMap();
+
+	_mapScriptFileCaches.lock(lpszScriptFile);
+	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
+	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+	{
+		itCache->second.insert(scriptCache.get());
+	}
+	else
+	{
+		_mapScriptFileCaches[lpszScriptFile].insert(scriptCache.get());
+	}
+
+	//If the script file name changed, remove the previous mapping
+	if (originalName.size() > 0)
+	{
+		itCache = _mapScriptFileCaches.find(originalName);
+		if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+		{
+			itCache->second.erase(scriptCache.get());
+		}
+	}
+	_mapScriptFileCaches.unlock(lpszScriptFile);
+}
+
+void CUniversalIOCPServer::SetTcpServerClientDisconnectedScript(UINT nPort, LPCTSTR lpszScriptFile)
+{
+	std::shared_ptr<CUniversalStringCache> scriptCache;
+	std::wstring originalName;
+	_mapTcpServerClientDisconnectedScripts.lock(nPort);
+	auto it = _mapTcpServerClientDisconnectedScripts.find(nPort);
+	if (it == _mapTcpServerClientDisconnectedScripts.end(nPort))
+	{
+		scriptCache = std::make_shared<CUniversalStringCache>();
+		originalName = scriptCache->GetStringName();
+		scriptCache->SetNeedUpdate(true);
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->SetStringName(lpszScriptFile);
+		_mapTcpServerClientDisconnectedScripts[nPort] = scriptCache;
+	}
+	else
+	{
+		it->second->SetStringName(lpszScriptFile);
+		it->second->SetNeedUpdate(true);
+		scriptCache = it->second;
+	}
+	_mapTcpServerClientDisconnectedScripts.unlock(nPort);
+
+	LockServersMap();
+	auto itServer = m_mapTcpServers.find(nPort);
+	if (itServer != m_mapTcpServers.end())
+	{
+		CUniversalIOCPTcpServerContext *serverContext = dynamic_cast<CUniversalIOCPTcpServerContext*>(itServer->second.get());
+		if (serverContext)
+		{
+			serverContext->_tcpServerClientDisconnectedScript = scriptCache;
 		}
 	}
 	UnlockServersMap();

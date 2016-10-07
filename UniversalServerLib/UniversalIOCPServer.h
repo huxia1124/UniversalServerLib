@@ -84,12 +84,13 @@ struct CUniversalServerWorkerThreadData
 
 //////////////////////////////////////////////////////////////////////////
 
-class CUniversalServerContext : public CSTXIOCPTcpServerContext
+class CUniversalIOCPTcpServerContext : public CSTXIOCPTcpServerContext
 {
 	friend class CUniversalIOCPServer;
 protected:
 	std::shared_ptr<CUniversalStringCache> _tcpServerRecvScript;
 	std::shared_ptr<CUniversalStringCache> _tcpServerConnectedScript;
+	std::shared_ptr<CUniversalStringCache> _tcpServerClientDisconnectedScript;
 
 };
 
@@ -181,9 +182,10 @@ protected:
 
 	//Scripts configuration
 	CSTXHashMap<std::wstring, std::set<CUniversalStringCache*>, 4, 1, CSTXNoCaseWStringHash<4, 1> > _mapScriptFileCaches;
-	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerRecvScripts;				//Port -> ScriptCache
-	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerConnectedScripts;		//Port -> ScriptCache
-	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionRecvScripts;			//ConnectionID -> ScriptCache
+	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerRecvScripts;					//Port -> ScriptCache
+	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerConnectedScripts;			//Port -> ScriptCache
+	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerClientDisconnectedScripts;		//Port -> ScriptCache
+	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionRecvScripts;				//ConnectionID -> ScriptCache
 
 public:
 	STXSERVERINIT _serverInitializationInfo;
@@ -263,9 +265,10 @@ protected:
 	lua_State *GetLuaStateForCurrentThread();
 	CUniversalServerWorkerThreadData *GetCurrentThreadData();
 	DWORD IsClientDataReadableWebSocket(CSTXIOCPServerClientContext *pClientContext);
-	std::shared_ptr<CUniversalStringCache> GetTcpServerReceiveScript(CUniversalServerContext *pServerContext);
+	std::shared_ptr<CUniversalStringCache> GetTcpServerReceiveScript(CUniversalIOCPTcpServerContext *pServerContext);
 	std::shared_ptr<CUniversalStringCache> GetTcpConnectionReceiveScript(CUniversalIOCPTcpConnectionContext *pConnectionContext);
-	std::shared_ptr<CUniversalStringCache> GetTcpServerConnectedScript(CUniversalServerContext *pServerContext);
+	std::shared_ptr<CUniversalStringCache> GetTcpServerConnectedScript(CUniversalIOCPTcpServerContext *pServerContext);
+	std::shared_ptr<CUniversalStringCache> GetTcpServerClientDisconnectedScript(CUniversalIOCPTcpServerContext *pServerContext);
 
 	template<class T>
 	BOOL CheckLuaObject(lua_State *L, const char *name)
@@ -319,7 +322,8 @@ public:
 	BOOL GetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, std::wstring& valueOut);
 	void SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScriptFile);
 	void SetTcpConnectionReceiveScript(LONG nConnectionID, LPCTSTR lpszScriptFile);
-	void SetTcpServerConnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
+	void SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
+	void SetTcpServerClientDisconnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 
 public:
 	template<typename T>

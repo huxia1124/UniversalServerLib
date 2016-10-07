@@ -58,7 +58,7 @@ int CUniversalServer::ProcessException(LPEXCEPTION_POINTERS pExp)
 		switch (pExp->ExceptionRecord->ExceptionCode)
 		{
 		case EXCEPTION_ACCESS_VIOLATION:
-			_stprintf_s(szExceptionText, _T("Access violation %s location 0x%p"), (pExp->ExceptionRecord->ExceptionInformation[0] ? _T("writing to") : _T("reading from")), pExp->ExceptionRecord->ExceptionInformation[1]);
+			_stprintf_s(szExceptionText, _T("Access violation %s location 0x%p"), (pExp->ExceptionRecord->ExceptionInformation[0] ? _T("writing to") : _T("reading from")), (void*)pExp->ExceptionRecord->ExceptionInformation[1]);
 			break;
 		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
 			_stprintf_s(szExceptionText, _T("Accessed array out of bounds")); break;

@@ -1,7 +1,7 @@
 
 	err, ret = xpcall(function()
 	
-		 print("收到数据!! : TID = "..utils.GetThreadId())
+		 print("Data received : TID = "..utils.GetThreadId())
 		 local msg = utils.GetMessage()
 		 local firstString = msg:GetNextString()
 		 print(firstString)

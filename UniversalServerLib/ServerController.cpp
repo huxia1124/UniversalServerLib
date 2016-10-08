@@ -221,6 +221,11 @@ void CServerController::SetTcpConnectionReceiveScript(long nConnectionID, std::w
 	_server->SetTcpConnectionReceiveScript(nConnectionID, scriptFile.c_str());
 }
 
+void CServerController::SetTcpConnectionDisconnectedScript(long nConnectionID, std::wstring scriptFile)
+{
+	_server->SetTcpConnectionDisconnectedScript(nConnectionID, scriptFile.c_str());
+}
+
 void CServerController::SetTcpServerClientConnectedScript(int nPort, std::wstring scriptFile)
 {
 	_server->SetTcpServerClientConnectedScript(nPort, scriptFile.c_str());

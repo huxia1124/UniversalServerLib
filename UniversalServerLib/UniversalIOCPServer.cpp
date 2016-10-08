@@ -408,6 +408,27 @@ std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpConnectionRec
 	return result;
 }
 
+std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpConnectionDisconnectedScript(CUniversalIOCPTcpConnectionContext *pConnectionContext)
+{
+	if (pConnectionContext->_tcpConnectionDisconnectedScript)
+		return pConnectionContext->_tcpConnectionDisconnectedScript;
+
+	std::shared_ptr<CUniversalStringCache> result;
+	auto connectionID = pConnectionContext->GetConnectionID();
+	_mapTcpConnectionDisconnectedScripts.lock(connectionID);
+	auto it = _mapTcpConnectionDisconnectedScripts.find(connectionID);
+	if (it != _mapTcpConnectionDisconnectedScripts.end(connectionID))
+	{
+		result = it->second;
+	}
+	_mapTcpConnectionDisconnectedScripts.unlock(connectionID);
+
+	if (result)
+		pConnectionContext->_tcpConnectionDisconnectedScript = result;
+
+	return result;
+}
+
 std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerConnectedScript(CUniversalIOCPTcpServerContext *pServerContext)
 {
 	if (pServerContext->_tcpServerConnectedScript)
@@ -1596,6 +1617,65 @@ void CUniversalIOCPServer::SetTcpConnectionReceiveScript(LONG nConnectionID, LPC
 		if (connectionContext)
 		{
 			connectionContext->_tcpConnectionRecvScript = scriptCache;
+		}
+	}
+	LockConnectionMap();
+
+	_mapScriptFileCaches.lock(lpszScriptFile);
+	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
+	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+	{
+		itCache->second.insert(scriptCache.get());
+	}
+	else
+	{
+		_mapScriptFileCaches[lpszScriptFile].insert(scriptCache.get());
+	}
+
+	//If the script file name changed, remove the previous mapping
+	if (originalName.size() > 0)
+	{
+		itCache = _mapScriptFileCaches.find(originalName);
+		if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+		{
+			itCache->second.erase(scriptCache.get());
+		}
+	}
+	_mapScriptFileCaches.unlock(lpszScriptFile);
+}
+
+void CUniversalIOCPServer::SetTcpConnectionDisconnectedScript(LONG nConnectionID, LPCTSTR lpszScriptFile)
+{
+	std::shared_ptr<CUniversalStringCache> scriptCache;
+	std::wstring originalName;
+	_mapTcpConnectionDisconnectedScripts.lock(nConnectionID);
+	auto it = _mapTcpConnectionDisconnectedScripts.find(nConnectionID);
+	if (it == _mapTcpConnectionDisconnectedScripts.end(nConnectionID))
+	{
+		scriptCache = std::make_shared<CUniversalStringCache>();
+		originalName = scriptCache->GetStringName();
+		scriptCache->SetNeedUpdate(true);
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->SetStringName(lpszScriptFile);
+		_mapTcpConnectionDisconnectedScripts[nConnectionID] = scriptCache;
+	}
+	else
+	{
+		it->second->SetStringName(lpszScriptFile);
+		it->second->SetNeedUpdate(true);
+		scriptCache = it->second;
+	}
+	_mapTcpConnectionDisconnectedScripts.unlock(nConnectionID);
+
+	LockConnectionMap();
+	auto itConnection = m_mapConnections.find(nConnectionID);
+	if (itConnection != m_mapConnections.end())
+	{
+		CUniversalIOCPTcpConnectionContext *connectionContext = dynamic_cast<CUniversalIOCPTcpConnectionContext*>((CSTXIOCPTcpConnectionContext*)itConnection->second);
+		if (connectionContext)
+		{
+			connectionContext->_tcpConnectionDisconnectedScript = scriptCache;
 		}
 	}
 	LockConnectionMap();

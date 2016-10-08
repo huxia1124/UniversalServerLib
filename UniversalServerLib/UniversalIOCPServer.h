@@ -105,6 +105,7 @@ public:
 
 protected:
 	std::shared_ptr<CUniversalStringCache> _tcpConnectionRecvScript;
+	std::shared_ptr<CUniversalStringCache> _tcpConnectionDisconnectedScript;
 
 public:
 	__int64 _uid;
@@ -185,7 +186,8 @@ protected:
 	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerRecvScripts;					//Port -> ScriptCache
 	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerConnectedScripts;			//Port -> ScriptCache
 	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerClientDisconnectedScripts;		//Port -> ScriptCache
-	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionRecvScripts;				//ConnectionID -> ScriptCache
+	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionRecvScripts;					//ConnectionID -> ScriptCache
+	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionDisconnectedScripts;			//ConnectionID -> ScriptCache
 
 public:
 	STXSERVERINIT _serverInitializationInfo;
@@ -267,6 +269,7 @@ protected:
 	DWORD IsClientDataReadableWebSocket(CSTXIOCPServerClientContext *pClientContext);
 	std::shared_ptr<CUniversalStringCache> GetTcpServerReceiveScript(CUniversalIOCPTcpServerContext *pServerContext);
 	std::shared_ptr<CUniversalStringCache> GetTcpConnectionReceiveScript(CUniversalIOCPTcpConnectionContext *pConnectionContext);
+	std::shared_ptr<CUniversalStringCache> GetTcpConnectionDisconnectedScript(CUniversalIOCPTcpConnectionContext *pConnectionContext);
 	std::shared_ptr<CUniversalStringCache> GetTcpServerConnectedScript(CUniversalIOCPTcpServerContext *pServerContext);
 	std::shared_ptr<CUniversalStringCache> GetTcpServerClientDisconnectedScript(CUniversalIOCPTcpServerContext *pServerContext);
 
@@ -322,6 +325,7 @@ public:
 	BOOL GetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, std::wstring& valueOut);
 	void SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScriptFile);
 	void SetTcpConnectionReceiveScript(LONG nConnectionID, LPCTSTR lpszScriptFile);
+	void SetTcpConnectionDisconnectedScript(LONG nConnectionID, LPCTSTR lpszScriptFile);
 	void SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 	void SetTcpServerClientDisconnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 

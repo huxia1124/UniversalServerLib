@@ -66,6 +66,7 @@ public:
 	void Log(std::wstring logText, int nLogLevel);
 	void SetTcpServerReceiveScript(int nPort, std::wstring scriptFile);
 	void SetTcpConnectionReceiveScript(long nConnectionID, std::wstring scriptFile);
+	void SetTcpConnectionDisconnectedScript(long nConnectionID, std::wstring scriptFile);
 	void SetTcpServerClientConnectedScript(int nPort, std::wstring scriptFile);
 	void SetTcpServerClientDisconnectedScript(int nPort, std::wstring scriptFile);
 

@@ -59,7 +59,7 @@ public:
 	void SetTcpClientRole(__int64 nClientUID, int nRole);
 	void SetTcpClientTimeout(__int64 nClientUID, unsigned int nTimeout);
 	void SetRPCPort(unsigned int nPort);
-	void StartRPC();
+	void StartRPC(int nPort);
 	void StopRPC();
 	void PutString(std::wstring key, std::wstring value);
 	std::wstring GetString(std::wstring key);

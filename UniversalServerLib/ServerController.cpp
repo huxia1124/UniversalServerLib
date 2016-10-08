@@ -166,9 +166,12 @@ void CServerController::SetRPCPort(unsigned int nPort)
 	_server->SetRPCServerPort(nPort);
 }
 
-void CServerController::StartRPC()
+void CServerController::StartRPC(int nPort)
 {
-	_server->CreateServerRPCThread();
+	if(nPort > 0)
+		_server->CreateServerRPCThread((UINT)nPort);
+	else
+		_server->CreateServerRPCThread();
 }
 
 void CServerController::StopRPC()

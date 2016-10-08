@@ -1402,7 +1402,7 @@ UINT WINAPI CUniversalIOCPServer::UniversalServerRPCThread(LPVOID lpParameter)
 	// This call will not return until
 	// RpcMgmtStopServerListening is called.
 
-	STXTRACELOGE(_T("RPC Server will listen at port %d, Thread ID = 0x%X"), pServer->m_nRPCServerPort, status, GetCurrentThreadId());
+	STXTRACELOGE(_T("RPC Server will listen at port %d, Status = 0x%X, Thread ID = 0x%X"), pServer->m_nRPCServerPort, status, GetCurrentThreadId());
 
 	status = RpcServerListen(
 		1, // Recommended minimum number of threads.
@@ -1437,8 +1437,13 @@ void CUniversalIOCPServer::OnServerInitialized()
 	CreateServerRPCThread();
 }
 
-void CUniversalIOCPServer::CreateServerRPCThread()
+void CUniversalIOCPServer::CreateServerRPCThread(UINT nPort)
 {
+	if (nPort != 0)
+	{
+		m_nRPCServerPort = nPort;
+	}
+
 	if (m_nRPCServerPort == 0)
 	{
 		STXTRACELOGE(_T("RPC port is not specified. RPC server will not be created."));
@@ -1447,7 +1452,7 @@ void CUniversalIOCPServer::CreateServerRPCThread()
 
 	if (_hRPCThread != NULL)
 	{
-		STXTRACELOGE(_T("[r][g][i]RPC thread is running. It must be stopped before create a new RPC thread."));
+		STXTRACELOGE(_T("[r][g][i]RPC thread is running, RPC port is %d. It must be stopped before create a new RPC thread."), m_nRPCServerPort);
 		return;
 	}
 

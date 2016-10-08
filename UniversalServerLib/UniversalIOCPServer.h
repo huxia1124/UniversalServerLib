@@ -249,7 +249,7 @@ public:
 	void RunScriptCache(CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread);
 	int RunScript(LPCTSTR lpszScriptFile);
 	void SetRPCServerPort(UINT nPort);
-	void CreateServerRPCThread();
+	void CreateServerRPCThread(UINT nPort = 0);
 	void StopServerRPC();
 
 protected:

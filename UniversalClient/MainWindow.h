@@ -77,9 +77,5 @@ protected:
 		return 0;
 	}
 
-public:
-	void RunServerScriptFile(LPCTSTR lpszScriptFile);
-	void RunServerScriptString(LPCTSTR lpszScript);
-
 };
 

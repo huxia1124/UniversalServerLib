@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "STXProtocolDialog.h"
+#include "STXScriptDialog.h"
 
 
 CSTXProtocolDialog::CSTXProtocolDialog()
@@ -435,6 +436,14 @@ LRESULT CSTXProtocolDialog::OnHistoryClicked(WORD, UINT, HWND, BOOL&)
 	return 0;
 }
 
+LRESULT CSTXProtocolDialog::OnShowScriptDialogClicked(WORD, UINT, HWND, BOOL&)
+{
+	CSTXScriptDialog dlg;
+	dlg.DoModal(this->m_hWnd);
+
+	return 0;
+}
+
 void CSTXProtocolDialog::AddContentToList(LPCTSTR lpszValue)
 {
 	DWORD_PTR dwSel = _cbDataType.GetItemData(_cbDataType.GetCurSel());
@@ -487,6 +496,7 @@ LRESULT CSTXProtocolDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDC_BUTTON_CONNECT, STXANCHOR_BOTTOM | STXANCHOR_LEFT);
 	_anchor->AddItem(IDC_BUTTON_SEND, STXANCHOR_BOTTOM | STXANCHOR_RIGHT);
 	_anchor->AddItem(IDC_BUTTON_HISTORY, STXANCHOR_TOP | STXANCHOR_RIGHT);
+	_anchor->AddItem(IDC_BUTTON_SCRIPT_DIALOG, STXANCHOR_BOTTOM | STXANCHOR_LEFT);
 
 	UpdateAddButtonEnabled();
 	UpdateEnterFields();

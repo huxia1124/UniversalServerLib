@@ -172,6 +172,7 @@
     <ClInclude Include="STXAnchor.h" />
     <ClInclude Include="STXProtocolDialog.h" />
     <ClInclude Include="STXProtocolHistory.h" />
+    <ClInclude Include="STXScriptDialog.h" />
     <ClInclude Include="STXSocket.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="UniversalClient.h" />
@@ -222,6 +223,7 @@
     <ClCompile Include="STXAnchor.cpp" />
     <ClCompile Include="STXProtocolDialog.cpp" />
     <ClCompile Include="STXProtocolHistory.cpp" />
+    <ClCompile Include="STXScriptDialog.cpp" />
     <ClCompile Include="STXSocket.cpp" />
     <ClCompile Include="UniversalClient.cpp" />
     <ClCompile Include="UniversalClientSocket.cpp" />

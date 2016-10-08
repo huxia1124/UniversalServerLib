@@ -129,6 +129,9 @@
     <ClInclude Include="STXProtocolHistory.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="STXScriptDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -159,6 +162,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="STXProtocolHistory.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="STXScriptDialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

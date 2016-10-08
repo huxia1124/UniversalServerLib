@@ -654,6 +654,8 @@ void CUniversalIOCPServer::OnHttpWebSocketHandShake(CSTXIOCPServerClientContext 
 void CUniversalIOCPServer::OnHttpRequest(CSTXIOCPServerClientContext *pClientContext, std::map<std::string, std::string> &mapRequest, bool bPost)
 {
 	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
+
+	STXTRACE(3, _T("Http request on server [port=%d]: %S"), pClient->GetServerContext()->GetListeningPort(), mapRequest["*page"].c_str());
 }
 
 void CUniversalIOCPServer::SendRawResponseData(__int64 nClientUID, LPVOID pData, unsigned int nDataLen)
@@ -2323,6 +2325,10 @@ std::wstring CUniversalIOCPServer::GetFileContentText(LPCTSTR lpszFile, BOOL *pb
 	if (pszBuffer == NULL)
 	{
 		STXTRACELOGFE(_T("CUniversalIOCPServer::GetFileContentText: not enough memory."));
+		if (pbResult)
+		{
+			*pbResult = TRUE;
+		}
 		return _T("");
 	}
 	DWORD dwRead = 0;

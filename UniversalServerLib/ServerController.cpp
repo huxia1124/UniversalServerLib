@@ -116,6 +116,11 @@ void CServerController::BeginTcpServerV(int nPort, std::wstring userParam, int n
 	_server->BeginTcpServer(nPort, TcpServerTypeBinaryHeaderV, userParam.c_str(), nAcceptPost, nLimitClientCount);
 }
 
+void CServerController::DestroyTcpServer(int nPort)
+{
+	_server->KillTcpServer(nPort);
+}
+
 long CServerController::CreateTcpStreamConnection(std::wstring address, int nPort, std::wstring userParam)
 {
 	return _server->CreateTcpConnection(address.c_str(), nPort, TcpConnectionTypeStream, userParam.c_str(), AF_INET, TRUE);

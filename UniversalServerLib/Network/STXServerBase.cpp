@@ -16,6 +16,7 @@
 //DEALINGS IN THE SOFTWARE.
 
 #include "STXServerBase.h"
+#include <shlwapi.h>
 //#include "Global.h"
 
 //#define INCLUDE_INTEL_VTUNE_AMPLIFIER_CODE
@@ -559,8 +560,18 @@ BOOL CSTXServerBase::Initialize(HMODULE hModuleHandle, LPSTXSERVERINIT lpInit)
 	if(m_BaseServerInfo.dwServerFlags & STXSF_IPV6)
 		STXTRACELOGE(_T("[b][i]Server support for IPv6 enabled."));
 
-	if(m_BaseServerInfo.dwLogBufferSize > 1024)
-		STXTRACELOGE(_T("[b][i]Server log buffer size: %d"), m_BaseServerInfo.dwLogBufferSize);
+	if (m_BaseServerInfo.dwLogBufferSize < 1024)
+	{
+		m_BaseServerInfo.dwLogBufferSize = 1024;
+		STXTRACELOGE(_T("[r][g][i]Server log buffer size %d is too small. now using 1024."), m_BaseServerInfo.dwLogBufferSize);
+	}
+
+	if (m_BaseServerInfo.dwLogBufferSize >= 1024)
+	{
+		TCHAR szTemp[MAX_PATH];
+		StrFormatByteSize64(m_BaseServerInfo.dwLogBufferSize, szTemp, MAX_PATH);
+		STXTRACELOGE(_T("[b][i]Server log buffer size: %d\t(%s)"), m_BaseServerInfo.dwLogBufferSize, szTemp);
+	}
 
 	int nSubServerCreated = 0;
 	if(lpInit->uTcpServerCount > 0)
@@ -840,7 +851,7 @@ int CSTXServerBase::ProcessException(LPEXCEPTION_POINTERS pExp)
 		switch (pExp->ExceptionRecord->ExceptionCode)
 		{
 		case EXCEPTION_ACCESS_VIOLATION:
-			_stprintf_s(szExceptionText, _T("Access violation %s location 0x%p"), (pExp->ExceptionRecord->ExceptionInformation[0] ? _T("writing to") : _T("reading from")), pExp->ExceptionRecord->ExceptionInformation[1]);
+			_stprintf_s(szExceptionText, _T("Access violation %s location 0x%p"), (pExp->ExceptionRecord->ExceptionInformation[0] ? _T("writing to") : _T("reading from")), (void*)pExp->ExceptionRecord->ExceptionInformation[1]);
 			break;
 		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
 			_stprintf_s(szExceptionText, _T("Accessed array out of bounds")); break;

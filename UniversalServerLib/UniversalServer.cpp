@@ -176,6 +176,15 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addFunction("GetSentCountPerSecond", &CServerController::GetSentCountPerSecond)
 		.addFunction("GetReceiveBytesPerSecond", &CServerController::GetReceiveBytesPerSecond)
 		.addFunction("GetReceiveCountPerSecond", &CServerController::GetReceiveCountPerSecond)
+		.addFunction("SetStatisticsLevel", &CServerController::SetStatisticsLevel, LUA_ARGS(LuaIntf::_def<unsigned int, 1>))
+		.addFunction("GetStatisticsLevel", &CServerController::GetStatisticsLevel)
+		.addFunction("GetTotalReceivedBytes", &CServerController::GetTotalReceivedBytes)
+		.addFunction("GetTotalSentBytes", &CServerController::GetTotalSentBytes)
+		.addFunction("GetTotalReceivedCount", &CServerController::GetTotalReceivedCount)
+		.addFunction("GetTotalSentCount", &CServerController::GetTotalSentCount)
+		/*
+
+		*/
 		//.addFunction("Terminate", &CUniversalIOCPServer::Initialize)
 		//.addFunction("load", &Web::load, LUA_ARGS(LuaIntf::_opt<std::string>, LuaIntf::_opt<int>))
 		//.addFunction("loadw", &Web::loadw, LUA_ARGS(LuaIntf::_opt<std::wstring>))

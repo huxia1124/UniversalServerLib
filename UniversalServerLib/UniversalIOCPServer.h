@@ -197,11 +197,13 @@ public:
 	UINT m_nRPCServerPort;
 
 protected:
-	std::atomic<__int64> _totalSentBytes;
-	std::atomic<__int64> _totalReceivedBytes;
-	std::atomic<__int64> _totalConnected;
-	std::atomic<__int64> _totalSentCount;
-	std::atomic<__int64> _totalReceivedCount;
+	//Statistics members
+	UINT _statisticsEnabled = 1;					//Main switch for statistics data gathering
+	std::atomic<long long> _totalSentBytes;
+	std::atomic<long long> _totalReceivedBytes;
+	std::atomic<long long> _totalConnected;
+	std::atomic<long long> _totalSentCount;
+	std::atomic<long long> _totalReceivedCount;
 
 	CStatisticsBuffer<long long, 30> _statisticsSentBytes;
 	CStatisticsBuffer<long long, 30> _statisticsSentCount;
@@ -325,8 +327,6 @@ public:
 	void DisconnectTcpClient(__int64 nClientUID);
 
 public:
-	__int64 GetTotalSentBytes() const;
-	__int64 GetTotalReceivedBytes() const;
 	void SetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, LPCTSTR lpszValue);
 	BOOL GetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, std::wstring& valueOut);
 	void SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScriptFile);
@@ -335,10 +335,19 @@ public:
 	void SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 	void SetTcpServerClientDisconnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 	long GetTcpClientCount(UINT nPort);
-	long GetSentBytesPerSecond();
-	long GetSentCountPerSecond();
-	long GetReceiveBytesPerSecond();
-	long GetReceiveCountPerSecond();
+
+public:
+	//Statistics data. can be enabled/disabled through
+	void SetStatisticsLevel(UINT level);
+	UINT GetStatisticsLevel();
+	long long GetSentBytesPerSecond();
+	long long GetSentCountPerSecond();
+	long long GetReceiveBytesPerSecond();
+	long long GetReceiveCountPerSecond();
+	long long GetTotalSentBytes() const;
+	long long GetTotalReceivedBytes() const;
+	long long GetTotalSentCount() const;			//Package count
+	long long GetTotalReceivedCount() const;		//Package count
 
 
 public:

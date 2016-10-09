@@ -225,7 +225,10 @@ CSTXIOCPTcpConnectionContext* CUniversalIOCPServer::OnCreateTcpConnectionContext
 BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContext)
 {
 	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
-	_totalConnected++;
+	if (_statisticsEnabled)
+	{
+		_totalConnected++;
+	}
 
 	BOOL bSkipScript = FALSE;
 	if (_pServer && _pServer->_callback)
@@ -1008,11 +1011,14 @@ BOOL CUniversalIOCPServer::OnWebSocketClientReceived(CUniversalIOCPServerClientC
 
 BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClientContext, CSTXIOCPBuffer *pBuffer)
 {
-	_totalReceivedCount++;
-	_totalReceivedBytes += pBuffer->GetDataLength();
+	if (_statisticsEnabled)
+	{
+		_totalReceivedCount++;
+		_totalReceivedBytes += pBuffer->GetDataLength();
 
-	_statisticsReceiveBytes.AddValue(pBuffer->GetDataLength());
-	_statisticsReceiveCount.AddValue(1);
+		_statisticsReceiveBytes.AddValue(pBuffer->GetDataLength());
+		_statisticsReceiveCount.AddValue(1);
+	}
 
 	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
 
@@ -1321,21 +1327,34 @@ void CUniversalIOCPServer::SetTcpClientRole(__int64 nClientUID, UniversalTcpClie
 
 void CUniversalIOCPServer::OnClientSent(CSTXIOCPServerClientContext *pClientContext, CSTXIOCPBuffer *pBuffer)
 {
-	_totalSentCount++;
-	_totalSentBytes += pBuffer->GetDataLength();
+	if (_statisticsEnabled)
+	{
+		_totalSentCount++;
+		_totalSentBytes += pBuffer->GetDataLength();
 
-	_statisticsSentBytes.AddValue(pBuffer->GetDataLength());
-	_statisticsSentCount.AddValue(1);
+		_statisticsSentBytes.AddValue(pBuffer->GetDataLength());
+		_statisticsSentCount.AddValue(1);
+	}
 }
 
-__int64 CUniversalIOCPServer::GetTotalSentBytes() const
+long long CUniversalIOCPServer::GetTotalSentBytes() const
 {
 	return _totalSentBytes;
 }
 
-__int64 CUniversalIOCPServer::GetTotalReceivedBytes() const
+long long CUniversalIOCPServer::GetTotalReceivedBytes() const
 {
 	return _totalReceivedBytes;
+}
+
+long long CUniversalIOCPServer::GetTotalSentCount() const
+{
+	return _totalSentCount;
+}
+
+long long CUniversalIOCPServer::GetTotalReceivedCount() const
+{
+	return _totalReceivedCount;
 }
 
 void CUniversalIOCPServer::OnShutDown()
@@ -1343,6 +1362,10 @@ void CUniversalIOCPServer::OnShutDown()
 	StopServerRPC();
 
 	TCHAR szTemp[MAX_PATH];
+	if (!_statisticsEnabled)
+	{
+		STXTRACELOGE(_T("Statistics data gathering is currently disabled!. _statisticsEnabled = %d"), _statisticsEnabled);
+	}
 	STXTRACELOGE(_T("Total Connected: \t%I64d"), __int64(_totalConnected));
 	StrFormatByteSize64(_totalSentBytes, szTemp, MAX_PATH);
 	STXTRACELOGE(_T("Total Sent: \t%I64d Times \t%I64d Bytes (%s)"), __int64(_totalSentCount), __int64(_totalSentBytes), szTemp);
@@ -1839,23 +1862,33 @@ long CUniversalIOCPServer::GetTcpClientCount(UINT nPort)
 	return m_mapClientContext.size();
 }
 
-long CUniversalIOCPServer::GetSentBytesPerSecond()
+void CUniversalIOCPServer::SetStatisticsLevel(UINT level)
+{
+	_statisticsEnabled = level;
+}
+
+UINT CUniversalIOCPServer::GetStatisticsLevel()
+{
+	return _statisticsEnabled;
+}
+
+long long CUniversalIOCPServer::GetSentBytesPerSecond()
 {
 	return _statisticsSentBytes.GetAverage();
 }
 
-long CUniversalIOCPServer::GetSentCountPerSecond()
+long long CUniversalIOCPServer::GetSentCountPerSecond()
 {
 	return _statisticsSentCount.GetAverage();
 }
 
-long CUniversalIOCPServer::GetReceiveBytesPerSecond()
+long long CUniversalIOCPServer::GetReceiveBytesPerSecond()
 {
 	return _statisticsReceiveBytes.GetAverage();
 
 }
 
-long CUniversalIOCPServer::GetReceiveCountPerSecond()
+long long CUniversalIOCPServer::GetReceiveCountPerSecond()
 {
 	return _statisticsReceiveCount.GetAverage();
 }
@@ -2307,7 +2340,7 @@ void CUniversalIOCPServer::ProcessInternalScriptFileChange(DWORD dwAction, LPCTS
 		auto itCache = _mapScriptFileCaches.find(pszUnifiedRelativePathName);
 		if (itCache != _mapScriptFileCaches.end(pszUnifiedRelativePathName))
 		{
-			STXTRACELOGE(_T("%s changed. there are some script caches for this file. schedule reloading..."), pszUnifiedRelativePathName);
+			STXTRACELOGE(_T("%s changed. this file was cached before. schedule reloading..."), pszUnifiedRelativePathName);
 			std::for_each(itCache->second.begin(), itCache->second.end(), [](auto cache) {cache->SetNeedUpdate(TRUE); });
 		}
 		_mapScriptFileCaches.unlock(pszUnifiedRelativePathName);
@@ -2318,7 +2351,7 @@ void CUniversalIOCPServer::ProcessInternalScriptFileChange(DWORD dwAction, LPCTS
 		itCache = _mapScriptFileCaches.find(pszUnifiedRelativePathName);
 		if (itCache != _mapScriptFileCaches.end(pszUnifiedRelativePathName))
 		{
-			STXTRACELOGE(_T("%s changed. there are some script caches for this file. schedule reloading..."), pszUnifiedRelativePathName);
+			STXTRACELOGE(_T("%s changed. this file was cached before. schedule reloading..."), pszUnifiedRelativePathName);
 			std::for_each(itCache->second.begin(), itCache->second.end(), [](auto cache) {cache->SetNeedUpdate(TRUE); });
 		}
 		_mapScriptFileCaches.unlock(pszUnifiedRelativePathName);

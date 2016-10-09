@@ -247,22 +247,52 @@ long CServerController::GetTcpClientCount(int port)
 	return _server->GetTcpClientCount(port);
 }
 
-long CServerController::GetSentBytesPerSecond()
+long long CServerController::GetSentBytesPerSecond()
 {
 	return _server->GetSentBytesPerSecond();
 }
 
-long CServerController::GetSentCountPerSecond()
+long long CServerController::GetSentCountPerSecond()
 {
 	return _server->GetSentCountPerSecond();
 }
 
-long CServerController::GetReceiveBytesPerSecond()
+long long CServerController::GetReceiveBytesPerSecond()
 {
 	return _server->GetReceiveBytesPerSecond();
 }
 
-long CServerController::GetReceiveCountPerSecond()
+long long CServerController::GetReceiveCountPerSecond()
 {
 	return _server->GetReceiveCountPerSecond();
+}
+
+void CServerController::SetStatisticsLevel(unsigned int level)
+{
+	_server->SetStatisticsLevel(level);
+}
+
+unsigned int CServerController::GetStatisticsLevel()
+{
+	return _server->GetStatisticsLevel();
+}
+
+long long CServerController::GetTotalReceivedBytes()
+{
+	return _server->GetTotalReceivedBytes();
+}
+
+long long CServerController::GetTotalSentBytes()
+{
+	return _server->GetTotalSentBytes();
+}
+
+long long CServerController::GetTotalReceivedCount()
+{
+	return _server->GetTotalReceivedCount();
+}
+
+long long CServerController::GetTotalSentCount()
+{
+	return _server->GetTotalSentCount();
 }

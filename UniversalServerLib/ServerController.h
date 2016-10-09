@@ -72,10 +72,16 @@ public:
 	void SetTcpServerClientConnectedScript(int nPort, std::wstring scriptFile);
 	void SetTcpServerClientDisconnectedScript(int nPort, std::wstring scriptFile);
 	long GetTcpClientCount(int port);
-	long GetSentBytesPerSecond();
-	long GetSentCountPerSecond();
-	long GetReceiveBytesPerSecond();
-	long GetReceiveCountPerSecond();
+	long long GetSentBytesPerSecond();
+	long long GetSentCountPerSecond();
+	long long GetReceiveBytesPerSecond();
+	long long GetReceiveCountPerSecond();
+	void SetStatisticsLevel(unsigned int level);
+	unsigned int GetStatisticsLevel();
+	long long GetTotalReceivedBytes();
+	long long GetTotalSentBytes();
+	long long GetTotalReceivedCount();
+	long long GetTotalSentCount();
 
 };
 

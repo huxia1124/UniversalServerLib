@@ -24,7 +24,6 @@
 
 CSTXIOCPBuffer::CSTXIOCPBuffer()
 {
-	m_nLock = 0;
 	m_dwBufferLength = 0;
 	m_dwContentLength = 0;
 	m_pBuffer = NULL;
@@ -45,7 +44,6 @@ BOOL CSTXIOCPBuffer::ClearBuffer()
 		delete []m_pBuffer;
 		m_pBuffer = NULL;
 		m_dwBufferLength = 0;
-		m_nLock = 0;
 		m_dwContentLength = 0;
 
 		return TRUE;
@@ -79,16 +77,14 @@ BOOL CSTXIOCPBuffer::ReallocateBuffer(DWORD dwBufferSize)
 
 int CSTXIOCPBuffer::LockBuffer()
 {
-	m_lock.EnterLock();
-	m_nLock++;
-	return m_nLock;
+	_mutex.lock();
+	return 0;
 }
 
 int CSTXIOCPBuffer::UnlockBuffer()
 {
-	m_nLock--;
-	m_lock.LeaveLock();
-	return m_nLock;
+	_mutex.unlock();
+	return 0;
 }
 
 DWORD CSTXIOCPBuffer::WriteBuffer(LPVOID pData, DWORD cbDataLen)

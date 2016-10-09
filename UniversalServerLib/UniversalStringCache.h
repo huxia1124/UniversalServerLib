@@ -26,6 +26,7 @@
 #include "FastSpinlock.h"
 #include "STXUtility.h"
 #include <concurrent_vector.h>
+#include <concurrent_unordered_set.h>
 
 #define DEFAULT_STRING_CACHE_HISTORY_MAX_COUNT		3
 
@@ -234,7 +235,7 @@ public:
 	{
 		return _byteCode == NULL && _stringInUse == NULL;
 	}
-	void SetReferenceModule(Concurrency::concurrent_vector<std::wstring> *pModules)
+	void SetReferenceModule(Concurrency::concurrent_unordered_set<std::wstring> *pModules)
 	{
 		if (_referenceModules)
 		{
@@ -254,7 +255,7 @@ public:
 			_referenceModulesHistory.pop();
 		}
 	}
-	void GetReferenceRemove(std::vector<std::wstring> *pRemove, Concurrency::concurrent_vector<std::wstring> *pNewModules)
+	void GetReferenceRemove(std::vector<std::wstring> *pRemove, Concurrency::concurrent_unordered_set<std::wstring> *pNewModules)
 	{
 		if (_referenceModules == NULL || pNewModules == NULL || pNewModules->size() == 0 || _referenceModules->size() == 0 || pRemove == NULL)
 			return;
@@ -267,7 +268,7 @@ public:
 
 		set_difference(_referenceModules->begin(), _referenceModules->end(), newModules.begin(), newModules.end(), std::back_inserter(*pRemove));
 	}
-	void GetReferenceAdded(std::vector<std::wstring> *pAdd, Concurrency::concurrent_vector<std::wstring> *pNewModules)
+	void GetReferenceAdded(std::vector<std::wstring> *pAdd, Concurrency::concurrent_unordered_set<std::wstring> *pNewModules)
 	{
 		if (_referenceModules == NULL || pNewModules == NULL || pNewModules->size() == 0 || _referenceModules->size() == 0 || pAdd == NULL)
 			return;

@@ -26,7 +26,8 @@
 #include <map>
 #include <queue>
 #include <concurrentqueue.h>
-#include <FastSpinlock.h>
+//#include <FastSpinlock.h>
+#include <mutex>
 
 using namespace std;
 
@@ -47,12 +48,10 @@ public:
 	virtual ~CSTXIOCPBuffer();
 
 protected:
-	FastSpinlock m_lock;
-	//CRITICAL_SECTION m_cs;
+	std::recursive_mutex _mutex;
 	char* m_pBuffer;
 	DWORD m_dwBufferLength;		//Full length of buffer
 	DWORD m_dwContentLength;	//Length of data
-	int m_nLock;
 
 	DWORD m_dwFlags;
 	DWORD_PTR m_dwUserData;

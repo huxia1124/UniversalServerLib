@@ -27,6 +27,7 @@
 #include <atlexcept.h>
 #include <atlconv.h>
 #include <concurrent_vector.h>
+#include <concurrent_unordered_set.h>
 
 #include "UniversalServerRPC_h.h"
 #pragma comment(lib, "Rpcrt4.lib")
@@ -35,14 +36,14 @@
 
 CUniversalIOCPServer *_s_server = NULL;
 
-_declspec(thread) static Concurrency::concurrent_vector<std::wstring> g_loadedLuaModules;
+_declspec(thread) static Concurrency::concurrent_unordered_set<std::wstring> g_loadedLuaModules;
 extern "C"
 {
 	void add_loaded_entry(const char *module_name, void *data)
 	{
 		USES_CONVERSION;
-		Concurrency::concurrent_vector<std::wstring> *pModulesArray = (Concurrency::concurrent_vector<std::wstring>*)data;
-		pModulesArray->push_back((LPCWSTR)ATL::CA2W(module_name));
+		Concurrency::concurrent_unordered_set<std::wstring> *pModulesArray = (Concurrency::concurrent_unordered_set<std::wstring>*)data;
+		pModulesArray->insert((LPCWSTR)ATL::CA2W(module_name));
 	}
 	void* get_data_for_add_loaded_entry()
 	{

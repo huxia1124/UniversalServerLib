@@ -78,7 +78,7 @@ enum TcpConnectionType
 // To store TLS(thread local storage) data for worker threads
 struct CUniversalServerWorkerThreadData
 {
-	LONGLONG _scriptVersions[16];
+	LONGLONG _scriptVersions[64];		//The size of this array indicates the maximum number of custom scripts
 	lua_State *_pLuaState;
 	LPVOID _pUserData;
 };
@@ -195,6 +195,7 @@ public:
 	CUniversalServer *_pServer;
 	HANDLE _hRPCThread;
 	UINT m_nRPCServerPort;
+	std::atomic<UINT> m_nThreadIndexBase;		//used to generate zero-based index identifier for worker threads
 
 protected:
 	//Statistics members
@@ -222,8 +223,9 @@ protected:
 	virtual BOOL OnWebSocketClientPong(CUniversalIOCPServerClientContext *pClientContext);		//this method is specific to CUniversalIOCPServer
 	virtual void OnClientSent(CSTXIOCPServerClientContext *pClientContext, CSTXIOCPBuffer *pBuffer);
 	virtual void OnClientDisconnect(CSTXIOCPServerClientContext *pClientContext);
-	virtual void OnWorkerThreadInitialize();
-	virtual void OnWorkerThreadUninitialize();
+	virtual void OnWorkerThreadInitialize(LPVOID pStoragePtr);
+	virtual void OnWorkerThreadUninitialize(LPVOID pStoragePtr);
+	virtual void OnWorkerThreadPreOperationProcess(LPVOID pStoragePtr);
 	virtual void OnUdpServerReceived(CSTXIOCPUdpServerContext *pUdpServerContext, CSTXIOCPBuffer *pBuffer, SOCKADDR *pFromAddr, INT nAddrLen);
 	virtual DWORD IsTcpDataReadable(CSTXIOCPTcpConnectionContext *pTcpConnCtx);
 	virtual void OnTcpReceived(CSTXIOCPTcpConnectionContext *pTcpConnCtx, CSTXIOCPBuffer *pBuffer);
@@ -335,6 +337,8 @@ public:
 	void SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 	void SetTcpServerClientDisconnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 	long GetTcpClientCount(UINT nPort);
+	void SetLogLevel(int level);
+	void SetDebugOutputLevel(int level);
 
 public:
 	//Statistics data. can be enabled/disabled through

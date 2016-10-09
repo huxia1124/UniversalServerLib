@@ -649,13 +649,14 @@ protected:
 	void OnFileChangedWrapper(CSTXIOCPFolderMonitorContext *pFolderMonitorContext, DWORD dwAction, LPCTSTR lpszFileName, LPCTSTR lpszFileFullPathName);
 	DWORD IsClientDataReadableWrapper(CSTXIOCPServerClientContext *pClientContext);
 	DWORD IsTcpDataReadableWrapper(CSTXIOCPTcpConnectionContext *pTcpConnCtx);
-	void OnWorkerThreadInitializeWrapper();
-	void OnWorkerThreadUninitializeWrapper();
+	void OnWorkerThreadInitializeWrapper(LPVOID pStoragePtr);
+	void OnWorkerThreadUninitializeWrapper(LPVOID pStoragePtr);
 	DWORD OnGetClientReceiveTimeOutWrapper(CSTXIOCPServerClientContext *pClientContext);
 	void OnClientDisconnectWrapper(CSTXIOCPServerClientContext *pClientContext);
 	void OnPostClientDisconnectWrapper(CSTXIOCPServerClientContext *pClientContext);
 	LPVOID OnAllocateWorkerThreadLocalStorageWrapper();
 	void OnFreeWorkerThreadLocalStorageWrapper(LPVOID pStoragePtr);
+	void OnWorkerThreadPreOperationProcessWrapper(LPVOID pStoragePtr);
 
 	// 以下是工作线程中针对各种类型的 Socket 进行的处理.只能使用在工作线程中.
 	void WTProcessTcpServer(BOOL bResult, DWORD dwLastError, DWORD dwNumReadWrite, LPSTXIOCPCONTEXTKEY lpContextKey, LPSTXIOCPOPERATION lpOperation);
@@ -728,13 +729,14 @@ protected:
 	virtual DWORD IsTcpDataReadable(CSTXIOCPTcpConnectionContext *pTcpConnCtx);
 
 	//当一个工作线程初始化时，此方法被调用。可以在此进行线程相关的初始化设置，如初始化 COM 等
-	virtual void OnWorkerThreadInitialize();
+	virtual void OnWorkerThreadInitialize(LPVOID pStoragePtr);
 
 	//当一个工作线程即将结束时，此方法被调用。
-	virtual void OnWorkerThreadUninitialize();
+	virtual void OnWorkerThreadUninitialize(LPVOID pStoragePtr);
 
 	virtual LPVOID OnAllocateWorkerThreadLocalStorage();
 	virtual void OnFreeWorkerThreadLocalStorage(LPVOID pStoragePtr);
+	virtual void OnWorkerThreadPreOperationProcess(LPVOID pStoragePtr);
 
 	//重载此方法来动态设置每个Client的Timeout. 返回 Timeout 值(milliseconds)
 	virtual DWORD OnGetClientReceiveTimeOut(CSTXIOCPServerClientContext *pClientContext);

@@ -104,8 +104,9 @@ CUniversalIOCPServer::~CUniversalIOCPServer()
 {
 }
 
-void CUniversalIOCPServer::OnWorkerThreadInitialize()
+void CUniversalIOCPServer::OnWorkerThreadInitialize(LPVOID pStoragePtr)
 {
+	UINT threadIndex = m_nThreadIndexBase++;
 	lua_State *L;
 	L = GetLuaStateForCurrentThread();
 	luaopen_base(L);
@@ -115,6 +116,8 @@ void CUniversalIOCPServer::OnWorkerThreadInitialize()
 		// you can use C++11 lambda expression here too
 		std::shared_ptr<CServerController> sp = _pServer->_spController;
 		return sp;
+	}).addFunction("GetThreadIndex", [=] {
+		return threadIndex;
 	}).endModule();
 
 	LuaBindClasses(L, _pServer);
@@ -124,13 +127,18 @@ void CUniversalIOCPServer::OnWorkerThreadInitialize()
 
 }
 
-void CUniversalIOCPServer::OnWorkerThreadUninitialize()
+void CUniversalIOCPServer::OnWorkerThreadUninitialize(LPVOID pStoragePtr)
 {
 	lua_State *L;
 	L = GetLuaStateForCurrentThread();
 	lua_close(L);
 
 	CoUninitialize();
+}
+
+void CUniversalIOCPServer::OnWorkerThreadPreOperationProcess(LPVOID pStoragePtr)
+{
+
 }
 
 UINT g_maxTcpPackageLength = 1024 * 2048;
@@ -1574,7 +1582,6 @@ void CUniversalIOCPServer::SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScr
 		originalName = scriptCache->GetStringName();
 		scriptCache->SetNeedUpdate(true);
 		scriptCache->EnableTraceThreadVersion();
-		scriptCache->EnableTraceThreadVersion();
 		scriptCache->SetStringName(lpszScriptFile);
 		_mapTcpServerRecvScripts[nPort] = scriptCache;
 	}
@@ -1632,7 +1639,6 @@ void CUniversalIOCPServer::SetTcpConnectionReceiveScript(LONG nConnectionID, LPC
 		scriptCache = std::make_shared<CUniversalStringCache>();
 		originalName = scriptCache->GetStringName();
 		scriptCache->SetNeedUpdate(true);
-		scriptCache->EnableTraceThreadVersion();
 		scriptCache->EnableTraceThreadVersion();
 		scriptCache->SetStringName(lpszScriptFile);
 		_mapTcpConnectionRecvScripts[nConnectionID] = scriptCache;
@@ -1692,7 +1698,6 @@ void CUniversalIOCPServer::SetTcpConnectionDisconnectedScript(LONG nConnectionID
 		originalName = scriptCache->GetStringName();
 		scriptCache->SetNeedUpdate(true);
 		scriptCache->EnableTraceThreadVersion();
-		scriptCache->EnableTraceThreadVersion();
 		scriptCache->SetStringName(lpszScriptFile);
 		_mapTcpConnectionDisconnectedScripts[nConnectionID] = scriptCache;
 	}
@@ -1750,7 +1755,6 @@ void CUniversalIOCPServer::SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR
 		scriptCache = std::make_shared<CUniversalStringCache>();
 		originalName = scriptCache->GetStringName();
 		scriptCache->SetNeedUpdate(true);
-		scriptCache->EnableTraceThreadVersion();
 		scriptCache->EnableTraceThreadVersion();
 		scriptCache->SetStringName(lpszScriptFile);
 		_mapTcpServerConnectedScripts[nPort] = scriptCache;
@@ -1810,7 +1814,6 @@ void CUniversalIOCPServer::SetTcpServerClientDisconnectedScript(UINT nPort, LPCT
 		originalName = scriptCache->GetStringName();
 		scriptCache->SetNeedUpdate(true);
 		scriptCache->EnableTraceThreadVersion();
-		scriptCache->EnableTraceThreadVersion();
 		scriptCache->SetStringName(lpszScriptFile);
 		_mapTcpServerClientDisconnectedScripts[nPort] = scriptCache;
 	}
@@ -1860,6 +1863,16 @@ void CUniversalIOCPServer::SetTcpServerClientDisconnectedScript(UINT nPort, LPCT
 long CUniversalIOCPServer::GetTcpClientCount(UINT nPort)
 {
 	return m_mapClientContext.size();
+}
+
+void CUniversalIOCPServer::SetLogLevel(int level)
+{
+	g_LogGlobal.SetLogLevel(level, -1);
+}
+
+void CUniversalIOCPServer::SetDebugOutputLevel(int level)
+{
+	g_LogGlobal.SetLogLevel(-1, level);
 }
 
 void CUniversalIOCPServer::SetStatisticsLevel(UINT level)

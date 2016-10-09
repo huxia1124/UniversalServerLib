@@ -82,6 +82,8 @@ public:
 	long long GetTotalSentBytes();
 	long long GetTotalReceivedCount();
 	long long GetTotalSentCount();
+	void SetLogLevel(int level);
+	void SetDebugOutputLevel(int level);
 
 };
 

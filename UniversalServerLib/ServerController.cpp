@@ -296,3 +296,13 @@ long long CServerController::GetTotalSentCount()
 {
 	return _server->GetTotalSentCount();
 }
+
+void CServerController::SetLogLevel(int level)
+{
+	_server->SetLogLevel(level);
+}
+
+void CServerController::SetDebugOutputLevel(int level)
+{
+	_server->SetDebugOutputLevel(level);
+}

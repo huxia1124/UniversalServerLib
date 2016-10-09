@@ -182,6 +182,8 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addFunction("GetTotalSentBytes", &CServerController::GetTotalSentBytes)
 		.addFunction("GetTotalReceivedCount", &CServerController::GetTotalReceivedCount)
 		.addFunction("GetTotalSentCount", &CServerController::GetTotalSentCount)
+		.addFunction("SetLogLevel", &CServerController::SetLogLevel, LUA_ARGS(int))
+		.addFunction("SetDebugOutputLevel", &CServerController::SetDebugOutputLevel, LUA_ARGS(int))
 		/*
 
 		*/

@@ -1011,6 +1011,9 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 	_totalReceivedCount++;
 	_totalReceivedBytes += pBuffer->GetDataLength();
 
+	_statisticsReceiveBytes.AddValue(pBuffer->GetDataLength());
+	_statisticsReceiveCount.AddValue(1);
+
 	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
 
 	if (pClient)
@@ -1320,6 +1323,9 @@ void CUniversalIOCPServer::OnClientSent(CSTXIOCPServerClientContext *pClientCont
 {
 	_totalSentCount++;
 	_totalSentBytes += pBuffer->GetDataLength();
+
+	_statisticsSentBytes.AddValue(pBuffer->GetDataLength());
+	_statisticsSentCount.AddValue(1);
 }
 
 __int64 CUniversalIOCPServer::GetTotalSentBytes() const
@@ -1826,6 +1832,32 @@ void CUniversalIOCPServer::SetTcpServerClientDisconnectedScript(UINT nPort, LPCT
 		}
 	}
 	_mapScriptFileCaches.unlock(lpszScriptFile);
+}
+
+long CUniversalIOCPServer::GetTcpClientCount(UINT nPort)
+{
+	return m_mapClientContext.size();
+}
+
+long CUniversalIOCPServer::GetSentBytesPerSecond()
+{
+	return _statisticsSentBytes.GetAverage();
+}
+
+long CUniversalIOCPServer::GetSentCountPerSecond()
+{
+	return _statisticsSentCount.GetAverage();
+}
+
+long CUniversalIOCPServer::GetReceiveBytesPerSecond()
+{
+	return _statisticsReceiveBytes.GetAverage();
+
+}
+
+long CUniversalIOCPServer::GetReceiveCountPerSecond()
+{
+	return _statisticsReceiveCount.GetAverage();
 }
 
 UniversalTcpClientRole CUniversalIOCPServer::GetTcpClientRole(__int64 nClientUID)

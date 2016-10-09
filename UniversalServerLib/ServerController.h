@@ -71,6 +71,11 @@ public:
 	void SetTcpConnectionDisconnectedScript(long nConnectionID, std::wstring scriptFile);
 	void SetTcpServerClientConnectedScript(int nPort, std::wstring scriptFile);
 	void SetTcpServerClientDisconnectedScript(int nPort, std::wstring scriptFile);
+	long GetTcpClientCount(int port);
+	long GetSentBytesPerSecond();
+	long GetSentCountPerSecond();
+	long GetReceiveBytesPerSecond();
+	long GetReceiveCountPerSecond();
 
 };
 

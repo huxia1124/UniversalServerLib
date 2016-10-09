@@ -220,11 +220,6 @@ void CUniversalServer::Initialize()
 	luaopen_base(L);
 	luaL_openlibs(L);
 
-	//LuaIntf::LuaRef ver(L, "_VERSION");
-	//std::string verStr;
-	////ver.get<std::string>(verStr);
-	//verStr = ver.toValue<std::string>();
-
 	USES_CONVERSION;
 
 	_luaVersion = ATL::CA2W(LUA_RELEASE);

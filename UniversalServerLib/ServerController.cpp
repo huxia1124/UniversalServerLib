@@ -200,9 +200,7 @@ void CServerController::SendPackageToConnection(long nConnectionID, std::shared_
 
 void CServerController::PutString(std::wstring key, std::wstring value)
 {
-	_datamap.insert(std::pair<std::wstring, std::wstring>(key, value));
-
-	//_datamap[key] = value;
+	_datamap[key] = value;
 }
 
 std::wstring CServerController::GetString(std::wstring key)
@@ -242,4 +240,29 @@ void CServerController::SetTcpServerClientConnectedScript(int nPort, std::wstrin
 void CServerController::SetTcpServerClientDisconnectedScript(int nPort, std::wstring scriptFile)
 {
 	_server->SetTcpServerClientDisconnectedScript(nPort, scriptFile.c_str());
+}
+
+long CServerController::GetTcpClientCount(int port)
+{
+	return _server->GetTcpClientCount(port);
+}
+
+long CServerController::GetSentBytesPerSecond()
+{
+	return _server->GetSentBytesPerSecond();
+}
+
+long CServerController::GetSentCountPerSecond()
+{
+	return _server->GetSentCountPerSecond();
+}
+
+long CServerController::GetReceiveBytesPerSecond()
+{
+	return _server->GetReceiveBytesPerSecond();
+}
+
+long CServerController::GetReceiveCountPerSecond()
+{
+	return _server->GetReceiveCountPerSecond();
 }

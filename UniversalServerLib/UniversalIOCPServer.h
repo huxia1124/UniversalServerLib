@@ -34,6 +34,7 @@ extern "C"
 
 
 #include "LuaIntf/LuaIntf.h"
+#include "StatisticsBuffer.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,6 +203,11 @@ protected:
 	std::atomic<__int64> _totalSentCount;
 	std::atomic<__int64> _totalReceivedCount;
 
+	CStatisticsBuffer<long long, 30> _statisticsSentBytes;
+	CStatisticsBuffer<long long, 30> _statisticsSentCount;
+	CStatisticsBuffer<long long, 30> _statisticsReceiveBytes;
+	CStatisticsBuffer<long long, 30> _statisticsReceiveCount;
+
 protected:
 	virtual CSTXServerContextBase* OnCreateServerContext();
 	virtual CSTXIOCPServerClientContext *OnCreateClientContext(tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext);
@@ -328,6 +334,12 @@ public:
 	void SetTcpConnectionDisconnectedScript(LONG nConnectionID, LPCTSTR lpszScriptFile);
 	void SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 	void SetTcpServerClientDisconnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
+	long GetTcpClientCount(UINT nPort);
+	long GetSentBytesPerSecond();
+	long GetSentCountPerSecond();
+	long GetReceiveBytesPerSecond();
+	long GetReceiveCountPerSecond();
+
 
 public:
 	template<typename T>

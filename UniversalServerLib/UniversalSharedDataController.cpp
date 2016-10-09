@@ -32,9 +32,7 @@ CUniversalSharedDataController::~CUniversalSharedDataController()
 
 void CUniversalSharedDataController::PutString(std::wstring key, std::wstring value)
 {
-	_datamap.insert(std::pair<std::wstring, std::wstring>(key, value));
-
-	//_datamap[key] = value;
+	_datamap[key] = value;
 }
 
 std::wstring CUniversalSharedDataController::GetString(std::wstring key)

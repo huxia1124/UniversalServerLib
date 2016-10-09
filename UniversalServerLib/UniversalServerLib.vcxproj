@@ -251,6 +251,7 @@
     <ClInclude Include="ServerController.h" />
     <ClInclude Include="sqlite\sqlite3.h" />
     <ClInclude Include="sqlite\sqlite3ext.h" />
+    <ClInclude Include="StatisticsBuffer.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="UniversalIOCPServer.h" />

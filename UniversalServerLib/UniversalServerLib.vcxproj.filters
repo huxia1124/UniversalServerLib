@@ -426,6 +426,9 @@
     <ClInclude Include="Common\Cryptographic.h">
       <Filter>头文件\Server\Common</Filter>
     </ClInclude>
+    <ClInclude Include="StatisticsBuffer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -123,6 +123,63 @@ LRESULT CSTXScriptDialog::OnOpenFileClicked(WORD, UINT, HWND, BOOL&)
 	return 0;
 }
 
+LRESULT CSTXScriptDialog::OnScheduleWorkerThreadScriptClicked(WORD, UINT, HWND, BOOL&)
+{
+	::EnableWindow(GetDlgItem(IDOK), FALSE);
+	UpdateWindow();
+
+	int nLenHost = _cbRPCHost.GetWindowTextLength();
+	TCHAR *pTextHost = new TCHAR[nLenHost + 2];
+	pTextHost[nLenHost + 1] = 0;
+	_cbRPCHost.GetWindowText(pTextHost, nLenHost + 1);
+
+	TCHAR *pszSep = _tcschr(pTextHost, _T(':'));
+	if (pszSep == NULL)
+	{
+		_host = pTextHost;
+		_port = _T("4747");
+	}
+	else
+	{
+		*pszSep = 0;
+		_host = pTextHost;
+		_port = pszSep + 1;
+	}
+
+	delete[]pTextHost;
+
+
+
+	int nLen = _edtScript.GetWindowTextLength();
+	//if (nLen == 0)
+	//	return 0;
+
+	TCHAR *pText = new TCHAR[nLen + 2];
+	pText[nLen + 1] = 0;
+	_edtScript.GetWindowText(pText, nLen + 1);
+
+
+	_scriptToRun = pText;
+
+	delete[]pText;
+
+
+	::SetFocus(GetDlgItem(IDC_EDIT_SCRIPT));
+	//_edtScript.SetSelAll();
+
+	CString error;
+	EnqueueServerWorkerThreadScriptString(_scriptToRun.c_str(), error);
+
+	::EnableWindow(GetDlgItem(IDOK), TRUE);
+
+	if (!error.IsEmpty())
+	{
+		MessageBox(error, _T("Error"), MB_ICONWARNING | MB_OK);
+	}
+
+	return 0;
+}
+
 /*
 LRESULT CSTXScriptDialog::OnHistoryClicked(WORD, UINT, HWND, BOOL&)
 {
@@ -187,6 +244,7 @@ LRESULT CSTXScriptDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDOK, STXANCHOR_BOTTOM | STXANCHOR_RIGHT);
 	_anchor->AddItem(IDCANCEL, STXANCHOR_BOTTOM | STXANCHOR_RIGHT);
 	_anchor->AddItem(IDC_BUTTON_LOAD_FILE, STXANCHOR_BOTTOM | STXANCHOR_LEFT);
+	_anchor->AddItem(IDC_BUTTON_ENQUEUE_WORKER_THREAD_SCRIPT, STXANCHOR_BOTTOM | STXANCHOR_RIGHT);
 
 	// Copy the string from the data member
 	// to the child control (DDX)
@@ -476,6 +534,57 @@ void CSTXScriptDialog::RunServerScriptFile(LPCTSTR lpszScriptFile)
 		RpcExcept(1)
 	{
 		printf("Runtime reported exception:%d,except=%d\n", GetLastError(), RpcExceptionCode());
+	}
+	RpcEndExcept
+	{
+		status = RpcBindingFree(&hwBinding); // Frees the binding handle.
+	}
+
+		if (status)
+		{
+			printf("Bind free failed\n");
+			exit(status);
+		}
+}
+
+void CSTXScriptDialog::EnqueueServerWorkerThreadScriptString(LPCTSTR lpszScript, CString &err)
+{
+	RPC_STATUS status;
+	RPC_BINDING_HANDLE hwBinding;
+	WCHAR* szStringBinding = NULL;
+
+	status = RpcStringBindingCompose(
+		NULL,
+		(RPC_WSTR)(_T("ncacn_ip_tcp")),
+		(RPC_WSTR)(_host.c_str()),
+		(RPC_WSTR)(_port.c_str()),
+		NULL,
+		(RPC_WSTR*)&szStringBinding);
+
+	if (status)
+	{
+		printf("StringBinding failed\n");
+		exit(status);
+	}
+	printf("szString=%S\n", szStringBinding);
+
+	status = RpcBindingFromStringBinding(
+		(RPC_WSTR)szStringBinding,
+		&hwBinding);
+	if (status)
+	{
+		printf("Bind from String failed:%d\n", GetLastError());
+		exit(status);
+	}
+	RpcTryExcept
+	{
+		EnqueueWorkerThreadScriptString(hwBinding, lpszScript);
+	}
+		RpcExcept(1)
+	{
+		err.Format(_T("Runtime reported exception: %d, except=%d\n"), GetLastError(), RpcExceptionCode());
+		GetErrorText(RpcExceptionCode(), err);
+		printf("Runtime reported exception: %d, except=%d\n", GetLastError(), RpcExceptionCode());
 	}
 	RpcEndExcept
 	{

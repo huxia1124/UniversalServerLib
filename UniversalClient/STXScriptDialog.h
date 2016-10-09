@@ -57,6 +57,7 @@ protected:
 		COMMAND_ID_HANDLER(IDOK, OnRunScriptClicked)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCancelClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_LOAD_FILE, OnOpenFileClicked)
+		COMMAND_ID_HANDLER(IDC_BUTTON_ENQUEUE_WORKER_THREAD_SCRIPT, OnScheduleWorkerThreadScriptClicked)
 
 		//COMMAND_HANDLER(IDC_COMBO_TYPE, CBN_SELCHANGE, OnCbHostSelChange)
 
@@ -80,6 +81,7 @@ protected:
 	LRESULT OnRunScriptClicked(WORD, UINT, HWND, BOOL&);
 	LRESULT OnCancelClicked(WORD, UINT, HWND, BOOL&);
 	LRESULT OnOpenFileClicked(WORD, UINT, HWND, BOOL&);
+	LRESULT OnScheduleWorkerThreadScriptClicked(WORD, UINT, HWND, BOOL&);
 
 
 	void AddToHistoryCache();
@@ -90,6 +92,7 @@ protected:
 protected:
 	void RunServerScriptFile(LPCTSTR lpszScriptFile);
 	void RunServerScriptString(LPCTSTR lpszScript, CString &err);
+	void EnqueueServerWorkerThreadScriptString(LPCTSTR lpszScript, CString &err);
 
 };
 

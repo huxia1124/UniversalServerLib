@@ -65,6 +65,7 @@ public:
 	virtual ULONGLONG GetRunTime();
 	virtual LPCTSTR GetLuaVersion();
 	virtual void Terminate();
+	virtual int EnqueueWorkerThreadScriptString(LPCTSTR lpszScriptString);
 
 public:
 	void Initialize();

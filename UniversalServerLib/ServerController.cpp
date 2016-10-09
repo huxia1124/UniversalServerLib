@@ -306,3 +306,8 @@ void CServerController::SetDebugOutputLevel(int level)
 {
 	_server->SetDebugOutputLevel(level);
 }
+
+void CServerController::EnqueueWorkerThreadScriptString(LPCTSTR lpszScriptString)
+{
+	_server->EnqueueWorkerThreadScript(lpszScriptString);
+}

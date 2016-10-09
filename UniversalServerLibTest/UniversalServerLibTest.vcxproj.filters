@@ -247,5 +247,11 @@
     <None Include="recv_var.lua">
       <Filter>lua_script</Filter>
     </None>
+    <None Include="test_add.lua">
+      <Filter>lua_script</Filter>
+    </None>
+    <None Include="test_add2.lua">
+      <Filter>lua_script</Filter>
+    </None>
   </ItemGroup>
 </Project>

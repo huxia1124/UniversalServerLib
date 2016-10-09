@@ -107,6 +107,11 @@ CUniversalIOCPServer::~CUniversalIOCPServer()
 void CUniversalIOCPServer::OnWorkerThreadInitialize(LPVOID pStoragePtr)
 {
 	UINT threadIndex = m_nThreadIndexBase++;
+	_workerThreadActionScripts.push_back(Concurrency::concurrent_queue<std::shared_ptr<std::wstring>>());
+
+	CUniversalServerWorkerThreadData *pData = (CUniversalServerWorkerThreadData*)pStoragePtr;
+	pData->_threadIndex = threadIndex;
+
 	lua_State *L;
 	L = GetLuaStateForCurrentThread();
 	luaopen_base(L);
@@ -138,7 +143,42 @@ void CUniversalIOCPServer::OnWorkerThreadUninitialize(LPVOID pStoragePtr)
 
 void CUniversalIOCPServer::OnWorkerThreadPreOperationProcess(LPVOID pStoragePtr)
 {
+	CUniversalServerWorkerThreadData *pData = (CUniversalServerWorkerThreadData*)pStoragePtr;
+	auto &scriptQueue = _workerThreadActionScripts[pData->_threadIndex];
 
+	size_t queuedScriptCount = 0;
+	if ((queuedScriptCount = scriptQueue.unsafe_size()) > 0)
+	{
+		STXTRACELOGE(_T("[i] %d scripts queued for current thread [idx=%d]. now pop and run the scripts..."), queuedScriptCount, pData->_threadIndex);
+		USES_CONVERSION;
+		lua_State *L;
+		L = GetLuaStateForCurrentThread();
+		while (scriptQueue.unsafe_size())
+		{
+			std::shared_ptr<std::wstring> script;
+			if (scriptQueue.try_pop(script))
+			{
+				std::string buf = (LPCSTR)ATL::CW2A(script->c_str());
+				int nResult = luaL_loadstring(L, buf.c_str());
+				if (nResult == 0)
+				{
+					nResult = lua_pcall(L, 0, LUA_MULTRET, 0);
+				}
+
+				if (nResult == 0)
+				{
+					//Success
+				}
+				else
+				{
+					const char *pLuaLoadError = lua_tostring(L, -1);
+					LPCTSTR pszError = GetLuaErrorName(nResult);
+					STXTRACELOGE(_T("[r][i]\tfailed: luaL_loadstring result = %d [%s]"), nResult, script->c_str());
+					STXTRACELOGE(_T("[r][i]\t\t%S"), pLuaLoadError);
+				}
+			}
+		}
+	}
 }
 
 UINT g_maxTcpPackageLength = 1024 * 2048;
@@ -1394,6 +1434,10 @@ extern "C"
 	{
 		_s_server->_pServer->RunScriptString(pszScript);
 	}
+	void EnqueueWorkerThreadScriptString(handle_t IDL_handle, const WCHAR *pszScript)
+	{
+		_s_server->_pServer->EnqueueWorkerThreadScriptString(pszScript);
+	}
 	void* /*__RPC_FAR**/ __RPC_USER midl_user_allocate(size_t len)
 	{
 		return(malloc(len));
@@ -1929,6 +1973,15 @@ void CUniversalIOCPServer::DisconnectTcpClient(__int64 nClientUID)
 		DisconnectClient(it->second);
 	}
 	_mapClients.unlock(nClientUID);
+}
+
+void CUniversalIOCPServer::EnqueueWorkerThreadScript(LPCTSTR lpszScriptString)
+{
+	auto n = _workerThreadActionScripts.size();
+	for (int i = 0; i < n; i++)
+	{
+		_workerThreadActionScripts[i].push(std::make_shared<std::wstring>(lpszScriptString));
+	}
 }
 
 int CUniversalIOCPServer::CheckLuaStateUpdateForThread(lua_State *pLuaState, CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread)

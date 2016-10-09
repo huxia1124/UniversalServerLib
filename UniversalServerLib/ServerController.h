@@ -84,6 +84,7 @@ public:
 	long long GetTotalSentCount();
 	void SetLogLevel(int level);
 	void SetDebugOutputLevel(int level);
+	void EnqueueWorkerThreadScriptString(LPCTSTR lpszScriptString);
 
 };
 

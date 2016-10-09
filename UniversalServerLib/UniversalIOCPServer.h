@@ -20,6 +20,8 @@
 #include "SimpleHttpServer.h"
 #include <atomic>
 #include <concurrent_unordered_map.h>
+#include <concurrent_vector.h>
+#include <concurrent_queue.h>
 #include "UniversalServerInternal.h"
 #include "UniversalStringCache.h"
 #include <functional>
@@ -81,6 +83,7 @@ struct CUniversalServerWorkerThreadData
 	LONGLONG _scriptVersions[64];		//The size of this array indicates the maximum number of custom scripts
 	lua_State *_pLuaState;
 	LPVOID _pUserData;
+	UINT _threadIndex;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -183,7 +186,9 @@ protected:
 	CSTXHashMap<std::wstring, std::set<CUniversalStringCache*>, 4, 1, CSTXNoCaseWStringHash<4, 1> > _mapLuaModuleReference;
 
 	//Scripts configuration
-	CSTXHashMap<std::wstring, std::set<CUniversalStringCache*>, 4, 1, CSTXNoCaseWStringHash<4, 1> > _mapScriptFileCaches;
+	Concurrency::concurrent_vector<Concurrency::concurrent_queue<std::shared_ptr<std::wstring>>> _workerThreadActionScripts;		//Runs whenever new action 
+
+	CSTXHashMap<std::wstring, std::set<CUniversalStringCache*>, 4, 1, CSTXNoCaseWStringHash<4, 1> > _mapScriptFileCaches;	//ScriptFileName -> cache set
 	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerRecvScripts;					//Port -> ScriptCache
 	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerConnectedScripts;			//Port -> ScriptCache
 	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerClientDisconnectedScripts;		//Port -> ScriptCache
@@ -327,6 +332,7 @@ public:
 	void SetTcpClientTimeout(__int64 nClientUID, DWORD dwTimeout);
 	UniversalTcpClientRole GetTcpClientRole(__int64 nClientUID);
 	void DisconnectTcpClient(__int64 nClientUID);
+	void EnqueueWorkerThreadScript(LPCTSTR lpszScriptString);
 
 public:
 	void SetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, LPCTSTR lpszValue);

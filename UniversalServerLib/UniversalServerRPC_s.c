@@ -4,10 +4,10 @@
 
 
  /* File created by MIDL compiler version 8.00.0603 */
-/* at Fri Sep 16 21:39:00 2016
+/* at Sun Oct 09 14:51:24 2016
  */
 /* Compiler settings for UniversalServerRPC.idl:
-    Oicf, W1, Zp8, env=Win64 (32b run), target_arch=AMD64 8.00.0603 
+    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0603 
     protocol : dce , ms_ext, c_ext, robust
     error checks: allocation ref bounds_check enum stub_data 
     VC __declspec() decoration level: 
@@ -16,7 +16,7 @@
 */
 /* @@MIDL_FILE_HEADING(  ) */
 
-#if defined(_M_AMD64)
+#if !defined(_M_IA64) && !defined(_M_AMD64) && !defined(_ARM_)
 
 
 #pragma warning( disable: 4049 )  /* more than 64k source lines */
@@ -27,12 +27,15 @@
 #pragma warning( disable: 4211 )  /* redefine extern to static */
 #pragma warning( disable: 4232 )  /* dllimport identity*/
 #pragma warning( disable: 4024 )  /* array to pointer mapping*/
+#pragma warning( disable: 4100 ) /* unreferenced arguments in x86 call */
+
+#pragma optimize("", off ) 
 
 #include <string.h>
 #include "UniversalServerRPC_h.h"
 
 #define TYPE_FORMAT_STRING_SIZE   7                                 
-#define PROC_FORMAT_STRING_SIZE   73                                
+#define PROC_FORMAT_STRING_SIZE   103                               
 #define EXPR_FORMAT_STRING_SIZE   1                                 
 #define TRANSMIT_AS_TABLE_SIZE    0            
 #define WIRE_MARSHAL_TABLE_SIZE   0            
@@ -88,9 +91,17 @@ RPC_IF_HANDLE UniversalServerRPC_v1_0_s_ifspec = (RPC_IF_HANDLE)& UniversalServe
 extern const MIDL_STUB_DESC UniversalServerRPC_StubDesc;
 
 
-#if !defined(__RPC_WIN64__)
+#if !defined(__RPC_WIN32__)
 #error  Invalid build platform for this stub.
 #endif
+
+#if !(TARGET_IS_NT50_OR_LATER)
+#error You need Windows 2000 or later to run this stub because it uses these features:
+#error   /robust command line switch.
+#error However, your C/C++ compilation flags indicate you intend to run this app on earlier systems.
+#error This app will fail with the RPC_X_WRONG_STUB_VERSION error.
+#endif
+
 
 static const UniversalServerRPC_MIDL_PROC_FORMAT_STRING UniversalServerRPC__MIDL_ProcFormatString =
     {
@@ -103,56 +114,83 @@ static const UniversalServerRPC_MIDL_PROC_FORMAT_STRING UniversalServerRPC__MIDL
 			0x48,		/* Old Flags:  */
 /*  2 */	NdrFcLong( 0x0 ),	/* 0 */
 /*  6 */	NdrFcShort( 0x0 ),	/* 0 */
-/*  8 */	NdrFcShort( 0x10 ),	/* X64 Stack size/offset = 16 */
+/*  8 */	NdrFcShort( 0x8 ),	/* x86 Stack size/offset = 8 */
 /* 10 */	0x32,		/* FC_BIND_PRIMITIVE */
 			0x0,		/* 0 */
-/* 12 */	NdrFcShort( 0x0 ),	/* X64 Stack size/offset = 0 */
+/* 12 */	NdrFcShort( 0x0 ),	/* x86 Stack size/offset = 0 */
 /* 14 */	NdrFcShort( 0x0 ),	/* 0 */
 /* 16 */	NdrFcShort( 0x0 ),	/* 0 */
 /* 18 */	0x42,		/* Oi2 Flags:  clt must size, has ext, */
 			0x1,		/* 1 */
-/* 20 */	0xa,		/* 10 */
+/* 20 */	0x8,		/* 8 */
 			0x1,		/* Ext Flags:  new corr desc, */
 /* 22 */	NdrFcShort( 0x0 ),	/* 0 */
 /* 24 */	NdrFcShort( 0x0 ),	/* 0 */
 /* 26 */	NdrFcShort( 0x0 ),	/* 0 */
-/* 28 */	NdrFcShort( 0x0 ),	/* 0 */
 
 	/* Parameter IDL_handle */
 
-/* 30 */	NdrFcShort( 0x10b ),	/* Flags:  must size, must free, in, simple ref, */
-/* 32 */	NdrFcShort( 0x8 ),	/* X64 Stack size/offset = 8 */
-/* 34 */	NdrFcShort( 0x4 ),	/* Type Offset=4 */
+/* 28 */	NdrFcShort( 0x10b ),	/* Flags:  must size, must free, in, simple ref, */
+/* 30 */	NdrFcShort( 0x4 ),	/* x86 Stack size/offset = 4 */
+/* 32 */	NdrFcShort( 0x4 ),	/* Type Offset=4 */
 
 	/* Procedure RunScriptString */
 
 
 	/* Parameter szScriptFile */
 
-/* 36 */	0x0,		/* 0 */
+/* 34 */	0x0,		/* 0 */
 			0x48,		/* Old Flags:  */
-/* 38 */	NdrFcLong( 0x0 ),	/* 0 */
-/* 42 */	NdrFcShort( 0x1 ),	/* 1 */
-/* 44 */	NdrFcShort( 0x10 ),	/* X64 Stack size/offset = 16 */
-/* 46 */	0x32,		/* FC_BIND_PRIMITIVE */
+/* 36 */	NdrFcLong( 0x0 ),	/* 0 */
+/* 40 */	NdrFcShort( 0x1 ),	/* 1 */
+/* 42 */	NdrFcShort( 0x8 ),	/* x86 Stack size/offset = 8 */
+/* 44 */	0x32,		/* FC_BIND_PRIMITIVE */
 			0x0,		/* 0 */
-/* 48 */	NdrFcShort( 0x0 ),	/* X64 Stack size/offset = 0 */
+/* 46 */	NdrFcShort( 0x0 ),	/* x86 Stack size/offset = 0 */
+/* 48 */	NdrFcShort( 0x0 ),	/* 0 */
 /* 50 */	NdrFcShort( 0x0 ),	/* 0 */
-/* 52 */	NdrFcShort( 0x0 ),	/* 0 */
-/* 54 */	0x42,		/* Oi2 Flags:  clt must size, has ext, */
+/* 52 */	0x42,		/* Oi2 Flags:  clt must size, has ext, */
 			0x1,		/* 1 */
-/* 56 */	0xa,		/* 10 */
+/* 54 */	0x8,		/* 8 */
 			0x1,		/* Ext Flags:  new corr desc, */
+/* 56 */	NdrFcShort( 0x0 ),	/* 0 */
 /* 58 */	NdrFcShort( 0x0 ),	/* 0 */
 /* 60 */	NdrFcShort( 0x0 ),	/* 0 */
-/* 62 */	NdrFcShort( 0x0 ),	/* 0 */
-/* 64 */	NdrFcShort( 0x0 ),	/* 0 */
 
 	/* Parameter IDL_handle */
 
-/* 66 */	NdrFcShort( 0x10b ),	/* Flags:  must size, must free, in, simple ref, */
-/* 68 */	NdrFcShort( 0x8 ),	/* X64 Stack size/offset = 8 */
-/* 70 */	NdrFcShort( 0x4 ),	/* Type Offset=4 */
+/* 62 */	NdrFcShort( 0x10b ),	/* Flags:  must size, must free, in, simple ref, */
+/* 64 */	NdrFcShort( 0x4 ),	/* x86 Stack size/offset = 4 */
+/* 66 */	NdrFcShort( 0x4 ),	/* Type Offset=4 */
+
+	/* Procedure EnqueueWorkerThreadScriptString */
+
+
+	/* Parameter szScriptString */
+
+/* 68 */	0x0,		/* 0 */
+			0x48,		/* Old Flags:  */
+/* 70 */	NdrFcLong( 0x0 ),	/* 0 */
+/* 74 */	NdrFcShort( 0x2 ),	/* 2 */
+/* 76 */	NdrFcShort( 0x8 ),	/* x86 Stack size/offset = 8 */
+/* 78 */	0x32,		/* FC_BIND_PRIMITIVE */
+			0x0,		/* 0 */
+/* 80 */	NdrFcShort( 0x0 ),	/* x86 Stack size/offset = 0 */
+/* 82 */	NdrFcShort( 0x0 ),	/* 0 */
+/* 84 */	NdrFcShort( 0x0 ),	/* 0 */
+/* 86 */	0x42,		/* Oi2 Flags:  clt must size, has ext, */
+			0x1,		/* 1 */
+/* 88 */	0x8,		/* 8 */
+			0x1,		/* Ext Flags:  new corr desc, */
+/* 90 */	NdrFcShort( 0x0 ),	/* 0 */
+/* 92 */	NdrFcShort( 0x0 ),	/* 0 */
+/* 94 */	NdrFcShort( 0x0 ),	/* 0 */
+
+	/* Parameter IDL_handle */
+
+/* 96 */	NdrFcShort( 0x10b ),	/* Flags:  must size, must free, in, simple ref, */
+/* 98 */	NdrFcShort( 0x4 ),	/* x86 Stack size/offset = 4 */
+/* 100 */	NdrFcShort( 0x4 ),	/* Type Offset=4 */
 
 			0x0
         }
@@ -176,7 +214,8 @@ static const UniversalServerRPC_MIDL_TYPE_FORMAT_STRING UniversalServerRPC__MIDL
 static const unsigned short UniversalServerRPC_FormatStringOffsetTable[] =
     {
     0,
-    36
+    34,
+    68
     };
 
 
@@ -208,18 +247,20 @@ static const RPC_DISPATCH_FUNCTION UniversalServerRPC_table[] =
     {
     NdrServerCall2,
     NdrServerCall2,
+    NdrServerCall2,
     0
     };
 static const RPC_DISPATCH_TABLE UniversalServerRPC_v1_0_DispatchTable = 
     {
-    2,
+    3,
     (RPC_DISPATCH_FUNCTION*)UniversalServerRPC_table
     };
 
 static const SERVER_ROUTINE UniversalServerRPC_ServerRoutineTable[] = 
     {
     (SERVER_ROUTINE)RunScriptFile,
-    (SERVER_ROUTINE)RunScriptString
+    (SERVER_ROUTINE)RunScriptString,
+    (SERVER_ROUTINE)EnqueueWorkerThreadScriptString
     };
 
 static const MIDL_SERVER_INFO UniversalServerRPC_ServerInfo = 
@@ -232,10 +273,11 @@ static const MIDL_SERVER_INFO UniversalServerRPC_ServerInfo =
     0,
     0,
     0};
+#pragma optimize("", on )
 #if _MSC_VER >= 1200
 #pragma warning(pop)
 #endif
 
 
-#endif /* defined(_M_AMD64)*/
+#endif /* !defined(_M_IA64) && !defined(_M_AMD64) && !defined(_ARM_) */
 

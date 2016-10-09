@@ -244,3 +244,9 @@ void CUniversalServer::Terminate()
 {
 	_spController->Terminate();
 }
+
+int CUniversalServer::EnqueueWorkerThreadScriptString(LPCTSTR lpszScriptString)
+{
+	_spController->EnqueueWorkerThreadScriptString(lpszScriptString);
+	return 0;
+}

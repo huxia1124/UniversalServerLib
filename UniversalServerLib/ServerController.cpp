@@ -311,3 +311,18 @@ void CServerController::EnqueueWorkerThreadScriptString(LPCTSTR lpszScriptString
 {
 	_server->EnqueueWorkerThreadScript(lpszScriptString);
 }
+
+void CServerController::AddFolderMonitorIgnoreFileExtension(long long monitorId, std::wstring fileExt)
+{
+	_server->AddFolderMonitorIgnoreFileExtension(monitorId, fileExt.c_str());
+}
+
+void CServerController::RemoveFolderMonitorIgnoreFileExtension(long long monitorId, std::wstring fileExt)
+{
+	_server->RemoveFolderMonitorIgnoreFileExtension(monitorId, fileExt.c_str());
+}
+
+long long CServerController::GetDefaultFolderMonitorId()
+{
+	return _server->GetDefaultFolderMonitorId();
+}

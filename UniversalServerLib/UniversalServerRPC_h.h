@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 8.00.0603 */
-/* at Sun Oct 09 14:51:24 2016
+/* at Sun Oct 09 21:53:13 2016
  */
 /* Compiler settings for UniversalServerRPC.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0603 
@@ -62,7 +62,8 @@ void RunScriptFile(
 
 void RunScriptString( 
     /* [in] */ handle_t IDL_handle,
-    /* [string][in] */ const WCHAR *szScriptString);
+    /* [string][in] */ const WCHAR *szScriptString,
+    /* [retval][out] */ BSTR *pstrResult);
 
 void EnqueueWorkerThreadScriptString( 
     /* [in] */ handle_t IDL_handle,
@@ -75,6 +76,11 @@ extern RPC_IF_HANDLE UniversalServerRPC_v1_0_s_ifspec;
 #endif /* __UniversalServerRPC_INTERFACE_DEFINED__ */
 
 /* Additional Prototypes for ALL interfaces */
+
+unsigned long             __RPC_USER  BSTR_UserSize(     unsigned long *, unsigned long            , BSTR * ); 
+unsigned char * __RPC_USER  BSTR_UserMarshal(  unsigned long *, unsigned char *, BSTR * ); 
+unsigned char * __RPC_USER  BSTR_UserUnmarshal(unsigned long *, unsigned char *, BSTR * ); 
+void                      __RPC_USER  BSTR_UserFree(     unsigned long *, BSTR * ); 
 
 /* end of Additional Prototypes */
 

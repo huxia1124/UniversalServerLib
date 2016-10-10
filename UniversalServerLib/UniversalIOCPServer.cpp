@@ -30,6 +30,7 @@
 #include <concurrent_unordered_set.h>
 
 #include "UniversalServerRPC_h.h"
+#include <atlcomcli.h>
 #pragma comment(lib, "Rpcrt4.lib")
 
 #pragma comment(lib, "Crypt32.lib")
@@ -112,6 +113,11 @@ void CUniversalIOCPServer::OnWorkerThreadInitialize(LPVOID pStoragePtr)
 
 	CUniversalServerWorkerThreadData *pData = (CUniversalServerWorkerThreadData*)pStoragePtr;
 	pData->_threadIndex = threadIndex;
+
+	auto threadDataCopy = std::make_shared<CUniversalServerWorkerThreadData>();
+	_workerThreadData[threadIndex] = threadDataCopy;
+
+	memcpy(threadDataCopy.get(), pData, sizeof(CUniversalServerWorkerThreadData));
 
 	lua_State *L;
 	L = GetLuaStateForCurrentThread();
@@ -1431,9 +1437,14 @@ extern "C"
 	{
 		_s_server->_pServer->Run(pszScriptFile);
 	}
-	void RunScriptString(handle_t IDL_handle, const WCHAR *pszScript)
+	void RunScriptString(handle_t IDL_handle, const WCHAR *pszScript, BSTR *pstrResult)
 	{
-		_s_server->_pServer->RunScriptString(pszScript);
+		std::wstring strResult;
+		_s_server->_pServer->RunScriptString(pszScript, &strResult);
+		if (!strResult.empty())
+		{
+			*pstrResult = SysAllocString(CComBSTR(strResult.c_str()));
+		}
 	}
 	void EnqueueWorkerThreadScriptString(handle_t IDL_handle, const WCHAR *pszScript)
 	{
@@ -1508,14 +1519,14 @@ void CUniversalIOCPServer::OnServerInitialized()
 	ULONGLONG tick = GetTickCount64();
 	STXTRACELOGE(3, _T("Loading file modify/write time for all files in the server directory..."));
 
-	LONGLONG nMonitorID = MonitorFolder(this->GetServerModuleFilePath());
-	if (nMonitorID < 0)
+	_defaultFolderMonitorID = MonitorFolder(this->GetServerModuleFilePath());
+	if (_defaultFolderMonitorID < 0)
 	{
 		STXTRACELOGE(_T("[r][i]MonitorFolder failed for %s"), this->GetServerModuleFilePath());
 	}
 	else
 	{
-		this->AddFolderMonitorIgnoreFileExtension(nMonitorID, _T(".log"));
+		this->AddFolderMonitorIgnoreFileExtension(_defaultFolderMonitorID, _T(".log"));
 	}
 
 	CreateServerRPCThread();
@@ -1920,6 +1931,11 @@ void CUniversalIOCPServer::SetDebugOutputLevel(int level)
 	g_LogGlobal.SetLogLevel(-1, level);
 }
 
+long long CUniversalIOCPServer::GetDefaultFolderMonitorId()
+{
+	return _defaultFolderMonitorID;
+}
+
 void CUniversalIOCPServer::SetStatisticsLevel(UINT level)
 {
 	_statisticsEnabled = level;
@@ -1983,6 +1999,7 @@ void CUniversalIOCPServer::EnqueueWorkerThreadScript(LPCTSTR lpszScriptString)
 	{
 		_workerThreadActionScripts[i].push(std::make_shared<std::wstring>(lpszScriptString));
 	}
+	STXTRACELOGE(_T("Script for worker thread schedued. length of the scheduled script: %d"), _tcslen(lpszScriptString));
 }
 
 int CUniversalIOCPServer::CheckLuaStateUpdateForThread(lua_State *pLuaState, CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread)
@@ -2533,6 +2550,13 @@ void CUniversalIOCPServer::OnFreeWorkerThreadLocalStorage(LPVOID pStoragePtr)
 	lua_close(pData->_pLuaState);
 
 	delete pData;
+}
+
+DWORD CUniversalIOCPServer::OnQueryWorkerThreadCount()
+{
+	DWORD dwWorkerThreadCount = __super::OnQueryWorkerThreadCount();
+	_workerThreadData.resize(dwWorkerThreadCount);
+	return dwWorkerThreadCount;
 }
 
 LPCTSTR CUniversalIOCPServer::OnGetUserDefinedExceptionName(DWORD dwExceptionCode)

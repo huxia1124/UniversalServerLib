@@ -68,6 +68,7 @@ public:
 	virtual int EnqueueWorkerThreadScriptString(LPCTSTR lpszScriptString);
 
 public:
+	int RunScriptString(LPCTSTR lpszScriptString, std::wstring *resultString);
 	void Initialize();
 	void BindClasses();
 

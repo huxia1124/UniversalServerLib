@@ -10,6 +10,6 @@ interface UniversalServerRPC // The interface is named UniversalServerRPC
 {
 	// A function that takes a zero-terminated string.
 	void RunScriptFile([in, string] const WCHAR* szScriptFile);
-	void RunScriptString([in, string] const WCHAR* szScriptString);
+	void RunScriptString([in, string] const WCHAR* szScriptString, [out, retval] BSTR* pstrResult);
 	void EnqueueWorkerThreadScriptString([in, string] const WCHAR* szScriptString);
 }

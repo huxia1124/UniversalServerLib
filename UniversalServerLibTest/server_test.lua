@@ -7,7 +7,7 @@ function start()
 
 		--server:SetRPCPort(3399)
 		server:StartRPC(3399)
-		server:StartServer(0, 10000, 10000, 2048)
+		server:StartServer(0, 20000, 50000, 2048)
 		utils.Sleep(300)
 		server:SetTcpServerReceiveScript(6800, "scripts/recv_test.lua")
 		server:SetTcpServerReceiveScript(9000, "scripts/recv_var.lua")

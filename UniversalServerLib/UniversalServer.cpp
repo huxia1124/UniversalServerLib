@@ -184,6 +184,9 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addFunction("GetTotalSentCount", &CServerController::GetTotalSentCount)
 		.addFunction("SetLogLevel", &CServerController::SetLogLevel, LUA_ARGS(int))
 		.addFunction("SetDebugOutputLevel", &CServerController::SetDebugOutputLevel, LUA_ARGS(int))
+		.addFunction("AddFolderMonitorIgnoreFileExtension", &CServerController::AddFolderMonitorIgnoreFileExtension, LUA_ARGS(long long, std::wstring))
+		.addFunction("RemoveFolderMonitorIgnoreFileExtension", &CServerController::RemoveFolderMonitorIgnoreFileExtension, LUA_ARGS(long long, std::wstring))
+		.addFunction("GetDefaultFolderMonitorId", &CServerController::GetDefaultFolderMonitorId)
 		/*
 
 		*/

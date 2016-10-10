@@ -23,6 +23,15 @@
 #include "STXLog.h"
 #include "STXIOCPBuffer.h"
 
+extern "C"
+{
+#include "lua.h"
+
+#include "lauxlib.h"
+#include "lualib.h"
+}
+
+
 CSTXLog g_LogGlobalInitial;
 
 CUniversalServer::CUniversalServer() : _spController(new CServerController(""))
@@ -194,18 +203,57 @@ LPVOID CUniversalServer::GetMainLuaState()
 
 int CUniversalServer::RunScriptString(LPCTSTR lpszScriptString)
 {
+	return RunScriptString(lpszScriptString, nullptr);
+}
+
+int CUniversalServer::RunScriptString(LPCTSTR lpszScriptString, std::wstring *resultString)
+{
 	USES_CONVERSION;
 	std::string buf = (LPCSTR)ATL::CW2A(lpszScriptString);
 
 	int nResult = 0;
 	EnterCriticalSection(&_csMainScript);
+	nResult = luaL_dostring(L, "result = nil\r\n___result = nil");
 	nResult = luaL_dostring(L, buf.c_str());
 	if (nResult)
 	{
 		const char *pLuaLoadError = lua_tostring(L, -1);
 		g_LogGlobalInitial.OutputLogDebugString(_T("[r][i]Script text failed to run."));
 		g_LogGlobalInitial.OutputLogDebugString(_T("[r][i]\t\t%S"), pLuaLoadError);
+		if (resultString)
+		{
+			*resultString = _T("Error: Script text failed to run!");
+		}
 	}
+	else
+	{
+		nResult = luaL_dostring(L, "local inspect = require 'inspect'\r\n ___result = tostring(inspect(result))");
+	}
+
+	if (resultString)
+	{
+		LuaIntf::LuaRef result(L, "___result");
+		if (result.isValid() && result.type() == LuaIntf::LuaTypeID::STRING)
+		{
+			auto resultValue = result.toValue<std::string>();
+			if (resultValue != "nil")
+			{
+				*resultString = (LPCTSTR)ATL::CA2W(resultValue.c_str());
+			}
+		}
+	}
+	
+	/*int value = table.get<int>("value");
+	if (table.isValid())
+	{
+		for (auto& e : table) {
+			std::string key = e.key<std::string>();
+			LuaIntf::LuaRef value = e.value<LuaIntf::LuaRef>();
+
+		}
+	}
+	*/
+
 	LeaveCriticalSection(&_csMainScript);
 	return nResult;
 }

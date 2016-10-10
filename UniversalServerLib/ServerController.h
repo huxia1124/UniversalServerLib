@@ -85,6 +85,8 @@ public:
 	void SetLogLevel(int level);
 	void SetDebugOutputLevel(int level);
 	void EnqueueWorkerThreadScriptString(LPCTSTR lpszScriptString);
-
+	void AddFolderMonitorIgnoreFileExtension(long long monitorId, std::wstring fileExt);
+	void RemoveFolderMonitorIgnoreFileExtension(long long monitorId, std::wstring fileExt);
+	long long GetDefaultFolderMonitorId();
 };
 

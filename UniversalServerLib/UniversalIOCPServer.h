@@ -181,12 +181,16 @@ protected:
 	CSTXHashMap<__int64, CUniversalIOCPServerClientContext*, 4, 8> _mapDebugMonitorClients;
 	volatile LONG _logMonitorCount;
 	volatile LONG _debugMonitorCount;
+	LONGLONG _defaultFolderMonitorID = -1;			//Folder monitoring id
 
 	CSTXHashMap<UINT, lua_State *> _mapLuaState;
 	CSTXHashMap<std::wstring, std::set<CUniversalStringCache*>, 4, 1, CSTXNoCaseWStringHash<4, 1> > _mapLuaModuleReference;
 
 	//Scripts configuration
 	Concurrency::concurrent_vector<Concurrency::concurrent_queue<std::shared_ptr<std::wstring>>> _workerThreadActionScripts;		//Runs whenever new action 
+
+	//A copy of TLS data of worker threads
+	Concurrency::concurrent_vector<std::shared_ptr<CUniversalServerWorkerThreadData>> _workerThreadData;
 
 	CSTXHashMap<std::wstring, std::set<CUniversalStringCache*>, 4, 1, CSTXNoCaseWStringHash<4, 1> > _mapScriptFileCaches;	//ScriptFileName -> cache set
 	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerRecvScripts;					//Port -> ScriptCache
@@ -242,6 +246,7 @@ protected:
 	virtual void OnFileChangedFiltered(CSTXIOCPFolderMonitorContext *pFolderMonitorContext, DWORD dwAction, LPCTSTR lpszFileName, LPCTSTR lpszFileFullPathName);
 	virtual LPVOID OnAllocateWorkerThreadLocalStorage();
 	virtual void OnFreeWorkerThreadLocalStorage(LPVOID pStoragePtr);
+	virtual DWORD OnQueryWorkerThreadCount();
 
 	virtual LPCTSTR OnGetUserDefinedExceptionName(DWORD dwExceptionCode);
 	virtual DWORD OnParseUserDefinedExceptionArgument(DWORD dwExceptionCode, DWORD nArguments, ULONG_PTR *pArgumentArray, LPTSTR lpszBuffer, UINT cchBufferSize);
@@ -345,6 +350,7 @@ public:
 	long GetTcpClientCount(UINT nPort);
 	void SetLogLevel(int level);
 	void SetDebugOutputLevel(int level);
+	long long GetDefaultFolderMonitorId();
 
 public:
 	//Statistics data. can be enabled/disabled through

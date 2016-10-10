@@ -137,10 +137,13 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 	setLuaPath(pLuaState, szPathToSet);
 
 	LuaIntf::LuaBinding(pLuaState).beginClass<CServerController>("UniversalServer")
+		//Constructor
 		.addConstructor(LUA_SP(std::shared_ptr<CServerController>), LUA_ARGS(LuaIntf::_opt<std::string>))
-		//.addStaticProperty("home_url", &Web::home_url, &Web::set_home_url)
-		//.addStaticFunction("GetServer", &CUniversalIOCPServer::GetServer)
-		//.addProperty("url", &Web::url, &Web::set_url)
+
+		//Functions
+			//.addStaticProperty("home_url", &Web::home_url, &Web::set_home_url)
+			//.addStaticFunction("GetServer", &CUniversalIOCPServer::GetServer)
+			//.addProperty("url", &Web::url, &Web::set_url)
 		.addFunction("StartServer", &CServerController::StartServer, LUA_ARGS(LuaIntf::_def<int, 0>, LuaIntf::_def<int, 1000>, LuaIntf::_def<int, 5000>, LuaIntf::_def<int, 8192>))
 		.addFunction("Terminate", &CServerController::Terminate)
 		.addFunction("BeginTcpStreamServer", &CServerController::BeginTcpStreamServer, LUA_ARGS(int, LuaIntf::_opt<std::wstring>, LuaIntf::_def<int, 0>, LuaIntf::_def<long long, 0>))
@@ -166,16 +169,16 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addFunction("SetRPCPort", &CServerController::SetRPCPort, LUA_ARGS(unsigned int))
 		.addFunction("StartRPC", &CServerController::StartRPC, LUA_ARGS(LuaIntf::_def<int, -1>))
 		.addFunction("StopRPC", &CServerController::StopRPC)
-		.addFunction("SetTcpServerReceiveScript", &CServerController::SetTcpServerReceiveScript, LUA_ARGS(int, LuaIntf::_opt<std::wstring>))
-		.addFunction("SetTcpConnectionReceiveScript", &CServerController::SetTcpConnectionReceiveScript, LUA_ARGS(long, LuaIntf::_opt<std::wstring>))
+		.addFunction("SetTcpServerReceivedScript", &CServerController::SetTcpServerReceivedScript, LUA_ARGS(int, LuaIntf::_opt<std::wstring>))
+		.addFunction("SetTcpConnectionReceivedScript", &CServerController::SetTcpConnectionReceivedScript, LUA_ARGS(long, LuaIntf::_opt<std::wstring>))
 		.addFunction("SetTcpConnectionDisconnectedScript", &CServerController::SetTcpConnectionDisconnectedScript, LUA_ARGS(long, LuaIntf::_opt<std::wstring>))
 		.addFunction("SetTcpServerClientConnectedScript", &CServerController::SetTcpServerClientConnectedScript, LUA_ARGS(int, LuaIntf::_opt<std::wstring>))
 		.addFunction("SetTcpServerClientDisconnectedScript", &CServerController::SetTcpServerClientDisconnectedScript, LUA_ARGS(int, LuaIntf::_opt<std::wstring>))
 		.addFunction("GetTcpClientCount", &CServerController::GetTcpClientCount, LUA_ARGS(LuaIntf::_def<int, 0>))
 		.addFunction("GetSentBytesPerSecond", &CServerController::GetSentBytesPerSecond)
 		.addFunction("GetSentCountPerSecond", &CServerController::GetSentCountPerSecond)
-		.addFunction("GetReceiveBytesPerSecond", &CServerController::GetReceiveBytesPerSecond)
-		.addFunction("GetReceiveCountPerSecond", &CServerController::GetReceiveCountPerSecond)
+		.addFunction("GetReceivedBytesPerSecond", &CServerController::GetReceivedBytesPerSecond)
+		.addFunction("GetReceivedCountPerSecond", &CServerController::GetReceivedCountPerSecond)
 		.addFunction("SetStatisticsLevel", &CServerController::SetStatisticsLevel, LUA_ARGS(LuaIntf::_def<unsigned int, 1>))
 		.addFunction("GetStatisticsLevel", &CServerController::GetStatisticsLevel)
 		.addFunction("GetTotalReceivedBytes", &CServerController::GetTotalReceivedBytes)
@@ -187,9 +190,20 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addFunction("AddFolderMonitorIgnoreFileExtension", &CServerController::AddFolderMonitorIgnoreFileExtension, LUA_ARGS(long long, std::wstring))
 		.addFunction("RemoveFolderMonitorIgnoreFileExtension", &CServerController::RemoveFolderMonitorIgnoreFileExtension, LUA_ARGS(long long, std::wstring))
 		.addFunction("GetDefaultFolderMonitorId", &CServerController::GetDefaultFolderMonitorId)
-		/*
 
-		*/
+		//Properties
+		.addPropertyReadOnly("DefaultFolderMonitorId", &CServerController::GetDefaultFolderMonitorId, &CServerController::GetDefaultFolderMonitorId)
+		.addPropertyReadOnly("SentBytesPerSecond", &CServerController::GetSentBytesPerSecond, &CServerController::GetSentBytesPerSecond)
+		.addPropertyReadOnly("SentCountPerSecond", &CServerController::GetSentCountPerSecond, &CServerController::GetSentCountPerSecond)
+		.addPropertyReadOnly("ReceivedBytesPerSecond", &CServerController::GetReceivedBytesPerSecond, &CServerController::GetReceivedBytesPerSecond)
+		.addPropertyReadOnly("ReceivedCountPerSecond", &CServerController::GetReceivedCountPerSecond, &CServerController::GetReceivedCountPerSecond)
+		.addPropertyReadOnly("TotalReceivedBytes", &CServerController::GetTotalReceivedBytes, &CServerController::GetTotalReceivedBytes)
+		.addPropertyReadOnly("TotalSentBytes", &CServerController::GetTotalSentBytes, &CServerController::GetTotalSentBytes)
+		.addPropertyReadOnly("TotalReceivedCount", &CServerController::GetTotalReceivedCount, &CServerController::GetTotalReceivedCount)
+		.addPropertyReadOnly("TotalSentCount", &CServerController::GetTotalSentCount, &CServerController::GetTotalSentCount)
+		.addProperty("StatisticsLevel", &CServerController::GetStatisticsLevel, &CServerController::GetStatisticsLevel, &CServerController::SetStatisticsLevel)
+
+		//*/
 		//.addFunction("Terminate", &CUniversalIOCPServer::Initialize)
 		//.addFunction("load", &Web::load, LUA_ARGS(LuaIntf::_opt<std::string>, LuaIntf::_opt<int>))
 		//.addFunction("loadw", &Web::loadw, LUA_ARGS(LuaIntf::_opt<std::wstring>))
@@ -205,11 +219,15 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.endClass();
 
 
+	auto pfnGetCurrentThreadId = [] {
+		return GetCurrentThreadId();
+	};
+
 	LuaIntf::LuaBinding(pLuaState).beginModule("utils").addFunction("Sleep", [] (int dwTimeMS) {
 			Sleep(dwTimeMS);
-		}, LUA_ARGS(int)).addFunction("GetThreadId", [] {
-			return GetCurrentThreadId();
-		}).addFunction("SetLogLevel", [&](int nLogLevel) {
+		}, LUA_ARGS(int))
+		.addFunction("GetThreadId", pfnGetCurrentThreadId)
+		.addFunction("SetLogLevel", [&](int nLogLevel) {
 			g_LogGlobal.SetLogLevel(nLogLevel, nLogLevel);
 		}).endModule();
 

@@ -217,12 +217,12 @@ void CServerController::Log(std::wstring logText, int nLogLevel)
 	STXTRACELOGE(nLogLevel, _T("%s"), logText.c_str());
 }
 
-void CServerController::SetTcpServerReceiveScript(int nPort, std::wstring scriptFile)
+void CServerController::SetTcpServerReceivedScript(int nPort, std::wstring scriptFile)
 {
 	_server->SetTcpServerReceiveScript(nPort, scriptFile.c_str());
 }
 
-void CServerController::SetTcpConnectionReceiveScript(long nConnectionID, std::wstring scriptFile)
+void CServerController::SetTcpConnectionReceivedScript(long nConnectionID, std::wstring scriptFile)
 {
 	_server->SetTcpConnectionReceiveScript(nConnectionID, scriptFile.c_str());
 }
@@ -257,14 +257,14 @@ long long CServerController::GetSentCountPerSecond()
 	return _server->GetSentCountPerSecond();
 }
 
-long long CServerController::GetReceiveBytesPerSecond()
+long long CServerController::GetReceivedBytesPerSecond()
 {
-	return _server->GetReceiveBytesPerSecond();
+	return _server->GetReceivedBytesPerSecond();
 }
 
-long long CServerController::GetReceiveCountPerSecond()
+long long CServerController::GetReceivedCountPerSecond()
 {
-	return _server->GetReceiveCountPerSecond();
+	return _server->GetReceivedCountPerSecond();
 }
 
 void CServerController::SetStatisticsLevel(unsigned int level)

@@ -1956,13 +1956,13 @@ long long CUniversalIOCPServer::GetSentCountPerSecond()
 	return _statisticsSentCount.GetAverage();
 }
 
-long long CUniversalIOCPServer::GetReceiveBytesPerSecond()
+long long CUniversalIOCPServer::GetReceivedBytesPerSecond()
 {
 	return _statisticsReceiveBytes.GetAverage();
 
 }
 
-long long CUniversalIOCPServer::GetReceiveCountPerSecond()
+long long CUniversalIOCPServer::GetReceivedCountPerSecond()
 {
 	return _statisticsReceiveCount.GetAverage();
 }

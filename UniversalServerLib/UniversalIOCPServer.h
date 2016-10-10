@@ -358,8 +358,8 @@ public:
 	UINT GetStatisticsLevel();
 	long long GetSentBytesPerSecond();
 	long long GetSentCountPerSecond();
-	long long GetReceiveBytesPerSecond();
-	long long GetReceiveCountPerSecond();
+	long long GetReceivedBytesPerSecond();
+	long long GetReceivedCountPerSecond();
 	long long GetTotalSentBytes() const;
 	long long GetTotalReceivedBytes() const;
 	long long GetTotalSentCount() const;			//Package count

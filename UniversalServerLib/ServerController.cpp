@@ -30,7 +30,11 @@ CServerController::CServerController(std::string name)
 		_server = new CUniversalIOCPServer();
 		if (_server == NULL)
 		{
-			STXTRACELOGFE(_T("CServerController::CServerController: not enough memory."));
+			STXTRACELOGFE(_T("[r][i]CServerController::CServerController: not enough memory."));
+		}
+		else
+		{
+			memcpy(&_serverInitializationInfo, &_server->_serverInitializationInfo, sizeof(_serverInitializationInfo));
 		}
 	}
 }
@@ -61,17 +65,23 @@ void CServerController::StartServer(int nDefaultTcpTimeout, int nInitialBufferCo
 		_server->_serverInitializationInfo.pszLogFilePath = szPath;
 		_server->_serverInitializationInfo.dwDefaultOperationTimeout = (DWORD)nDefaultTcpTimeout;
 
+		//Buffer size
 		if(nBufferSize > 16 && nBufferSize < 0x7FFFFFFF)
 			_server->_serverInitializationInfo.dwBufferSize = nBufferSize;
 
+		//Initial Buffer count
 		if(nInitialBufferCount > 1 && nInitialBufferCount < 0x7FFFFFFF)
 			_server->_serverInitializationInfo.dwBufferInitialCount = nInitialBufferCount;
-
+		
+		//Maximum buffer count
 		if (nMaxBufferCount > 1 && nMaxBufferCount < 0x7FFFFFFF)
 			_server->_serverInitializationInfo.dwBufferMaxCount = nMaxBufferCount;
 
 		if (_server->_serverInitializationInfo.dwBufferMaxCount < _server->_serverInitializationInfo.dwBufferInitialCount)
 			_server->_serverInitializationInfo.dwBufferMaxCount = _server->_serverInitializationInfo.dwBufferInitialCount;
+
+		//Timer Interval
+		_server->_serverInitializationInfo.dwTimerInterval = _serverInitializationInfo.dwTimerInterval;
 		
 		if (!_server->Initialize(GetModuleHandle(NULL), &_server->_serverInitializationInfo))
 		{
@@ -325,4 +335,14 @@ void CServerController::RemoveFolderMonitorIgnoreFileExtension(long long monitor
 long long CServerController::GetDefaultFolderMonitorId()
 {
 	return _server->GetDefaultFolderMonitorId();
+}
+
+unsigned int CServerController::GetTimerInterval()
+{
+	return _serverInitializationInfo.dwTimerInterval;
+}
+
+void CServerController::SetTimerInterval(unsigned int interval)
+{
+	_serverInitializationInfo.dwTimerInterval = interval;
 }

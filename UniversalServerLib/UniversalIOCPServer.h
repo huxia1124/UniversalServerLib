@@ -247,6 +247,7 @@ protected:
 	virtual LPVOID OnAllocateWorkerThreadLocalStorage();
 	virtual void OnFreeWorkerThreadLocalStorage(LPVOID pStoragePtr);
 	virtual DWORD OnQueryWorkerThreadCount();
+	virtual void OnTimer(DWORD dwInterval);
 
 	virtual LPCTSTR OnGetUserDefinedExceptionName(DWORD dwExceptionCode);
 	virtual DWORD OnParseUserDefinedExceptionArgument(DWORD dwExceptionCode, DWORD nArguments, ULONG_PTR *pArgumentArray, LPTSTR lpszBuffer, UINT cchBufferSize);

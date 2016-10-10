@@ -21,6 +21,7 @@
 #include <future>
 #include <concurrent_unordered_map.h>
 #include "STXProtocolLua.h"
+#include "STXServerBase.h"
 
 
 class CUniversalIOCPServer;
@@ -38,6 +39,8 @@ public:
 
 	std::future<int> _future;
 	concurrency::concurrent_unordered_map<std::wstring, std::wstring> _datamap;
+
+	STXSERVERINIT _serverInitializationInfo;		//For script input
 
 public:
 	void StartServer(int nDefaultTcpTimeout, int nInitialBufferCount, int nMaxBufferCount, int nBufferSize);
@@ -88,5 +91,7 @@ public:
 	void AddFolderMonitorIgnoreFileExtension(long long monitorId, std::wstring fileExt);
 	void RemoveFolderMonitorIgnoreFileExtension(long long monitorId, std::wstring fileExt);
 	long long GetDefaultFolderMonitorId();
+	unsigned int GetTimerInterval();
+	void SetTimerInterval(unsigned int interval);
 };
 

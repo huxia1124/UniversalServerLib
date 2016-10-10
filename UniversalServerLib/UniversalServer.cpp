@@ -202,7 +202,7 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addPropertyReadOnly("TotalReceivedCount", &CServerController::GetTotalReceivedCount, &CServerController::GetTotalReceivedCount)
 		.addPropertyReadOnly("TotalSentCount", &CServerController::GetTotalSentCount, &CServerController::GetTotalSentCount)
 		.addProperty("StatisticsLevel", &CServerController::GetStatisticsLevel, &CServerController::GetStatisticsLevel, &CServerController::SetStatisticsLevel)
-
+		.addProperty("TimerInterval", &CServerController::GetTimerInterval, &CServerController::GetTimerInterval, &CServerController::SetTimerInterval)
 		//*/
 		//.addFunction("Terminate", &CUniversalIOCPServer::Initialize)
 		//.addFunction("load", &Web::load, LUA_ARGS(LuaIntf::_opt<std::string>, LuaIntf::_opt<int>))

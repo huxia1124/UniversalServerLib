@@ -6,6 +6,7 @@ function start()
 	--local sss=utils.GetServer()
 
 		--server:SetRPCPort(3399)
+		server.TimerInterval = 500
 		server:StartRPC(3399)
 		server:StartServer(0, 20000, 50000, 2048)
 		utils.Sleep(300)

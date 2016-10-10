@@ -2559,6 +2559,11 @@ DWORD CUniversalIOCPServer::OnQueryWorkerThreadCount()
 	return dwWorkerThreadCount;
 }
 
+void CUniversalIOCPServer::OnTimer(DWORD dwInterval)
+{
+	//STXTRACE(_T("Timer triggered"));
+}
+
 LPCTSTR CUniversalIOCPServer::OnGetUserDefinedExceptionName(DWORD dwExceptionCode)
 {
 	if (dwExceptionCode == 0x20000001)

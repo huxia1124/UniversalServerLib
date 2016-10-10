@@ -10,7 +10,7 @@ Because it depends heavily on IO Completion port, it is Windows only.
 * Client tools provided
 * Simple HTTP support (and Websocket support)
 * Lua script supported (Lua 5.3.1)
-* Hot modification supported for scripts
+* Plug & play scripts modification, no restarting needed
 * Realtime files and configurations changes detection
 * Supports for simple binary message formats
 * RPC server enables custom scripts execution on the fly

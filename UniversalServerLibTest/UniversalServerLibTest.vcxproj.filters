@@ -253,5 +253,11 @@
     <None Include="test_add2.lua">
       <Filter>lua_script</Filter>
     </None>
+    <None Include="timer.lua">
+      <Filter>lua_script</Filter>
+    </None>
+    <None Include="timer2.lua">
+      <Filter>lua_script</Filter>
+    </None>
   </ItemGroup>
 </Project>

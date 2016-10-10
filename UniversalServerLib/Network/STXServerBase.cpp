@@ -639,6 +639,7 @@ LONG CSTXServerBase::CreateTcpConnection(LPCTSTR lpszTargetHostAddress, UINT uTa
 UINT WINAPI CSTXServerBase::ServerTimerThread(LPVOID lpParameter)
 {
 	CSTXServerBase *pThis = (CSTXServerBase*)lpParameter;
+
 	pThis->OnTimerInitialize();
 
 	while(::WaitForSingleObject(pThis->m_hTimerThreadEvent, pThis->m_BaseServerInfo.dwTimerInterval) != WAIT_OBJECT_0)

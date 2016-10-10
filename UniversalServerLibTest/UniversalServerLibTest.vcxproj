@@ -437,6 +437,8 @@
     <None Include="server_test.lua" />
     <None Include="test_add.lua" />
     <None Include="test_add2.lua" />
+    <None Include="timer.lua" />
+    <None Include="timer2.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -695,7 +695,7 @@ protected:
 
 	static int ProcessException(LPEXCEPTION_POINTERS pExp);
 	static LONGLONG GetTimeSpanSeconds(SYSTEMTIME & tmNow, SYSTEMTIME & tmPrev);
-	static LPVOID GetThreadUserStorage();
+	virtual LPVOID GetThreadUserStorage();
 
 protected:
 	virtual BOOL OnAccepted(CSTXIOCPServerClientContext *pClientContext);

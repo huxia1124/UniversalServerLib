@@ -1626,6 +1626,33 @@ BOOL CUniversalIOCPServer::GetClientUserDataString(__int64 nClientUID, LPCTSTR l
 	return bResult;
 }
 
+void CUniversalIOCPServer::UpdateScriptTrackingInfo(const std::wstring &originalName, LPCTSTR lpszScriptFile, std::shared_ptr<CUniversalStringCache> &scriptCache)
+{
+	_mapScriptFileCaches.lock(lpszScriptFile);
+	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
+	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
+	{
+		itCache->second.insert(scriptCache.get());
+	}
+	else
+	{
+		_mapScriptFileCaches[lpszScriptFile].insert(scriptCache.get());
+	}
+	_mapScriptFileCaches.unlock(lpszScriptFile);
+
+	//If the script file name changed, remove the previous mapping
+	if (originalName.size() > 0)
+	{
+		_mapScriptFileCaches.lock(originalName);
+		itCache = _mapScriptFileCaches.find(originalName);
+		if (itCache != _mapScriptFileCaches.end(originalName))
+		{
+			itCache->second.erase(scriptCache.get());
+		}
+		_mapScriptFileCaches.unlock(originalName);
+	}
+}
+
 void CUniversalIOCPServer::SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScriptFile)
 {
 	std::shared_ptr<CUniversalStringCache> scriptCache;
@@ -1661,6 +1688,9 @@ void CUniversalIOCPServer::SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScr
 	}
 	UnlockServersMap();
 
+	UpdateScriptTrackingInfo(originalName, lpszScriptFile, scriptCache);
+
+	/*
 	_mapScriptFileCaches.lock(lpszScriptFile);
 	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
 	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
@@ -1682,6 +1712,7 @@ void CUniversalIOCPServer::SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScr
 		}
 	}
 	_mapScriptFileCaches.unlock(lpszScriptFile);
+	*/
 }
 
 void CUniversalIOCPServer::SetTcpConnectionReceiveScript(LONG nConnectionID, LPCTSTR lpszScriptFile)
@@ -1719,6 +1750,9 @@ void CUniversalIOCPServer::SetTcpConnectionReceiveScript(LONG nConnectionID, LPC
 	}
 	LockConnectionMap();
 
+	UpdateScriptTrackingInfo(originalName, lpszScriptFile, scriptCache);
+
+	/*
 	_mapScriptFileCaches.lock(lpszScriptFile);
 	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
 	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
@@ -1740,6 +1774,7 @@ void CUniversalIOCPServer::SetTcpConnectionReceiveScript(LONG nConnectionID, LPC
 		}
 	}
 	_mapScriptFileCaches.unlock(lpszScriptFile);
+	*/
 }
 
 void CUniversalIOCPServer::SetTcpConnectionDisconnectedScript(LONG nConnectionID, LPCTSTR lpszScriptFile)
@@ -1777,6 +1812,9 @@ void CUniversalIOCPServer::SetTcpConnectionDisconnectedScript(LONG nConnectionID
 	}
 	LockConnectionMap();
 
+	UpdateScriptTrackingInfo(originalName, lpszScriptFile, scriptCache);
+
+	/*
 	_mapScriptFileCaches.lock(lpszScriptFile);
 	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
 	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
@@ -1798,6 +1836,7 @@ void CUniversalIOCPServer::SetTcpConnectionDisconnectedScript(LONG nConnectionID
 		}
 	}
 	_mapScriptFileCaches.unlock(lpszScriptFile);
+	*/
 }
 
 void CUniversalIOCPServer::SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR lpszScriptFile)
@@ -1835,6 +1874,9 @@ void CUniversalIOCPServer::SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR
 	}
 	UnlockServersMap();
 
+	UpdateScriptTrackingInfo(originalName, lpszScriptFile, scriptCache);
+
+	/*
 	_mapScriptFileCaches.lock(lpszScriptFile);
 	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
 	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
@@ -1856,6 +1898,7 @@ void CUniversalIOCPServer::SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR
 		}
 	}
 	_mapScriptFileCaches.unlock(lpszScriptFile);
+	*/
 }
 
 void CUniversalIOCPServer::SetTcpServerClientDisconnectedScript(UINT nPort, LPCTSTR lpszScriptFile)
@@ -1893,6 +1936,9 @@ void CUniversalIOCPServer::SetTcpServerClientDisconnectedScript(UINT nPort, LPCT
 	}
 	UnlockServersMap();
 
+	UpdateScriptTrackingInfo(originalName, lpszScriptFile, scriptCache);
+
+	/*
 	_mapScriptFileCaches.lock(lpszScriptFile);
 	auto itCache = _mapScriptFileCaches.find(lpszScriptFile);
 	if (itCache != _mapScriptFileCaches.end(lpszScriptFile))
@@ -1914,6 +1960,30 @@ void CUniversalIOCPServer::SetTcpServerClientDisconnectedScript(UINT nPort, LPCT
 		}
 	}
 	_mapScriptFileCaches.unlock(lpszScriptFile);
+	*/
+}
+
+void CUniversalIOCPServer::SetTimerScript(LPCTSTR lpszScriptFile)
+{
+	std::shared_ptr<CUniversalStringCache> scriptCache = _timerScript;
+	std::wstring originalName;
+	if (scriptCache)
+	{
+		originalName = scriptCache->GetStringName();
+		scriptCache->SetNeedUpdate(true);
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->SetStringName(lpszScriptFile);
+	}
+	else
+	{
+		scriptCache = std::make_shared<CUniversalStringCache>();
+		scriptCache->SetNeedUpdate(true);
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->SetStringName(lpszScriptFile);
+		_timerScript = scriptCache;
+	}
+	
+	UpdateScriptTrackingInfo(originalName, lpszScriptFile, scriptCache);
 }
 
 long CUniversalIOCPServer::GetTcpClientCount(UINT nPort)
@@ -2240,11 +2310,11 @@ void CUniversalIOCPServer::RunScriptCache(CUniversalStringCache &cache)
 	}
 }
 
-void CUniversalIOCPServer::RunScriptCache(CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread)
+void CUniversalIOCPServer::RunScriptCache(CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread, lua_State *pLuaState)
 {
 	int nResult = 0;
 	USES_CONVERSION;
-	lua_State *L = GetLuaStateForCurrentThread();
+	lua_State *L = pLuaState ? pLuaState : GetLuaStateForCurrentThread();
 
 	if (cache.IsNeedUpdate())
 	{
@@ -2283,26 +2353,6 @@ void CUniversalIOCPServer::RunScriptCache(CUniversalStringCache &cache, LONGLONG
 		STXTRACELOGE(_T("[r][i]%s in RunScriptCache failed to run with error coce = %d [%s]"), cache.GetStringName(), nResult, pszError);
 		STXTRACELOGE(_T("[r][i]\t\t%S"), pLuaLoadError);
 	}
-	//else
-	//{
-	//	LuaIntf::LuaRef reg = LuaIntf::LuaRef::registry(L);
-
-	//	LuaIntf::LuaRef table = reg.get<LuaIntf::LuaRef>("_LOADED");
-
-	//	//LuaIntf::LuaRef table(L, "package.loaded");
-	//	for (auto& e : table) {
-	//		std::string key = e.key<std::string>();
-	//		LuaIntf::LuaRef value = e.value<LuaIntf::LuaRef>();
-	//		STXTRACEE(_T("[r][i]\t\t%S"), key.c_str());
-
-	//		//for (auto &f : value)
-	//		//{
-	//		//	std::string key2 = f.key<std::string>();
-	//		//	STXTRACEE(_T("[r][i]\t\t\t%S"), key2.c_str());
-	//		//}
-
-	//	}
-	//}
 
 	//TODO: check environment reliablilty here
 	CheckLuaEnvironment(L);
@@ -2561,7 +2611,36 @@ DWORD CUniversalIOCPServer::OnQueryWorkerThreadCount()
 
 void CUniversalIOCPServer::OnTimer(DWORD dwInterval)
 {
-	//STXTRACE(_T("Timer triggered"));
+	if (_timerScript)
+	{
+		RunScriptCache(*_timerScript.get(), &_timerScriptVersion, _pLuaStateForTimer);
+	}
+}
+
+void CUniversalIOCPServer::OnTimerInitialize()
+{
+	_pLuaStateForTimer = luaL_newstate(); /* create state */
+
+	lua_State *L;
+	L = _pLuaStateForTimer;
+	luaopen_base(L);
+	luaL_openlibs(L);
+
+	LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetServer", [&] {
+		// you can use C++11 lambda expression here too
+		std::shared_ptr<CServerController> sp = _pServer->_spController;
+		return sp;
+	}).endModule();
+
+	LuaBindClasses(L, _pServer);
+	LuaBindSTXProtocolClasses(L);
+
+	CoInitializeEx(NULL, COINIT_MULTITHREADED);
+}
+
+void CUniversalIOCPServer::OnTimerUninitialize()
+{
+	lua_close(_pLuaStateForTimer);
 }
 
 LPCTSTR CUniversalIOCPServer::OnGetUserDefinedExceptionName(DWORD dwExceptionCode)

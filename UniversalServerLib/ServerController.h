@@ -93,5 +93,6 @@ public:
 	long long GetDefaultFolderMonitorId();
 	unsigned int GetTimerInterval();
 	void SetTimerInterval(unsigned int interval);
+	void SetTimerScript(std::wstring scriptFile);
 };
 

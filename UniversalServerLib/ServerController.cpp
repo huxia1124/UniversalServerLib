@@ -346,3 +346,8 @@ void CServerController::SetTimerInterval(unsigned int interval)
 {
 	_serverInitializationInfo.dwTimerInterval = interval;
 }
+
+void CServerController::SetTimerScript(std::wstring scriptFile)
+{
+	_server->SetTimerScript(scriptFile.c_str());
+}

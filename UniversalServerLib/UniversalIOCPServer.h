@@ -182,6 +182,8 @@ protected:
 	volatile LONG _logMonitorCount;
 	volatile LONG _debugMonitorCount;
 	LONGLONG _defaultFolderMonitorID = -1;			//Folder monitoring id
+	lua_State *_pLuaStateForTimer = nullptr;
+	LONGLONG _timerScriptVersion = 0;
 
 	CSTXHashMap<UINT, lua_State *> _mapLuaState;
 	CSTXHashMap<std::wstring, std::set<CUniversalStringCache*>, 4, 1, CSTXNoCaseWStringHash<4, 1> > _mapLuaModuleReference;
@@ -198,6 +200,7 @@ protected:
 	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerClientDisconnectedScripts;		//Port -> ScriptCache
 	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionRecvScripts;					//ConnectionID -> ScriptCache
 	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionDisconnectedScripts;			//ConnectionID -> ScriptCache
+	std::shared_ptr<CUniversalStringCache> _timerScript;				//executed in OnTimer
 
 public:
 	STXSERVERINIT _serverInitializationInfo;
@@ -248,6 +251,8 @@ protected:
 	virtual void OnFreeWorkerThreadLocalStorage(LPVOID pStoragePtr);
 	virtual DWORD OnQueryWorkerThreadCount();
 	virtual void OnTimer(DWORD dwInterval);
+	virtual void OnTimerInitialize();
+	virtual void OnTimerUninitialize();
 
 	virtual LPCTSTR OnGetUserDefinedExceptionName(DWORD dwExceptionCode);
 	virtual DWORD OnParseUserDefinedExceptionArgument(DWORD dwExceptionCode, DWORD nArguments, ULONG_PTR *pArgumentArray, LPTSTR lpszBuffer, UINT cchBufferSize);
@@ -267,7 +272,7 @@ protected:
 public:
 	int RunScriptString(LPCTSTR lpszScript);
 	void RunScriptCache(CUniversalStringCache &cache);
-	void RunScriptCache(CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread);
+	void RunScriptCache(CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread, lua_State *pLuaState = nullptr);
 	int RunScript(LPCTSTR lpszScriptFile);
 	void SetRPCServerPort(UINT nPort);
 	void CreateServerRPCThread(UINT nPort = 0);
@@ -341,6 +346,7 @@ public:
 	void EnqueueWorkerThreadScript(LPCTSTR lpszScriptString);
 
 public:
+	void UpdateScriptTrackingInfo(const std::wstring &originalName, LPCTSTR lpszScriptFile, std::shared_ptr<CUniversalStringCache> &scriptCache);
 	void SetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, LPCTSTR lpszValue);
 	BOOL GetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, std::wstring& valueOut);
 	void SetTcpServerReceiveScript(UINT nPort, LPCTSTR lpszScriptFile);
@@ -348,6 +354,8 @@ public:
 	void SetTcpConnectionDisconnectedScript(LONG nConnectionID, LPCTSTR lpszScriptFile);
 	void SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 	void SetTcpServerClientDisconnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
+	void SetTimerScript(LPCTSTR lpszScriptFile);
+
 	long GetTcpClientCount(UINT nPort);
 	void SetLogLevel(int level);
 	void SetDebugOutputLevel(int level);

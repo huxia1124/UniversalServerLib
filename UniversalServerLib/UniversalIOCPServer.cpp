@@ -1971,14 +1971,13 @@ void CUniversalIOCPServer::SetTimerScript(LPCTSTR lpszScriptFile)
 	{
 		originalName = scriptCache->GetStringName();
 		scriptCache->SetNeedUpdate(true);
-		scriptCache->EnableTraceThreadVersion();
 		scriptCache->SetStringName(lpszScriptFile);
 	}
 	else
 	{
 		scriptCache = std::make_shared<CUniversalStringCache>();
 		scriptCache->SetNeedUpdate(true);
-		scriptCache->EnableTraceThreadVersion();
+		//scriptCache->EnableTraceThreadVersion();
 		scriptCache->SetStringName(lpszScriptFile);
 		_timerScript = scriptCache;
 	}

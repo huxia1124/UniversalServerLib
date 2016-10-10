@@ -438,8 +438,14 @@ LRESULT CSTXProtocolDialog::OnHistoryClicked(WORD, UINT, HWND, BOOL&)
 
 LRESULT CSTXProtocolDialog::OnShowScriptDialogClicked(WORD, UINT, HWND, BOOL&)
 {
-	CSTXScriptDialog dlg;
-	dlg.DoModal(this->m_hWnd);
+	auto dlg = std::make_shared<CSTXScriptDialog>();
+	dlg->Create(m_hWnd);
+	dlg->ShowWindow(SW_SHOW);
+
+	_scriptDialogs.push_back(dlg);
+
+	//CSTXScriptDialog dlg;
+	//dlg.DoModal(this->m_hWnd);
 
 	return 0;
 }

@@ -83,8 +83,9 @@ LRESULT CSTXScriptDialog::OnRunScriptClicked(WORD, UINT, HWND, BOOL&)
 	::SetFocus(GetDlgItem(IDC_EDIT_SCRIPT));
 	//_edtScript.SetSelAll();
 
+	CString result;
 	CString error;
-	RunServerScriptString(_scriptToRun.c_str(), error);
+	RunServerScriptString(_scriptToRun.c_str(), result, error);
 
 	::EnableWindow(GetDlgItem(IDOK), TRUE);
 
@@ -92,19 +93,30 @@ LRESULT CSTXScriptDialog::OnRunScriptClicked(WORD, UINT, HWND, BOOL&)
 	{
 		MessageBox(error, _T("Error"), MB_ICONWARNING|MB_OK);
 	}
+	if (!result.IsEmpty())
+	{
+		MessageBox(result, _T("Result"), MB_ICONINFORMATION | MB_OK);
+	}
+
 
 	return 0;
 }
 
 LRESULT CSTXScriptDialog::OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
 {
-	EndDialog(0);
+	if (!CheckSave())
+		return 0;
+
+	DestroyWindow();
 	return 0;
 }
 
 LRESULT CSTXScriptDialog::OnCancelClicked(WORD, UINT, HWND, BOOL&)
 {
-	EndDialog(0);
+	if (!CheckSave())
+		return 0;
+
+	DestroyWindow();
 	return 0;
 }
 
@@ -250,8 +262,11 @@ LRESULT CSTXScriptDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	// to the child control (DDX)
 	//SetDlgItemText(IDC_STRING, m_sz);
 
-	_edtScript.SetWindowText(_T("--This lua script can be executed at server\r\n"
-		"print(\"This message will be print on the server console\")"));
+	_originalDefaultScript = _T("--This lua script can be executed at server\r\n"
+		"print(\"This message will be print on the server console\")\r\n"
+		"result = \"Put anything to the result variable as return value.\"");
+
+	_edtScript.SetWindowText(_originalDefaultScript.c_str());
 
 	LoadHistory();
 
@@ -424,6 +439,57 @@ void CSTXScriptDialog::LoadHistory()
 }
 
 
+BOOL CSTXScriptDialog::CheckSave()
+{
+	int nLen = _edtScript.GetWindowTextLength();
+	TCHAR *pText = new TCHAR[nLen + 2];
+	pText[nLen + 1] = 0;
+	_edtScript.GetWindowText(pText, nLen + 1);
+	_scriptToRun = pText;
+	delete[]pText;
+
+	if (_scriptToRun.empty())
+		return TRUE;
+	if (_scriptToRun == _originalDefaultScript)
+		return TRUE;
+
+	auto result = MessageBox(_T("Save the script to file ?"), _T("Save script"), MB_YESNOCANCEL|MB_ICONWARNING);
+	if (result == IDYES)
+	{
+		CFileDialog fd(FALSE, _T("*.lua"), _T("myscript.lua"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("*.lua\0*.lua\0*.*\0*.*\0\0"), m_hWnd);
+		if (fd.DoModal(m_hWnd) == IDOK)
+		{
+			WriteToFile(fd.m_ofn.lpstrFile, _scriptToRun.c_str());
+			return TRUE;
+		}
+	}
+	else if (result == IDNO)
+	{
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+BOOL CSTXScriptDialog::WriteToFile(LPCTSTR lpszFile, LPCTSTR lpszText)
+{
+	HANDLE hFile = CreateFile(lpszFile, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return FALSE;
+
+	DWORD dwLength = _tcslen(lpszText) * sizeof(TCHAR);
+	while (dwLength > 0)
+	{
+		DWORD nBytesToWrite = min(dwLength, 65536);
+		DWORD dwBytesWritten = 0;
+		WriteFile(hFile, lpszText, nBytesToWrite, &dwBytesWritten, NULL);
+		dwLength -= dwBytesWritten;
+	}
+
+	CloseHandle(hFile);
+	return TRUE;
+}
+
 void CSTXScriptDialog::GetErrorText(RPC_STATUS NTStatusMessage, CString &err)
 {
 	LPVOID lpMessageBuffer;
@@ -448,7 +514,7 @@ void CSTXScriptDialog::GetErrorText(RPC_STATUS NTStatusMessage, CString &err)
 	FreeLibrary(Hand);
 }
 
-void CSTXScriptDialog::RunServerScriptString(LPCTSTR lpszScript, CString &err)
+void CSTXScriptDialog::RunServerScriptString(LPCTSTR lpszScript, CString &result, CString &err)
 {
 	RPC_STATUS status;
 	RPC_BINDING_HANDLE hwBinding;
@@ -479,7 +545,13 @@ void CSTXScriptDialog::RunServerScriptString(LPCTSTR lpszScript, CString &err)
 	}
 	RpcTryExcept
 	{
-		RunScriptString(hwBinding, lpszScript);
+		BSTR pStrResult = NULL;
+		RunScriptString(hwBinding, lpszScript, &pStrResult);
+		if (pStrResult)
+		{
+			result = pStrResult;
+			SysFreeString(pStrResult);
+		}
 	}
 		RpcExcept(1)
 	{

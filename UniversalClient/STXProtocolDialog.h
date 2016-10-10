@@ -21,12 +21,14 @@
 #include <atlapp.h>
 #include <atlctrls.h>
 #include <vector>
+#include <memory>
 
 #include "Resource.h"
 #include "STXProtocol.h"
 #include "UniversalClientSocket.h"
 #include "STXAnchor.h"
 #include "STXProtocolHistory.h"
+#include "STXScriptDialog.h"
 
 #define WM_SOCKET_CONNECT_NOTIFY		(WM_USER + 10)
 #define WM_SOCKET_DISCONNECT_NOTIFY		(WM_USER + 11)
@@ -56,6 +58,7 @@ protected:
 
 	BOOL _dirty;
 	std::vector<CSTXProtocolHistory> _histories;
+	std::vector<std::shared_ptr<CSTXScriptDialog>> _scriptDialogs;
 
 protected:
 	BEGIN_MSG_MAP(CSTXProtocolDialog)

@@ -44,6 +44,7 @@ protected:
 	std::wstring _host;
 	std::wstring _port;
 	std::wstring _scriptToRun;
+	std::wstring _originalDefaultScript;
 
 	//std::vector<CSTXProtocolHistory> _histories;
 
@@ -87,11 +88,13 @@ protected:
 	void AddToHistoryCache();
 	void SaveHistory();
 	void LoadHistory();
+	BOOL CheckSave();
 
+	BOOL WriteToFile(LPCTSTR lpszFile, LPCTSTR lpszText);
 	void GetErrorText(RPC_STATUS NTStatusMessage, CString &err);
 protected:
 	void RunServerScriptFile(LPCTSTR lpszScriptFile);
-	void RunServerScriptString(LPCTSTR lpszScript, CString &err);
+	void RunServerScriptString(LPCTSTR lpszScript, CString &result, CString &err);
 	void EnqueueServerWorkerThreadScriptString(LPCTSTR lpszScript, CString &err);
 
 };

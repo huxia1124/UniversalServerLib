@@ -34,8 +34,9 @@ T CStatisticsBuffer<T, seconds>::GetTotal()
 	auto currentSec = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
 	T total = 0;
-	for (int k = 0; k < seconds - 1; k++) {
-		if (_timePoint[(k + _lastIndex + 1) % seconds] == currentSec - seconds + k + 1)
+	for (int k = 0; k < seconds; k++) {
+		auto timepoint = _timePoint[(k + _lastIndex + 1) % seconds];
+		if (timepoint >= currentSec - seconds && timepoint <= currentSec)
 			total += _data[(k + _lastIndex + 1) % seconds];
 	}
 	return total;

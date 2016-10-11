@@ -191,6 +191,7 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addFunction("RemoveFolderMonitorIgnoreFileExtension", &CServerController::RemoveFolderMonitorIgnoreFileExtension, LUA_ARGS(long long, std::wstring))
 		.addFunction("GetDefaultFolderMonitorId", &CServerController::GetDefaultFolderMonitorId)
 		.addFunction("SetTimerScript", &CServerController::SetTimerScript, LUA_ARGS(std::wstring))
+		.addFunction("SetWorkerThreadInitializationScript", &CServerController::SetWorkerThreadInitializationScript, LUA_ARGS(std::wstring))
 
 		//Properties
 		.addPropertyReadOnly("DefaultFolderMonitorId", &CServerController::GetDefaultFolderMonitorId, &CServerController::GetDefaultFolderMonitorId)

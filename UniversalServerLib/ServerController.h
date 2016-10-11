@@ -94,5 +94,6 @@ public:
 	unsigned int GetTimerInterval();
 	void SetTimerInterval(unsigned int interval);
 	void SetTimerScript(std::wstring scriptFile);
+	void SetWorkerThreadInitializationScript(std::wstring scriptFile);
 };
 

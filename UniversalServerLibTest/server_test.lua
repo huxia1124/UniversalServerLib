@@ -8,6 +8,7 @@ function start()
 		--server:SetRPCPort(3399)
 		server.TimerInterval = 1000   --Default value is 60000
 		server:SetTimerScript("scripts/timer.lua")
+		server:SetWorkerThreadInitializationScript("scripts/worker_thread_initialization.lua")
 
 		server:StartRPC(3399)
 		server:StartServer(0, 20000, 50000, 2048)

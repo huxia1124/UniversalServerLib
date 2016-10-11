@@ -137,6 +137,10 @@ void CUniversalIOCPServer::OnWorkerThreadInitialize(LPVOID pStoragePtr)
 
 	CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
+	if (!_workerThreadInitializationScript.empty())
+	{
+		luaL_dofile(L, _workerThreadInitializationScript.c_str());
+	}
 }
 
 void CUniversalIOCPServer::OnWorkerThreadUninitialize(LPVOID pStoragePtr)
@@ -1983,6 +1987,13 @@ void CUniversalIOCPServer::SetTimerScript(LPCTSTR lpszScriptFile)
 	}
 	
 	UpdateScriptTrackingInfo(originalName, lpszScriptFile, scriptCache);
+}
+
+void CUniversalIOCPServer::SetWorkerThreadInitializationScript(LPCTSTR lpszScriptFile)
+{
+	USES_CONVERSION;
+
+	_workerThreadInitializationScript = (LPCSTR)CW2A(lpszScriptFile);
 }
 
 long CUniversalIOCPServer::GetTcpClientCount(UINT nPort)

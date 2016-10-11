@@ -201,6 +201,7 @@ protected:
 	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionRecvScripts;					//ConnectionID -> ScriptCache
 	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionDisconnectedScripts;			//ConnectionID -> ScriptCache
 	std::shared_ptr<CUniversalStringCache> _timerScript;				//executed in OnTimer
+	std::string _workerThreadInitializationScript;
 
 public:
 	STXSERVERINIT _serverInitializationInfo;
@@ -355,6 +356,7 @@ public:
 	void SetTcpServerClientConnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 	void SetTcpServerClientDisconnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 	void SetTimerScript(LPCTSTR lpszScriptFile);
+	void SetWorkerThreadInitializationScript(LPCTSTR lpszScriptFile);
 
 	long GetTcpClientCount(UINT nPort);
 	void SetLogLevel(int level);

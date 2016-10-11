@@ -351,3 +351,8 @@ void CServerController::SetTimerScript(std::wstring scriptFile)
 {
 	_server->SetTimerScript(scriptFile.c_str());
 }
+
+void CServerController::SetWorkerThreadInitializationScript(std::wstring scriptFile)
+{
+	_server->SetWorkerThreadInitializationScript(scriptFile.c_str());
+}

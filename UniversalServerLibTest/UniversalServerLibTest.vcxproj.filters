@@ -259,5 +259,8 @@
     <None Include="timer2.lua">
       <Filter>lua_script</Filter>
     </None>
+    <None Include="worker_thread_initialization.lua">
+      <Filter>lua_script</Filter>
+    </None>
   </ItemGroup>
 </Project>

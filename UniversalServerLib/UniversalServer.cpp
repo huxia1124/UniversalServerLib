@@ -192,6 +192,7 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addFunction("GetDefaultFolderMonitorId", &CServerController::GetDefaultFolderMonitorId)
 		.addFunction("SetTimerScript", &CServerController::SetTimerScript, LUA_ARGS(std::wstring))
 		.addFunction("SetWorkerThreadInitializationScript", &CServerController::SetWorkerThreadInitializationScript, LUA_ARGS(std::wstring))
+		.addFunction("SetTimerInterval", &CServerController::ChangeTimerInterval, LUA_ARGS(unsigned int))
 
 		//Properties
 		.addPropertyReadOnly("DefaultFolderMonitorId", &CServerController::GetDefaultFolderMonitorId, &CServerController::GetDefaultFolderMonitorId)

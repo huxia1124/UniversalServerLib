@@ -329,9 +329,10 @@ CSTXServerBase *CSTXServerBase::s_pThis = NULL;;
 CSTXServerBase::CSTXServerBase(void)
 {
 	s_pThis = this;
-	m_hTimerThread = NULL;
+	m_hTimerThread = INVALID_HANDLE_VALUE;
 	m_uTimerThreadID = 0;
 	m_hTimerThreadEvent = NULL;
+	m_hTimerThreadIntervalChangeEvent = NULL;
 	m_hTimerQueue = 0;
 	m_nTimerQueueRef = 0;
 	m_nTimerAlternativeIDBase = 0;
@@ -351,7 +352,7 @@ CSTXServerBase::CSTXServerBase(void)
 
 CSTXServerBase::~CSTXServerBase(void)
 {
-	if(m_hTimerThread)
+	if(m_hTimerThread != INVALID_HANDLE_VALUE)
 	{
 		SetEvent(m_hTimerThreadEvent);
 		WaitForSingleObject(m_hTimerThread, INFINITE);
@@ -359,6 +360,8 @@ CSTXServerBase::~CSTXServerBase(void)
 	}
 	if(m_hTimerThreadEvent)
 		CloseHandle(m_hTimerThreadEvent);
+	if (m_hTimerThreadIntervalChangeEvent)
+		CloseHandle(m_hTimerThreadIntervalChangeEvent);
 }
 
 BOOL CSTXServerBase::OnInitialization()
@@ -464,7 +467,7 @@ void CSTXServerBase::OutputLogDirect(LPCTSTR lpszLogFmt, ...)
 
 BOOL CSTXServerBase::Initialize(HMODULE hModuleHandle, LPSTXSERVERINIT lpInit)
 {
-	if(m_hTimerThread || m_hTimerThreadEvent)
+	if(m_hTimerThread != INVALID_HANDLE_VALUE || m_hTimerThreadEvent)
 		return FALSE;
 
 	if(lpInit == NULL)
@@ -611,6 +614,7 @@ BOOL CSTXServerBase::Initialize(HMODULE hModuleHandle, LPSTXSERVERINIT lpInit)
 
 	//Create Timer Thread and etc.
 	m_hTimerThreadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	m_hTimerThreadIntervalChangeEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	m_hTimerThread = (HANDLE)_beginthreadex(NULL, 0, ServerTimerThread, this, 0, &m_uTimerThreadID);
 	if(m_hTimerThread == INVALID_HANDLE_VALUE)
 		STXTRACELOGE(_T("[r][i]Failed to create Timer thread! There will be no build-in timer events."));
@@ -642,8 +646,23 @@ UINT WINAPI CSTXServerBase::ServerTimerThread(LPVOID lpParameter)
 
 	pThis->OnTimerInitialize();
 
-	while(::WaitForSingleObject(pThis->m_hTimerThreadEvent, pThis->m_BaseServerInfo.dwTimerInterval) != WAIT_OBJECT_0)
+	HANDLE waitObjects[2] = { pThis->m_hTimerThreadEvent , pThis->m_hTimerThreadIntervalChangeEvent };
+	
+
+	while(TRUE)
 	{
+		//auto waitResult = ::WaitForSingleObject(pThis->m_hTimerThreadEvent, pThis->m_BaseServerInfo.dwTimerInterval);
+		auto waitResult = ::WaitForMultipleObjects(2, waitObjects, FALSE, pThis->m_BaseServerInfo.dwTimerInterval);
+		if (waitResult == WAIT_OBJECT_0)		//Signal of termination
+		{
+			break;
+		}
+		else if (waitResult == WAIT_OBJECT_0 + 1)		//Interval Changed
+		{
+			STXTRACELOGE(_T("Timer interval changed to %dms"), pThis->m_BaseServerInfo.dwTimerInterval);
+			ResetEvent(pThis->m_hTimerThreadIntervalChangeEvent);
+			continue;
+		}
 		pThis->OnTimer(pThis->m_BaseServerInfo.dwTimerInterval);
 	}
 
@@ -732,6 +751,11 @@ UINT CSTXServerBase::GetServerProfileString(LPCTSTR lpszSection, LPCTSTR lpszKey
 UINT CSTXServerBase::GetServerProfileInt(LPCTSTR lpszSection, LPCTSTR lpszKey, INT nDefault)
 {
 	return ::GetPrivateProfileInt(lpszSection, lpszKey, nDefault, GetServerModuleIniPathName());
+}
+
+DWORD CSTXServerBase::GetTimerInterval()
+{
+	return m_BaseServerInfo.dwTimerInterval;
 }
 
 void CSTXServerBase::GetBaseServerInfo( LPSTXSERVERINFORMATION pInfo )

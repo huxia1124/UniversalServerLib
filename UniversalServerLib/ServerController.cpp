@@ -339,12 +339,13 @@ long long CServerController::GetDefaultFolderMonitorId()
 
 unsigned int CServerController::GetTimerInterval()
 {
-	return _serverInitializationInfo.dwTimerInterval;
+	return _server->GetTimerInterval();
 }
 
 void CServerController::SetTimerInterval(unsigned int interval)
 {
 	_serverInitializationInfo.dwTimerInterval = interval;
+	ChangeTimerInterval(interval);
 }
 
 void CServerController::SetTimerScript(std::wstring scriptFile)
@@ -355,4 +356,9 @@ void CServerController::SetTimerScript(std::wstring scriptFile)
 void CServerController::SetWorkerThreadInitializationScript(std::wstring scriptFile)
 {
 	_server->SetWorkerThreadInitializationScript(scriptFile.c_str());
+}
+
+void CServerController::ChangeTimerInterval(unsigned int interval)
+{
+	_server->ChangeTimerInterval(interval);
 }

@@ -357,7 +357,7 @@ public:
 	void SetTcpServerClientDisconnectedScript(UINT nPort, LPCTSTR lpszScriptFile);
 	void SetTimerScript(LPCTSTR lpszScriptFile);
 	void SetWorkerThreadInitializationScript(LPCTSTR lpszScriptFile);
-
+	void ChangeTimerInterval(DWORD interval);
 	long GetTcpClientCount(UINT nPort);
 	void SetLogLevel(int level);
 	void SetDebugOutputLevel(int level);

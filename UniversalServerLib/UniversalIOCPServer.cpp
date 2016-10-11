@@ -1996,6 +1996,22 @@ void CUniversalIOCPServer::SetWorkerThreadInitializationScript(LPCTSTR lpszScrip
 	_workerThreadInitializationScript = (LPCSTR)CW2A(lpszScriptFile);
 }
 
+void CUniversalIOCPServer::ChangeTimerInterval(DWORD interval)
+{
+	if (interval > 0)
+	{
+		this->m_BaseServerInfo.dwTimerInterval = interval;
+		if (m_hTimerThread != INVALID_HANDLE_VALUE)
+		{
+			SetEvent(m_hTimerThreadIntervalChangeEvent);
+		}
+	}
+	else
+	{
+		STXTRACELOGE(_T("[r][g][i]Invalid timer interval! Timer interval can not be zero."));
+	}
+}
+
 long CUniversalIOCPServer::GetTcpClientCount(UINT nPort)
 {
 	return m_mapClientContext.size();

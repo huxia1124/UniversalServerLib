@@ -345,7 +345,9 @@ protected:
 
 	UINT m_uTimerThreadID;
 	HANDLE m_hTimerThread;
-	HANDLE m_hTimerThreadEvent;
+	HANDLE m_hTimerThreadEvent;					//Signaled when timer thread needed to be terminated
+	HANDLE m_hTimerThreadIntervalChangeEvent;	//Signaled when timer interval changed
+
 	volatile LONGLONG m_nTimerAlternativeIDBase;		//Timer 的唯一ID。 64位整数可以在每秒1000万次的速度下，使用292年
 	volatile LONGLONG m_nTimerQueueRef;
 
@@ -411,6 +413,7 @@ public:
 	//INI file operations
 	UINT GetServerProfileString(LPCTSTR lpszSection, LPCTSTR lpszKey, LPTSTR lpszBuf, DWORD cchBufLen, LPCTSTR lpszDefault);
 	UINT GetServerProfileInt(LPCTSTR lpszSection, LPCTSTR lpszKey, INT nDefault);
+	DWORD GetTimerInterval();
 
 protected:
 	virtual BOOL OnInitializeServerLog();

@@ -131,6 +131,7 @@ public:
 	}
 public:
 	std::wstring GetName();
+	std::wstring GetFullPath();
 	void RegisterStringVectorVariable(std::wstring strPathName);
 	void RegisterStringSetVariable(std::wstring strPathName);
 	void RegisterIntegerVariable(std::wstring strPathName);
@@ -146,6 +147,8 @@ public:
 
 	double GetDoubleValue(std::wstring strPathName);
 	void SetDoubleValue(std::wstring strPathName, double value);
+
+	std::shared_ptr<CUniversalSharedDataTree> GetNode(std::wstring strPathName);
 };
 
 //////////////////////////////////////////////////////////////////////////

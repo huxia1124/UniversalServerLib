@@ -249,7 +249,9 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addFunction("SetIntegerValue", &CUniversalSharedDataTree::SetIntegerValue, LUA_ARGS(std::wstring, int32_t))
 		.addFunction("GetDoubleValue", &CUniversalSharedDataTree::GetDoubleValue, LUA_ARGS(LuaIntf::_opt<std::wstring>))
 		.addFunction("SetDoubleValue", &CUniversalSharedDataTree::SetDoubleValue, LUA_ARGS(std::wstring, double))
+		.addFunction("GetNode", &CUniversalSharedDataTree::GetNode, LUA_ARGS(std::wstring))
 		.addPropertyReadOnly("Name", &CUniversalSharedDataTree::GetName)
+		.addPropertyReadOnly("FullPath", &CUniversalSharedDataTree::GetFullPath)
 		.endClass();
 
 

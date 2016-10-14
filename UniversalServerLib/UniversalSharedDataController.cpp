@@ -27,6 +27,11 @@ std::wstring CUniversalSharedDataTree::GetName()
 	return _rootNode->GetName();
 }
 
+std::wstring CUniversalSharedDataTree::GetFullPath()
+{
+	return _rootNode->GetFullPath();
+}
+
 void CUniversalSharedDataTree::RegisterStringVectorVariable(std::wstring strPathName)
 {
 	_rootNode->RegisterStringVectorVariable(strPathName);
@@ -83,6 +88,16 @@ double CUniversalSharedDataTree::GetDoubleValue(std::wstring strPathName)
 void CUniversalSharedDataTree::SetDoubleValue(std::wstring strPathName, double value)
 {
 	_rootNode->SetDoubleValue(strPathName, value);
+}
+
+std::shared_ptr<CUniversalSharedDataTree> CUniversalSharedDataTree::GetNode(std::wstring strPathName)
+{
+	auto node = _rootNode->GetVariableNode(strPathName);
+	if (node)
+	{
+		return std::make_shared<CUniversalSharedDataTree>("", node);
+	}
+	return nullptr;
 }
 
 CUniversalSharedDataController::CUniversalSharedDataController(std::string)

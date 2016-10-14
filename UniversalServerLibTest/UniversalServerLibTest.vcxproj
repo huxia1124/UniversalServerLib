@@ -433,6 +433,7 @@
     <None Include="recv.lua" />
     <None Include="recv_test.lua" />
     <None Include="recv_var.lua" />
+    <None Include="samples.lua" />
     <None Include="server_stop.lua" />
     <None Include="server_test.lua" />
     <None Include="test_add.lua" />

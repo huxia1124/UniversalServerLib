@@ -262,5 +262,8 @@
     <None Include="worker_thread_initialization.lua">
       <Filter>lua_script</Filter>
     </None>
+    <None Include="samples.lua">
+      <Filter>lua_script</Filter>
+    </None>
   </ItemGroup>
 </Project>

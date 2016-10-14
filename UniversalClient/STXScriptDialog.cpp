@@ -477,13 +477,18 @@ BOOL CSTXScriptDialog::WriteToFile(LPCTSTR lpszFile, LPCTSTR lpszText)
 	if (hFile == INVALID_HANDLE_VALUE)
 		return FALSE;
 
-	DWORD dwLength = _tcslen(lpszText) * sizeof(TCHAR);
+	USES_CONVERSION;
+	std::string strAnsi = (LPCSTR)CW2A(lpszText);
+
+	DWORD dwLength = strAnsi.size();
+	DWORD dwWritePos = 0;
 	while (dwLength > 0)
 	{
 		DWORD nBytesToWrite = min(dwLength, 65536);
 		DWORD dwBytesWritten = 0;
-		WriteFile(hFile, lpszText, nBytesToWrite, &dwBytesWritten, NULL);
+		WriteFile(hFile, strAnsi.c_str() + dwWritePos, nBytesToWrite, &dwBytesWritten, NULL);
 		dwLength -= dwBytesWritten;
+		dwWritePos += dwBytesWritten;
 	}
 
 	CloseHandle(hFile);

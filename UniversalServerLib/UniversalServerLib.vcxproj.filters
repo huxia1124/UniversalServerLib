@@ -429,6 +429,9 @@
     <ClInclude Include="StatisticsBuffer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Common\STXMemoryVariableNode.h">
+      <Filter>头文件\Server\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -691,6 +694,9 @@
     </ClCompile>
     <ClCompile Include="extensions\lsqlite3\lsqlite3.c">
       <Filter>源文件\extensions\lsqlite3</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\STXMemoryVariableNode.cpp">
+      <Filter>源文件\Server\Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

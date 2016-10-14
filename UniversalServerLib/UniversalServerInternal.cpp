@@ -22,6 +22,7 @@
 #include <atlexcept.h>
 #include "STXLog.h"
 #include "STXIOCPBuffer.h"
+#include "UniversalIOCPServer.h"
 
 extern "C"
 {
@@ -208,6 +209,8 @@ int CUniversalServer::RunScriptString(LPCTSTR lpszScriptString)
 
 int CUniversalServer::RunScriptString(LPCTSTR lpszScriptString, std::wstring *resultString)
 {
+	CUniversalIOCPServer::LuaBindSTXProtocolClasses(L);
+
 	USES_CONVERSION;
 	std::string buf = (LPCSTR)ATL::CW2A(lpszScriptString);
 

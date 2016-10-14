@@ -1203,12 +1203,12 @@ private:
     static typename std::enable_if<std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value>::type
         pushUserDataFrom(lua_State* L, const T& cpp_obj)
     {
-        void* userdata = lua_newuserdata(L, sizeof(T));
-        ::new (userdata) T(cpp_obj);
-        lua_newtable(L);
-        lua_pushcfunction(L, &destructUserData<T>);
-        lua_setfield(L, -2, "__gc");
-        lua_setmetatable(L, -2);
+		void* userdata = lua_newuserdata(L, sizeof(T));		//new user data U, push on the top
+		::new (userdata) T(cpp_obj);						//Call copy constructor
+		lua_newtable(L);								//new table A, on the top
+		lua_pushcfunction(L, &destructUserData<T>);		//push destructor to the top
+		lua_setfield(L, -2, "__gc");					//set the __gc field of table A to the destructor, pop the value from the top
+		lua_setmetatable(L, -2);					//-2 is now the userdata U. set the metatable of U to table A
     }
 
     template <typename T>

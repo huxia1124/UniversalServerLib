@@ -45,11 +45,6 @@ extern "C"
 
 #include "LuaIntf/LuaIntf.h"
 
-namespace LuaIntf
-{
-	LUA_USING_SHARED_PTR_TYPE(std::shared_ptr)
-}
-
 
 namespace LuaIntf
 {
@@ -239,11 +234,33 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		//	Sleep(dwTimeMS);
 		//}, LUA_ARGS(int));
 
+	LuaIntf::LuaBinding(pLuaState).beginClass<CUniversalSharedDataTree>("SharedData")
+		.addConstructor(LUA_SP(std::shared_ptr<CUniversalSharedDataTree>), LUA_ARGS(LuaIntf::_opt<std::string>))
+		.addFunction("GetNodes", &CUniversalSharedDataTree::GetNodes)
+		.addFunction("GetValues", &CUniversalSharedDataTree::GetValues)
+		.addFunction("RegisterStringVectorVariable", &CUniversalSharedDataTree::RegisterStringVectorVariable, LUA_ARGS(LuaIntf::_opt<std::wstring>))
+		.addFunction("RegisterStringSetVariable", &CUniversalSharedDataTree::RegisterStringSetVariable, LUA_ARGS(LuaIntf::_opt<std::wstring>))
+		.addFunction("RegisterIntegerVariable", &CUniversalSharedDataTree::RegisterIntegerVariable, LUA_ARGS(LuaIntf::_opt<std::wstring>))
+		.addFunction("RegisterDoubleVariable", &CUniversalSharedDataTree::RegisterDoubleVariable, LUA_ARGS(LuaIntf::_opt<std::wstring>))
+		.addFunction("AddStringValue", &CUniversalSharedDataTree::AddStringValue, LUA_ARGS(std::wstring, std::wstring))
+		.addFunction("GetStringValue", &CUniversalSharedDataTree::GetStringValue, LUA_ARGS(LuaIntf::_opt<std::wstring>))
+		.addFunction("SetStringValue", &CUniversalSharedDataTree::SetStringValue, LUA_ARGS(std::wstring, std::wstring))
+		.addFunction("GetIntegerValue", &CUniversalSharedDataTree::GetIntegerValue, LUA_ARGS(LuaIntf::_opt<std::wstring>))
+		.addFunction("SetIntegerValue", &CUniversalSharedDataTree::SetIntegerValue, LUA_ARGS(std::wstring, int32_t))
+		.addFunction("GetDoubleValue", &CUniversalSharedDataTree::GetDoubleValue, LUA_ARGS(LuaIntf::_opt<std::wstring>))
+		.addFunction("SetDoubleValue", &CUniversalSharedDataTree::SetDoubleValue, LUA_ARGS(std::wstring, double))
+		.addPropertyReadOnly("Name", &CUniversalSharedDataTree::GetName)
+		.endClass();
+
 
 	//Additional libraries
 	luaopen_cjson(pLuaState);
 	luaopen_lsqlite3(pLuaState);
 
 	int n = luaL_dostring(pLuaState, "server=utils.GetServer()");
+
+	//int n = luaL_dostring(pLuaState, "server=utils.GetServer()\r\n"
+	//"SharedData.___class.__index = SharedData.___class.get\r\n"
+	//	"SharedData.___class.__newindex = SharedData.___class.set");
 
 }

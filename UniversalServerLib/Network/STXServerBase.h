@@ -33,6 +33,7 @@
 #include <vector>
 #include "STXUtility.h"
 #include "STXLog.h"
+#include "STXMemoryVariableNode.h"
 
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "mswsock.lib")
@@ -224,78 +225,6 @@ public:
 	}
 };
 
-//////////////////////////////////////////////////////////////////////////
-// CSTXMemoryVariableNode
-
-enum STXVariableTreeNodeType
-{
-	STXVariableTreeNodeType_Invalid = -1,
-	STXVariableTreeNodeType_Int32 = 1,
-	STXVariableTreeNodeType_Int64 = 2,
-	STXVariableTreeNodeType_WString = 3,
-	STXVariableTreeNodeType_Int = 4,
-	STXVariableTreeNodeType_Float = 5,
-	STXVariableTreeNodeType_Double = 6,
-	STXVariableTreeNodeType_Word = 7,
-	STXVariableTreeNodeType_DWord = 8,
-};
-
-class CSTXMemoryVariableNode
-{
-public:
-	CSTXMemoryVariableNode();
-
-protected:
-	class CWStringHash
-	{
-	public:
-		size_t operator()(const std::wstring &val)
-		{
-			return std::hash<std::wstring>()(val);
-		}
-	};
-
-protected:
-
-	//Types: see STXVariableTreeNodeType enum
-	// 1: int32
-	// 2: int64
-	// 3: wstring
-	// 4: int (c++ standard int)
-	// 5: float (c++ standard float)
-	// 6: double (c++ standard double)
-	// 7: WORD
-	// 8: DWORD
-	STXVariableTreeNodeType _type;
-	LPVOID _ptr;
-	CSTXMemoryVariableNode *_parentNode;
-	std::wstring _name;
-
-	CSTXHashMap<std::wstring, CSTXMemoryVariableNode, 8, 1, CSTXDefaultWStringHash<8, 1>> _mapContent;
-
-public:
-	void RegisterVariable(std::wstring strPathName, STXVariableTreeNodeType nType, LPVOID pAddress);
-	CSTXMemoryVariableNode *GetVariableNode(std::wstring strPathName);
-	LPVOID GetVariablePtr(std::wstring strPathName);
-	int GetVariableType(std::wstring strPathName);
-	void UnregisterVariable(std::wstring strPathName);
-	int GetChildrenNames(std::vector<std::wstring> *pArrNames);
-	std::wstring GetFullPath();
-
-public:
-	void RegisterInt32Variable(std::wstring strPathName, __int32 *pAddress);
-	void RegisterInt64Variable(std::wstring strPathName, __int64 *pAddress);
-	void RegisterIntStringVariable(std::wstring strPathName, std::wstring *pAddress);
-	void RegisterIntVariable(std::wstring strPathName, int *pAddress);
-	void RegisterFloatVariable(std::wstring strPathName, int *pAddress);
-	void RegisterDoubleVariable(std::wstring strPathName, int *pAddress);
-	void RegisterWordVariable(std::wstring strPathName, WORD *pAddress);
-	void RegisterDWordVariable(std::wstring strPathName, DWORD *pAddress);
-
-public:
-	void SetValue(std::wstring strPathName, std::wstring strValue);
-	std::wstring GetValue(std::wstring strPathName);
-};
 
 //////////////////////////////////////////////////////////////////////////
 // CSTXServerBase

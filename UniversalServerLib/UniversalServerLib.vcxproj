@@ -155,6 +155,7 @@
     <ClInclude Include="Common\FastSpinlock.h" />
     <ClInclude Include="Common\StackWalker.h" />
     <ClInclude Include="Common\STXLog.h" />
+    <ClInclude Include="Common\STXMemoryVariableNode.h" />
     <ClInclude Include="Common\STXUtility.h" />
     <ClInclude Include="Common\XMLNode.h" />
     <ClInclude Include="extensions\cJSON.h" />
@@ -275,6 +276,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Common\STXMemoryVariableNode.cpp" />
     <ClCompile Include="Common\STXUtility.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

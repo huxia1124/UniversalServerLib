@@ -290,7 +290,6 @@ protected:
 	void ProcessInternalScriptFileChange(DWORD dwAction, LPCTSTR lpszRelativePathName, LPCTSTR lpszFileFullPathName);
 	void UpdateAndRunScriptCache(CUniversalStringCache &cache, lua_State *pLuaState, int &nResult, LONGLONG *pScriptVersionInThread);
 	int CheckLuaStateUpdateForThread(lua_State *pLuaState, CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread);
-	void LuaBindSTXProtocolClasses(lua_State *L);
 	lua_State *GetLuaStateForCurrentThread();
 	CUniversalServerWorkerThreadData *GetCurrentThreadData();
 	DWORD IsClientDataReadableWebSocket(CSTXIOCPServerClientContext *pClientContext);
@@ -347,6 +346,7 @@ public:
 	void EnqueueWorkerThreadScript(LPCTSTR lpszScriptString);
 
 public:
+	static void LuaBindSTXProtocolClasses(lua_State *L);
 	void UpdateScriptTrackingInfo(const std::wstring &originalName, LPCTSTR lpszScriptFile, std::shared_ptr<CUniversalStringCache> &scriptCache);
 	void SetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, LPCTSTR lpszValue);
 	BOOL GetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, std::wstring& valueOut);

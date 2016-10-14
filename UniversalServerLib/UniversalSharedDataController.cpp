@@ -20,6 +20,70 @@
 #include "UniversalSharedDataController.h"
 
 concurrency::concurrent_unordered_map<std::wstring, std::wstring> CUniversalSharedDataController::_datamap;
+std::shared_ptr<CSTXMemoryVariableNode> CUniversalSharedDataTree::_s_rootNode = std::make_shared<CSTXMemoryVariableNode>(_T("<root>"));
+
+std::wstring CUniversalSharedDataTree::GetName()
+{
+	return _rootNode->GetName();
+}
+
+void CUniversalSharedDataTree::RegisterStringVectorVariable(std::wstring strPathName)
+{
+	_rootNode->RegisterStringVectorVariable(strPathName);
+}
+
+void CUniversalSharedDataTree::RegisterStringSetVariable(std::wstring strPathName)
+{
+	_rootNode->RegisterStringSetVariable(strPathName);
+}
+
+void CUniversalSharedDataTree::RegisterIntegerVariable(std::wstring strPathName)
+{
+	_rootNode->RegisterIntegerVariable(strPathName);
+}
+
+void CUniversalSharedDataTree::RegisterDoubleVariable(std::wstring strPathName)
+{
+	_rootNode->RegisterDoubleVariable(strPathName);
+}
+
+void CUniversalSharedDataTree::AddStringValue(std::wstring strPathName, std::wstring value)
+{
+	_rootNode->AddStringValue(strPathName, value);
+}
+
+std::wstring CUniversalSharedDataTree::GetStringValue(std::wstring strPathName)
+{
+	if (strPathName.size() == 0)
+		return _rootNode->GetThisStringValue();
+
+	return _rootNode->GetStringValue(strPathName);
+}
+
+void CUniversalSharedDataTree::SetStringValue(std::wstring strPathName, std::wstring value)
+{
+	_rootNode->SetStringValue(strPathName, value);
+}
+
+int32_t CUniversalSharedDataTree::GetIntegerValue(std::wstring strPathName)
+{
+	return _rootNode->GetIntegerValue(strPathName);
+}
+
+void CUniversalSharedDataTree::SetIntegerValue(std::wstring strPathName, int32_t value)
+{
+	_rootNode->SetIntegerValue(strPathName, value);
+}
+
+double CUniversalSharedDataTree::GetDoubleValue(std::wstring strPathName)
+{
+	return _rootNode->GetDoubleValue(strPathName);
+}
+
+void CUniversalSharedDataTree::SetDoubleValue(std::wstring strPathName, double value)
+{
+	_rootNode->SetDoubleValue(strPathName, value);
+}
 
 CUniversalSharedDataController::CUniversalSharedDataController(std::string)
 {
@@ -43,3 +107,4 @@ std::wstring CUniversalSharedDataController::GetString(std::wstring key)
 
 	return it->second;
 }
+

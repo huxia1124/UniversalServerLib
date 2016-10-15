@@ -24,6 +24,8 @@ enum STXVariableTreeNodeType
 	STXVariableTreeNodeType_DWord = 8,
 	STXVariableTreeNodeType_WStringVector = 9,
 	STXVariableTreeNodeType_WStringSet = 10,
+	STXVariableTreeNodeType_IntegerVector = 11,
+	STXVariableTreeNodeType_IntegerSet = 12,
 };
 
 class CSTXMemoryVariableNode
@@ -100,6 +102,10 @@ public:
 	void RegisterIntegerVariable(std::wstring strPathName);
 	void RegisterDoubleVariable(std::wstring strPathName, double value);
 	void RegisterDoubleVariable(std::wstring strPathName);
+	void RegisterIntegerVectorVariable(std::wstring strPathName, std::vector<int64_t> value);
+	void RegisterIntegerVectorVariable(std::wstring strPathName);
+	void RegisterIntegerSetVariable(std::wstring strPathName, std::set<int64_t> value);
+	void RegisterIntegerSetVariable(std::wstring strPathName);
 
 
 public:
@@ -110,9 +116,11 @@ public:
 	void SetThisStringValue(std::wstring strValue);
 
 	size_t GetThisValues(std::vector<std::wstring> *values);
-	size_t GetThisValues(std::vector<int32_t> *values);
+	size_t GetThisValues(std::vector<int64_t> *values);
 
 	void AddStringValue(std::wstring strPathName, std::wstring strValue);
+	void AddIntegerValue(std::wstring strPathName, int64_t value);
+
 	void GetChildren(std::vector<std::shared_ptr<CSTXMemoryVariableNode>>* children);
 
 	int32_t GetIntegerValue(std::wstring strPathName);

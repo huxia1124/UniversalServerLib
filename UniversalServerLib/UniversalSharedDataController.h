@@ -140,20 +140,25 @@ public:
 
 	int GetIntegerValues(lua_State* L)
 	{
-		std::vector<int32_t> values;
+		std::vector<int64_t> values;
 		_rootNode->GetThisValues(&values);
-		return LuaIntf::CppFunctor::make<CSTXMemoryVariableValueIterator<int32_t>>(L, std::move(values), _rootNode->GetThisVariableType()); // ... is constructor auguments
+		return LuaIntf::CppFunctor::make<CSTXMemoryVariableValueIterator<int64_t>>(L, std::move(values), _rootNode->GetThisVariableType()); // ... is constructor auguments
 	}
 
 public:
 	std::wstring GetName();
 	std::wstring GetFullPath();
+
 	void RegisterStringVectorVariable(std::wstring strPathName);
 	void RegisterStringSetVariable(std::wstring strPathName);
+	void RegisterIntegerVectorVariable(std::wstring strPathName);
+	void RegisterIntegerSetVariable(std::wstring strPathName);
+
 	void RegisterIntegerVariable(std::wstring strPathName);
 	void RegisterDoubleVariable(std::wstring strPathName);
 
 	void AddStringValue(std::wstring strPathName, std::wstring value);
+	void AddIntegerValue(std::wstring strPathName, int64_t value);
 
 	std::wstring GetStringValue(std::wstring strPathName);
 	void SetStringValue(std::wstring strPathName, std::wstring value);

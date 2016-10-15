@@ -28,7 +28,7 @@ void pushValueToStack<std::wstring>(lua_State* L, std::wstring value)
 }
 
 template<>
-void pushValueToStack<int32_t>(lua_State* L, int32_t value)
+void pushValueToStack<int64_t>(lua_State* L, int64_t value)
 {
 	lua_pushnumber(L, value);
 }
@@ -58,6 +58,16 @@ void CUniversalSharedDataTree::RegisterStringSetVariable(std::wstring strPathNam
 	_rootNode->RegisterStringSetVariable(strPathName);
 }
 
+void CUniversalSharedDataTree::RegisterIntegerVectorVariable(std::wstring strPathName)
+{
+	_rootNode->RegisterIntegerVectorVariable(strPathName);
+}
+
+void CUniversalSharedDataTree::RegisterIntegerSetVariable(std::wstring strPathName)
+{
+	_rootNode->RegisterIntegerSetVariable(strPathName);
+}
+
 void CUniversalSharedDataTree::RegisterIntegerVariable(std::wstring strPathName)
 {
 	_rootNode->RegisterIntegerVariable(strPathName);
@@ -71,6 +81,11 @@ void CUniversalSharedDataTree::RegisterDoubleVariable(std::wstring strPathName)
 void CUniversalSharedDataTree::AddStringValue(std::wstring strPathName, std::wstring value)
 {
 	_rootNode->AddStringValue(strPathName, value);
+}
+
+void CUniversalSharedDataTree::AddIntegerValue(std::wstring strPathName, int64_t value)
+{
+	_rootNode->AddIntegerValue(strPathName, value);
 }
 
 std::wstring CUniversalSharedDataTree::GetStringValue(std::wstring strPathName)

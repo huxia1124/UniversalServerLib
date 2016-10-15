@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "STXMemoryVariableNode.h"
 #include <tchar.h>
+#include <iterator>
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -148,6 +149,12 @@ CSTXMemoryVariableNode::~CSTXMemoryVariableNode()
 			break;
 		case STXVariableTreeNodeType_WStringSet:		//set<wstring>
 			delete (std::set<std::wstring>*)_ptr;
+			break;
+		case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
+			delete (std::vector<int64_t>*)_ptr;
+			break;
+		case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
+			delete (std::set<int64_t>*)_ptr;
 			break;
 
 		default:
@@ -445,6 +452,18 @@ size_t CSTXMemoryVariableNode::GetThisValues(std::vector<std::wstring> *values)
 	case STXVariableTreeNodeType_WStringSet:		//set<wstring>
 		values->insert(values->end(), ((std::set<std::wstring>*)_ptr)->begin(), ((std::set<std::wstring>*)_ptr)->end());
 		break;
+	case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
+		std::for_each(((std::vector<int64_t>*)_ptr)->begin(), ((std::vector<int64_t>*)_ptr)->end(), [&] (int64_t val){
+			_i64tot_s(val, szTmp, buflen, 10);
+			values->push_back(szTmp);
+		});
+		break;
+	case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
+		std::for_each(((std::set<int64_t>*)_ptr)->begin(), ((std::set<int64_t>*)_ptr)->end(), [&](int64_t val) {
+			_i64tot_s(val, szTmp, buflen, 10);
+			values->push_back(szTmp);
+		});
+		break;
 
 	default:
 		break;
@@ -453,7 +472,7 @@ size_t CSTXMemoryVariableNode::GetThisValues(std::vector<std::wstring> *values)
 	return values->size();
 }
 
-size_t CSTXMemoryVariableNode::GetThisValues(std::vector<int32_t> *values)
+size_t CSTXMemoryVariableNode::GetThisValues(std::vector<int64_t> *values)
 {
 	switch (_type)
 	{
@@ -481,6 +500,12 @@ size_t CSTXMemoryVariableNode::GetThisValues(std::vector<int32_t> *values)
 	case STXVariableTreeNodeType_DWord:		//uint32_t
 		values->push_back(*((uint32_t*)_ptr));
 		break;
+	case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
+		*values = (*((std::vector<int64_t>*)_ptr));
+		break;
+	case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
+		std::copy((*(std::set<int64_t>*)_ptr).begin(), (*(std::set<int64_t>*)_ptr).end(), std::back_inserter(*values));
+		break;
 	default:
 		values->push_back(0);
 		break;
@@ -502,6 +527,23 @@ void CSTXMemoryVariableNode::AddStringValue(std::wstring strPathName, std::wstri
 		break;
 	case STXVariableTreeNodeType_WStringSet:		//set<wstring>
 		(*((std::set<std::wstring>*)pNode->_ptr)).insert(strValue);
+		break;
+	}
+}
+
+void CSTXMemoryVariableNode::AddIntegerValue(std::wstring strPathName, int64_t value)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
+		return;
+
+	switch (pNode->_type)
+	{
+	case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
+		(*((std::vector<int64_t>*)pNode->_ptr)).push_back(value);
+		break;
+	case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
+		(*((std::set<int64_t>*)pNode->_ptr)).insert(value);
 		break;
 	}
 }
@@ -734,6 +776,71 @@ void CSTXMemoryVariableNode::RegisterIntegerVariable(std::wstring strPathName, i
 void CSTXMemoryVariableNode::RegisterIntegerVariable(std::wstring strPathName)
 {
 	RegisterInt32Variable(strPathName, 0);
+}
+
+void CSTXMemoryVariableNode::RegisterIntegerVectorVariable(std::wstring strPathName, std::vector<int64_t> value)
+{
+	auto nodeExists = GetVariableNode(strPathName);
+	if (nodeExists)
+	{
+		if (!nodeExists->IsNewTypeAcceptable(STXVariableTreeNodeType_IntegerVector))
+		{
+			throw std::runtime_error("The node already has a value of different type.");
+		}
+		return;
+	}
+	std::vector<int64_t> *v = new std::vector<int64_t>(value);
+	auto var = RegisterVariable(strPathName, STXVariableTreeNodeType_IntegerVector, v, true);
+	var->_managedValue = true;
+
+}
+
+void CSTXMemoryVariableNode::RegisterIntegerVectorVariable(std::wstring strPathName)
+{
+	auto nodeExists = GetVariableNode(strPathName);
+	if (nodeExists)
+	{
+		if (!nodeExists->IsNewTypeAcceptable(STXVariableTreeNodeType_IntegerVector))
+		{
+			throw std::runtime_error("The node already has a value of different type.");
+		}
+		return;
+	}
+	std::vector<int64_t> *v = new std::vector<int64_t>();
+	auto var = RegisterVariable(strPathName, STXVariableTreeNodeType_IntegerVector, v, true);
+	var->_managedValue = true;
+}
+
+void CSTXMemoryVariableNode::RegisterIntegerSetVariable(std::wstring strPathName, std::set<int64_t> value)
+{
+	auto nodeExists = GetVariableNode(strPathName);
+	if (nodeExists)
+	{
+		if (!nodeExists->IsNewTypeAcceptable(STXVariableTreeNodeType_IntegerSet))
+		{
+			throw std::runtime_error("The node already has a value of different type.");
+		}
+		return;
+	}
+	std::set<int64_t> *v = new std::set<int64_t>(value);
+	auto var = RegisterVariable(strPathName, STXVariableTreeNodeType_IntegerSet, v, true);
+	var->_managedValue = true;
+}
+
+void CSTXMemoryVariableNode::RegisterIntegerSetVariable(std::wstring strPathName)
+{
+	auto nodeExists = GetVariableNode(strPathName);
+	if (nodeExists)
+	{
+		if (!nodeExists->IsNewTypeAcceptable(STXVariableTreeNodeType_IntegerSet))
+		{
+			throw std::runtime_error("The node already has a value of different type.");
+		}
+		return;
+	}
+	std::set<int64_t> *v = new std::set<int64_t>();
+	auto var = RegisterVariable(strPathName, STXVariableTreeNodeType_IntegerSet, v, true);
+	var->_managedValue = true;
 }
 
 std::wstring CSTXMemoryVariableNode::GetName()

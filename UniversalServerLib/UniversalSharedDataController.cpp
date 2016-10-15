@@ -30,7 +30,7 @@ void pushValueToStack<std::wstring>(lua_State* L, std::wstring value)
 template<>
 void pushValueToStack<int64_t>(lua_State* L, int64_t value)
 {
-	lua_pushnumber(L, value);
+	lua_pushinteger(L, value);
 }
 
 template<>
@@ -108,6 +108,22 @@ void CUniversalSharedDataTree::AddDoubleValue(std::wstring strPathName, double v
 	_rootNode->AddDoubleValue(strPathName, value);
 }
 
+void CUniversalSharedDataTree::RemoveStringValue(std::wstring strPathName, std::wstring value)
+{
+	if (strPathName.size() == 0)
+		return _rootNode->RemoveThisStringValue(value);
+
+	return _rootNode->RemoveStringValue(strPathName, value);
+}
+
+void CUniversalSharedDataTree::RemoveIntegerValue(std::wstring strPathName, int64_t value)
+{
+	if (strPathName.size() == 0)
+		return _rootNode->RemoveThisIntegerValue(value);
+
+	return _rootNode->RemoveIntegerValue(strPathName, value);
+}
+
 std::wstring CUniversalSharedDataTree::GetStringValue(std::wstring strPathName)
 {
 	if (strPathName.size() == 0)
@@ -124,7 +140,7 @@ void CUniversalSharedDataTree::SetStringValue(std::wstring strPathName, std::wst
 	_rootNode->SetStringValue(strPathName, value);
 }
 
-int32_t CUniversalSharedDataTree::GetIntegerValue(std::wstring strPathName)
+int64_t CUniversalSharedDataTree::GetIntegerValue(std::wstring strPathName)
 {
 	if (strPathName.size() == 0)
 		return _rootNode->GetThisIntegerValue();
@@ -132,7 +148,7 @@ int32_t CUniversalSharedDataTree::GetIntegerValue(std::wstring strPathName)
 	return _rootNode->GetIntegerValue(strPathName);
 }
 
-void CUniversalSharedDataTree::SetIntegerValue(std::wstring strPathName, int32_t value)
+void CUniversalSharedDataTree::SetIntegerValue(std::wstring strPathName, int64_t value)
 {
 	if (strPathName.size() == 0)
 		return _rootNode->SetThisIntegerValue(value);
@@ -163,6 +179,39 @@ std::shared_ptr<CUniversalSharedDataTree> CUniversalSharedDataTree::GetNode(std:
 void CUniversalSharedDataTree::UnregisterVariable(std::wstring strPathName)
 {
 	_rootNode->UnregisterVariable(strPathName);
+}
+
+int64_t CUniversalSharedDataTree::IncreaseIntegerValue(std::wstring strPathName, int64_t delta)
+{
+	if (strPathName.size() == 0)
+		return _rootNode->IncreaseThisIntegerValue(delta);
+
+	return _rootNode->IncreaseIntegerValue(strPathName, delta);
+}
+
+bool CUniversalSharedDataTree::IsValueExists(std::wstring strPathName)
+{
+	if (strPathName.size() == 0)
+		return _rootNode->IsThisValueExists();
+
+	return _rootNode->IsValueExists(strPathName);
+
+}
+
+bool CUniversalSharedDataTree::IsContainStringValue(std::wstring strPathName, std::wstring value)
+{
+	if (strPathName.size() == 0)
+		return _rootNode->IsContainThisStringValue(value);
+
+	return _rootNode->IsContainStringValue(strPathName, value);
+}
+
+bool CUniversalSharedDataTree::IsContainIntegerValue(std::wstring strPathName, int64_t value)
+{
+	if (strPathName.size() == 0)
+		return _rootNode->IsContainThisIntegerValue(value);
+
+	return _rootNode->IsContainIntegerValue(strPathName, value);
 }
 
 CUniversalSharedDataController::CUniversalSharedDataController(std::string)

@@ -291,7 +291,9 @@ std::wstring CSTXMemoryVariableNode::GetStringValue(std::wstring strPathName)
 	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
 		return _T("");
 
+	pNode->LockValue();
 	return GetStringValue(pNode->_ptr, pNode->_type);
+	pNode->UnlockValue();
 }
 
 std::wstring CSTXMemoryVariableNode::GetStringValue(void *ptr, int dataType)
@@ -380,7 +382,7 @@ std::wstring CSTXMemoryVariableNode::GetStringValue(void *ptr, int dataType)
 		std::wstring strTmp = _T("[");
 		TCHAR szPrefix[2] = { 0 };
 		std::for_each(((std::set<int64_t>*)ptr)->begin(), ((std::set<int64_t>*)ptr)->end(), [&](int64_t val) {
-			_stprintf_s(szTmp, _T("%lf"), val);
+			_i64tot_s(val, szTmp, buflen, 10);
 			strTmp += szPrefix;
 			strTmp += szTmp;
 			szPrefix[0] = ',';
@@ -426,7 +428,10 @@ std::wstring CSTXMemoryVariableNode::GetStringValue(void *ptr, int dataType)
 
 std::wstring CSTXMemoryVariableNode::GetThisStringValue()
 {
-	return GetStringValue(_ptr, _type);
+	LockValue();
+	auto result = GetStringValue(_ptr, _type);
+	UnlockValue();
+	return result;
 }
 
 void CSTXMemoryVariableNode::SetThisStringValue(std::wstring strValue)
@@ -443,7 +448,9 @@ void CSTXMemoryVariableNode::SetThisStringValue(std::wstring strValue)
 		*((int64_t*)_ptr) = _ttoi64(strValue.c_str());
 		break;
 	case STXVariableTreeNodeType_WString:		//wstring
+		LockValue();
 		*((std::wstring*)_ptr) = strValue;
+		UnlockValue();
 		break;
 	case STXVariableTreeNodeType_Int:		//int
 		*((int*)_ptr) = _ttoi(strValue.c_str());
@@ -675,6 +682,7 @@ void CSTXMemoryVariableNode::AddStringValue(std::wstring strPathName, std::wstri
 	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
 		return;
 
+	pNode->LockValue();
 	switch (pNode->_type)
 	{
 	case STXVariableTreeNodeType_WStringVector:		//vector<wstring>
@@ -696,6 +704,7 @@ void CSTXMemoryVariableNode::AddStringValue(std::wstring strPathName, std::wstri
 		(*((std::set<double>*)pNode->_ptr)).insert(_tcstod(strValue.c_str(), nullptr));
 		break;
 	}
+	pNode->UnlockValue();
 }
 
 void CSTXMemoryVariableNode::AddIntegerValue(std::wstring strPathName, int64_t value)
@@ -704,6 +713,7 @@ void CSTXMemoryVariableNode::AddIntegerValue(std::wstring strPathName, int64_t v
 	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
 		return;
 
+	pNode->LockValue();
 	switch (pNode->_type)
 	{
 	case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
@@ -719,6 +729,7 @@ void CSTXMemoryVariableNode::AddIntegerValue(std::wstring strPathName, int64_t v
 		(*((std::set<double>*)pNode->_ptr)).insert(value);
 		break;
 	}
+	pNode->UnlockValue();
 }
 
 void CSTXMemoryVariableNode::AddDoubleValue(std::wstring strPathName, double value)
@@ -727,6 +738,7 @@ void CSTXMemoryVariableNode::AddDoubleValue(std::wstring strPathName, double val
 	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
 		return;
 
+	pNode->LockValue();
 	switch (pNode->_type)
 	{
 	case STXVariableTreeNodeType_DoubleVector:		//vector<double>
@@ -742,6 +754,207 @@ void CSTXMemoryVariableNode::AddDoubleValue(std::wstring strPathName, double val
 		(*((std::set<int64_t>*)pNode->_ptr)).insert(value);
 		break;
 	}
+	pNode->UnlockValue();
+}
+
+void CSTXMemoryVariableNode::RemoveStringValue(std::wstring strPathName, std::wstring strValue)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
+		return;
+
+	pNode->LockValue();
+	RemoveStringValue(pNode->_ptr, pNode->_type, strValue);
+	pNode->UnlockValue();
+}
+
+void CSTXMemoryVariableNode::RemoveStringValue(void *ptr, int dataType, std::wstring strValue)
+{
+	if (ptr == NULL || dataType < 0)
+		return;
+
+	switch (dataType)
+	{
+	case STXVariableTreeNodeType_WStringVector:		//vector<wstring>
+		((std::vector<std::wstring>*)ptr)->erase(std::remove(((std::vector<std::wstring>*)ptr)->begin(), ((std::vector<std::wstring>*)ptr)->end(), strValue), ((std::vector<std::wstring>*)ptr)->end());
+		break;
+	case STXVariableTreeNodeType_WStringSet:		//set<wstring>
+		((std::set<std::wstring>*)ptr)->erase(strValue);
+		break;
+	//case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
+	//	(*((std::vector<int64_t>*)ptr)).push_back(_ttoi64(strValue.c_str()));
+	//	break;
+	//case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
+	//	(*((std::set<int64_t>*)ptr)).insert(_ttoi64(strValue.c_str()));
+	//	break;
+	//case STXVariableTreeNodeType_DoubleVector:		//vector<int64_t>
+	//	(*((std::vector<double>*)ptr)).push_back(_tcstod(strValue.c_str(), nullptr));
+	//	break;
+	//case STXVariableTreeNodeType_DoubleSet:		//set<int64_t>
+	//	(*((std::set<double>*)ptr)).insert(_tcstod(strValue.c_str(), nullptr));
+	//	break;
+	}
+
+}
+
+void CSTXMemoryVariableNode::RemoveThisStringValue(std::wstring strValue)
+{
+	LockValue();
+	RemoveStringValue(_ptr, _type, strValue);
+	UnlockValue();
+}
+
+void CSTXMemoryVariableNode::RemoveIntegerValue(void *ptr, int dataType, int64_t value)
+{
+	if (ptr == NULL || dataType < 0)
+		return;
+
+	switch (dataType)
+	{
+	//case STXVariableTreeNodeType_WStringVector:		//vector<wstring>
+	//	std::remove(((std::vector<std::wstring>*)ptr)->begin(), ((std::vector<std::wstring>*)ptr)->end(), strValue);
+	//	break;
+	//case STXVariableTreeNodeType_WStringSet:		//set<wstring>
+	//	(*((std::set<std::wstring>*)ptr)).erase(strValue);
+	//	break;
+	case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
+		((std::vector<int64_t>*)ptr)->erase(std::remove(((std::vector<int64_t>*)ptr)->begin(), ((std::vector<int64_t>*)ptr)->end(), value), ((std::vector<int64_t>*)ptr)->end());
+		break;
+	case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
+		((std::set<int64_t>*)ptr)->erase(value);
+		break;
+	//case STXVariableTreeNodeType_DoubleVector:		//vector<int64_t>
+	//	(*((std::vector<double>*)ptr)).push_back(_tcstod(strValue.c_str(), nullptr));
+	//	break;
+	//case STXVariableTreeNodeType_DoubleSet:		//set<int64_t>
+	//	(*((std::set<double>*)ptr)).insert(_tcstod(strValue.c_str(), nullptr));
+	//	break;
+	}
+}
+
+void CSTXMemoryVariableNode::RemoveIntegerValue(std::wstring strPathName, int64_t value)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
+		return;
+
+	pNode->LockValue();
+	RemoveIntegerValue(pNode->_ptr, pNode->_type, value);
+	pNode->UnlockValue();
+}
+
+void CSTXMemoryVariableNode::LockValue()
+{
+	_value_mtx.lock();
+}
+
+void CSTXMemoryVariableNode::UnlockValue()
+{
+	_value_mtx.unlock();
+}
+
+void CSTXMemoryVariableNode::RemoveThisIntegerValue(int64_t value)
+{
+	RemoveIntegerValue(_ptr, _type, value);
+}
+
+bool CSTXMemoryVariableNode::IsContainStringValue(std::wstring strPathName, std::wstring strValue)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
+		return false;
+
+	pNode->LockValue();
+	auto result = IsContainStringValue(pNode->_ptr, pNode->_type, strValue);
+	pNode->UnlockValue();
+	return result;
+}
+
+bool CSTXMemoryVariableNode::IsContainStringValue(void *ptr, int dataType, std::wstring strValue)
+{
+	if (ptr == NULL || dataType < 0)
+		return false;
+
+	switch (dataType)
+	{
+	case STXVariableTreeNodeType_WStringVector:		//vector<wstring>
+		return std::find(((std::vector<std::wstring>*)ptr)->begin(), ((std::vector<std::wstring>*)ptr)->end(), strValue) != ((std::vector<std::wstring>*)ptr)->end();
+		break;
+	case STXVariableTreeNodeType_WStringSet:		//set<wstring>
+		return ((std::set<std::wstring>*)ptr)->find(strValue) != ((std::set<std::wstring>*)ptr)->end();
+		break;
+		//case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
+		//	(*((std::vector<int64_t>*)ptr)).push_back(_ttoi64(strValue.c_str()));
+		//	break;
+		//case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
+		//	(*((std::set<int64_t>*)ptr)).insert(_ttoi64(strValue.c_str()));
+		//	break;
+		//case STXVariableTreeNodeType_DoubleVector:		//vector<int64_t>
+		//	(*((std::vector<double>*)ptr)).push_back(_tcstod(strValue.c_str(), nullptr));
+		//	break;
+		//case STXVariableTreeNodeType_DoubleSet:		//set<int64_t>
+		//	(*((std::set<double>*)ptr)).insert(_tcstod(strValue.c_str(), nullptr));
+		//	break;
+	}
+
+	return false;
+}
+
+bool CSTXMemoryVariableNode::IsContainIntegerValue(std::wstring strPathName, int64_t value)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
+		return false;
+
+	pNode->LockValue();
+	auto result = IsContainIntegerValue(pNode->_ptr, pNode->_type, value);
+	pNode->UnlockValue();
+	return result;
+}
+
+bool CSTXMemoryVariableNode::IsContainIntegerValue(void *ptr, int dataType, int64_t value)
+{
+	if (ptr == NULL || dataType < 0)
+		return false;
+
+	switch (dataType)
+	{
+		//case STXVariableTreeNodeType_WStringVector:		//vector<wstring>
+		//	std::remove(((std::vector<std::wstring>*)ptr)->begin(), ((std::vector<std::wstring>*)ptr)->end(), strValue);
+		//	break;
+		//case STXVariableTreeNodeType_WStringSet:		//set<wstring>
+		//	(*((std::set<std::wstring>*)ptr)).erase(strValue);
+		//	break;
+	case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
+		return std::find(((std::vector<int64_t>*)ptr)->begin(), ((std::vector<int64_t>*)ptr)->end(), value) != ((std::vector<int64_t>*)ptr)->end();
+		break;
+	case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
+		return ((std::set<int64_t>*)ptr)->find(value) != ((std::set<int64_t>*)ptr)->end();
+		break;
+		//case STXVariableTreeNodeType_DoubleVector:		//vector<int64_t>
+		//	(*((std::vector<double>*)ptr)).push_back(_tcstod(strValue.c_str(), nullptr));
+		//	break;
+		//case STXVariableTreeNodeType_DoubleSet:		//set<int64_t>
+		//	(*((std::set<double>*)ptr)).insert(_tcstod(strValue.c_str(), nullptr));
+		//	break;
+	}
+	return false;
+}
+
+bool CSTXMemoryVariableNode::IsContainThisStringValue(std::wstring strValue)
+{
+	LockValue();
+	auto result = IsContainStringValue(_ptr, _type, strValue);
+	UnlockValue();
+	return result;
+}
+
+bool CSTXMemoryVariableNode::IsContainThisIntegerValue(int64_t value)
+{
+	LockValue();
+	auto result = IsContainIntegerValue(_ptr, _type, value);
+	UnlockValue();
+	return result;
 }
 
 void CSTXMemoryVariableNode::GetChildren(std::vector<std::shared_ptr<CSTXMemoryVariableNode>>* children)
@@ -751,44 +964,44 @@ void CSTXMemoryVariableNode::GetChildren(std::vector<std::shared_ptr<CSTXMemoryV
 	});
 }
 
-int32_t CSTXMemoryVariableNode::GetIntegerValue(std::wstring strPathName)
+int64_t CSTXMemoryVariableNode::GetIntegerValue(std::wstring strPathName)
 {
 	auto pNode = GetVariableNode(strPathName);
 	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
 		return 0;
 
-	if (pNode->_type != STXVariableTreeNodeType_Int32)
+	if (pNode->_type != STXVariableTreeNodeType_Int64)
 		return 0;
 
-	return (*((int32_t*)pNode->_ptr));
+	return (*((int64_t*)pNode->_ptr));
 }
 
-void CSTXMemoryVariableNode::SetIntegerValue(std::wstring strPathName, int32_t value)
+void CSTXMemoryVariableNode::SetIntegerValue(std::wstring strPathName, int64_t value)
 {
 	auto pNode = GetVariableNode(strPathName);
 	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
 		return;
 
-	if (pNode->_type != STXVariableTreeNodeType_Int32)
+	if (pNode->_type != STXVariableTreeNodeType_Int64)
 		return;
 
-	*((int32_t*)pNode->_ptr) = value;
+	*((int64_t*)pNode->_ptr) = value;
 }
 
-int32_t CSTXMemoryVariableNode::GetThisIntegerValue()
+int64_t CSTXMemoryVariableNode::GetThisIntegerValue()
 {
-	if (_type != STXVariableTreeNodeType_Int32)
+	if (_type != STXVariableTreeNodeType_Int64)
 		return 0;
 
-	return (*((int32_t*)_ptr));
+	return (*((int64_t*)_ptr));
 }
 
-void CSTXMemoryVariableNode::SetThisIntegerValue(int32_t value)
+void CSTXMemoryVariableNode::SetThisIntegerValue(int64_t value)
 {
-	if (_type != STXVariableTreeNodeType_Int32)
+	if (_type != STXVariableTreeNodeType_Int64)
 		return;
 
-	*((int32_t*)_ptr) = value;
+	*((int64_t*)_ptr) = value;
 }
 
 double CSTXMemoryVariableNode::GetDoubleValue(std::wstring strPathName)
@@ -813,6 +1026,73 @@ void CSTXMemoryVariableNode::SetDoubleValue(std::wstring strPathName, double val
 		return;
 
 	*((double*)pNode->_ptr) = value;
+}
+
+int64_t CSTXMemoryVariableNode::IncreaseIntegerValue(std::wstring strPathName, int64_t delta)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
+		return 0;
+
+	return IncreaseIntegerValue(pNode->_ptr, pNode->_type, delta);
+}
+
+int64_t CSTXMemoryVariableNode::IncreaseIntegerValue(void *ptr, int dataType, int64_t delta)
+{
+	if (!ptr || dataType == STXVariableTreeNodeType_Invalid)
+		return 0;
+
+	switch (dataType)
+	{
+	case STXVariableTreeNodeType_Int32:
+	{
+		int32_t oldval = *((int32_t*)ptr);
+		*((int32_t*)ptr) += delta;
+		return oldval;
+	}
+	case STXVariableTreeNodeType_Int64:
+	{
+		int64_t oldval = *((int64_t*)ptr);
+		*((int64_t*)ptr) += delta;
+		return oldval;
+	}
+	case STXVariableTreeNodeType_Int:
+	{
+		int oldval = *((int*)ptr);
+		*((int*)ptr) += delta;
+		return oldval;
+	}
+	case STXVariableTreeNodeType_Float:
+	{
+		float oldval = *((float*)ptr);
+		*((float*)ptr) += delta;
+		return oldval;
+	}
+	case STXVariableTreeNodeType_Double:
+	{
+		double oldval = *((double*)ptr);
+		*((double*)ptr) += delta;
+		return oldval;
+	}
+	case STXVariableTreeNodeType_Word:
+	{
+		uint16_t oldval = *((uint16_t*)ptr);
+		*((uint16_t*)ptr) += delta;
+		return oldval;
+	}
+	case STXVariableTreeNodeType_DWord:
+	{
+		uint32_t oldval = *((uint32_t*)ptr);
+		*((uint32_t*)ptr) += delta;
+		return oldval;
+	}
+	}
+	return 0;
+}
+
+int64_t CSTXMemoryVariableNode::IncreaseThisIntegerValue(int64_t delta)
+{
+	return IncreaseIntegerValue(_ptr, _type, delta);
 }
 
 int CSTXMemoryVariableNode::GetChildrenNames(std::vector<std::wstring> *pArrNames)
@@ -847,9 +1127,18 @@ bool CSTXMemoryVariableNode::IsManagedValue()
 	return _managedValue;
 }
 
-bool CSTXMemoryVariableNode::IsValueExists()
+bool CSTXMemoryVariableNode::IsThisValueExists()
 {
 	return _type != STXVariableTreeNodeType_Invalid;
+}
+
+bool CSTXMemoryVariableNode::IsValueExists(std::wstring strPathName)
+{
+	auto nodeExists = GetVariableNode(strPathName);
+	if (!nodeExists)
+		return false;
+
+	return nodeExists->IsThisValueExists();
 }
 
 void CSTXMemoryVariableNode::RegisterInt32Variable(std::wstring strPathName, int32_t *pAddress)
@@ -876,6 +1165,22 @@ void CSTXMemoryVariableNode::RegisterInt32Variable(std::wstring strPathName, int
 void CSTXMemoryVariableNode::RegisterInt64Variable(std::wstring strPathName, int64_t *pAddress)
 {
 	RegisterVariable(strPathName, STXVariableTreeNodeType_Int64, pAddress, false);
+}
+
+void CSTXMemoryVariableNode::RegisterInt64Variable(std::wstring strPathName, int64_t value)
+{
+	auto nodeExists = GetVariableNode(strPathName);
+	if (nodeExists)
+	{
+		if (!nodeExists->IsNewTypeAcceptable(STXVariableTreeNodeType_Int64))
+		{
+			throw std::runtime_error("The node already has a value of different type.");
+		}
+		return;
+	}
+	int64_t *v = new int64_t(value);
+	auto var = RegisterVariable(strPathName, STXVariableTreeNodeType_Int64, v, true);
+	var->_managedValue = true;
 }
 
 void CSTXMemoryVariableNode::RegisterStringVariable(std::wstring strPathName, std::wstring *pAddress)
@@ -963,15 +1268,15 @@ void CSTXMemoryVariableNode::RegisterStringSetVariable(std::wstring strPathName)
 	var->_managedValue = true;
 }
 
-void CSTXMemoryVariableNode::RegisterIntegerVariable(std::wstring strPathName, int32_t value)
+void CSTXMemoryVariableNode::RegisterIntegerVariable(std::wstring strPathName, int64_t value)
 {
-	RegisterInt32Variable(strPathName, value);
+	RegisterInt64Variable(strPathName, value);
 
 }
 
 void CSTXMemoryVariableNode::RegisterIntegerVariable(std::wstring strPathName)
 {
-	RegisterInt32Variable(strPathName, 0);
+	RegisterInt64Variable(strPathName, (int64_t)0);
 }
 
 void CSTXMemoryVariableNode::RegisterIntegerVectorVariable(std::wstring strPathName, std::vector<int64_t> value)

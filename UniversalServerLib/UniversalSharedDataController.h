@@ -168,18 +168,25 @@ public:
 	void AddStringValue(std::wstring strPathName, std::wstring value);
 	void AddIntegerValue(std::wstring strPathName, int64_t value);
 	void AddDoubleValue(std::wstring strPathName, double value);
+	void RemoveStringValue(std::wstring strPathName, std::wstring value);
+	void RemoveIntegerValue(std::wstring strPathName, int64_t value);
 
 	std::wstring GetStringValue(std::wstring strPathName);
 	void SetStringValue(std::wstring strPathName, std::wstring value);
 
-	int32_t GetIntegerValue(std::wstring strPathName);
-	void SetIntegerValue(std::wstring strPathName, int32_t value);
+	int64_t GetIntegerValue(std::wstring strPathName);
+	void SetIntegerValue(std::wstring strPathName, int64_t value);
 
 	double GetDoubleValue(std::wstring strPathName);
 	void SetDoubleValue(std::wstring strPathName, double value);
 
 	std::shared_ptr<CUniversalSharedDataTree> GetNode(std::wstring strPathName);
 	void UnregisterVariable(std::wstring strPathName);
+
+	int64_t IncreaseIntegerValue(std::wstring strPathName, int64_t delta);
+	bool IsValueExists(std::wstring strPathName);
+	bool IsContainStringValue(std::wstring strPathName, std::wstring value);
+	bool IsContainIntegerValue(std::wstring strPathName, int64_t value);
 };
 
 //////////////////////////////////////////////////////////////////////////

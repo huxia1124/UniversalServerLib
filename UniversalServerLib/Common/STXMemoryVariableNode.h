@@ -65,12 +65,20 @@ protected:
 	CSTXMemoryVariableNode *_parentNode = nullptr;
 	std::wstring _name;
 	bool _managedValue = false;		//if true, the data in _ptr should be deleted by this object
+	std::recursive_mutex _value_mtx;	//used when modifying node value
 
 	CSTXHashMap<std::wstring, std::shared_ptr<CSTXMemoryVariableNode>, 8, 1, CSTXDefaultWStringHash<8, 1>> _mapContent;
 
 protected:
 	bool IsNewTypeAcceptable(int newType);
 	std::wstring GetStringValue(void *ptr, int dataType);
+	int64_t IncreaseIntegerValue(void *ptr, int dataType, int64_t delta);
+	void RemoveStringValue(void *ptr, int dataType, std::wstring strValue);
+	void RemoveIntegerValue(void *ptr, int dataType, int64_t value);
+	void LockValue();
+	void UnlockValue();
+	bool IsContainStringValue(void *ptr, int dataType, std::wstring strValue);
+	bool IsContainIntegerValue(void *ptr, int dataType, int64_t value);
 
 public:
 	std::shared_ptr<CSTXMemoryVariableNode> RegisterVariable(std::wstring strPathName, STXVariableTreeNodeType nType, void* pAddress, bool managed);
@@ -82,7 +90,8 @@ public:
 	int GetChildrenNames(std::vector<std::wstring> *pArrNames);
 	std::wstring GetFullPath();
 	bool IsManagedValue();
-	bool IsValueExists();
+	bool IsThisValueExists();
+	bool IsValueExists(std::wstring strPathName);
 
 public:
 	void RegisterInt32Variable(std::wstring strPathName, int32_t *pAddress);
@@ -96,12 +105,13 @@ public:
 
 public:
 	void RegisterInt32Variable(std::wstring strPathName, int32_t value);
+	void RegisterInt64Variable(std::wstring strPathName, int64_t value);
 	void RegisterStringVariable(std::wstring strPathName, std::wstring value);
 	void RegisterStringVectorVariable(std::wstring strPathName, std::vector<std::wstring> value);
 	void RegisterStringVectorVariable(std::wstring strPathName);
 	void RegisterStringSetVariable(std::wstring strPathName, std::set<std::wstring> value);
 	void RegisterStringSetVariable(std::wstring strPathName);
-	void RegisterIntegerVariable(std::wstring strPathName, int32_t value);
+	void RegisterIntegerVariable(std::wstring strPathName, int64_t value);
 	void RegisterIntegerVariable(std::wstring strPathName);
 	void RegisterDoubleVariable(std::wstring strPathName, double value);
 	void RegisterDoubleVariable(std::wstring strPathName);
@@ -129,14 +139,25 @@ public:
 	void AddStringValue(std::wstring strPathName, std::wstring strValue);
 	void AddIntegerValue(std::wstring strPathName, int64_t value);
 	void AddDoubleValue(std::wstring strPathName, double value);
+	void RemoveStringValue(std::wstring strPathName, std::wstring strValue);
+	void RemoveThisStringValue(std::wstring strValue);
+	void RemoveIntegerValue(std::wstring strPathName, int64_t value);
+	void RemoveThisIntegerValue(int64_t value);
+	bool IsContainStringValue(std::wstring strPathName, std::wstring strValue);
+	bool IsContainIntegerValue(std::wstring strPathName, int64_t value);
+	bool IsContainThisStringValue(std::wstring strValue);
+	bool IsContainThisIntegerValue(int64_t value);
 
 	void GetChildren(std::vector<std::shared_ptr<CSTXMemoryVariableNode>>* children);
 
-	int32_t GetIntegerValue(std::wstring strPathName);
-	void SetIntegerValue(std::wstring strPathName, int32_t value);
-	int32_t GetThisIntegerValue();
-	void SetThisIntegerValue(int32_t value);
+	int64_t GetIntegerValue(std::wstring strPathName);
+	void SetIntegerValue(std::wstring strPathName, int64_t value);
+	int64_t GetThisIntegerValue();
+	void SetThisIntegerValue(int64_t value);
 
 	double GetDoubleValue(std::wstring strPathName);
 	void SetDoubleValue(std::wstring strPathName, double value);
+
+	int64_t IncreaseIntegerValue(std::wstring strPathName, int64_t delta);
+	int64_t IncreaseThisIntegerValue(int64_t delta);
 };

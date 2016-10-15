@@ -144,6 +144,12 @@ public:
 		_rootNode->GetThisValues(&values);
 		return LuaIntf::CppFunctor::make<CSTXMemoryVariableValueIterator<int64_t>>(L, std::move(values), _rootNode->GetThisVariableType()); // ... is constructor auguments
 	}
+	int GetDoubleValues(lua_State* L)
+	{
+		std::vector<double> values;
+		_rootNode->GetThisValues(&values);
+		return LuaIntf::CppFunctor::make<CSTXMemoryVariableValueIterator<double>>(L, std::move(values), _rootNode->GetThisVariableType()); // ... is constructor auguments
+	}
 
 public:
 	std::wstring GetName();
@@ -153,12 +159,15 @@ public:
 	void RegisterStringSetVariable(std::wstring strPathName);
 	void RegisterIntegerVectorVariable(std::wstring strPathName);
 	void RegisterIntegerSetVariable(std::wstring strPathName);
+	void RegisterDoubleVectorVariable(std::wstring strPathName);
+	void RegisterDoubleSetVariable(std::wstring strPathName);
 
 	void RegisterIntegerVariable(std::wstring strPathName);
 	void RegisterDoubleVariable(std::wstring strPathName);
 
 	void AddStringValue(std::wstring strPathName, std::wstring value);
 	void AddIntegerValue(std::wstring strPathName, int64_t value);
+	void AddDoubleValue(std::wstring strPathName, double value);
 
 	std::wstring GetStringValue(std::wstring strPathName);
 	void SetStringValue(std::wstring strPathName, std::wstring value);
@@ -170,6 +179,7 @@ public:
 	void SetDoubleValue(std::wstring strPathName, double value);
 
 	std::shared_ptr<CUniversalSharedDataTree> GetNode(std::wstring strPathName);
+	void UnregisterVariable(std::wstring strPathName);
 };
 
 //////////////////////////////////////////////////////////////////////////

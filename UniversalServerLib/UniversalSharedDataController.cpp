@@ -33,6 +33,11 @@ void pushValueToStack<int64_t>(lua_State* L, int64_t value)
 	lua_pushnumber(L, value);
 }
 
+template<>
+void pushValueToStack<double>(lua_State* L, double value)
+{
+	lua_pushnumber(L, value);
+}
 //////////////////////////////////////////////////////////////////////////
 
 concurrency::concurrent_unordered_map<std::wstring, std::wstring> CUniversalSharedDataController::_datamap;
@@ -68,6 +73,16 @@ void CUniversalSharedDataTree::RegisterIntegerSetVariable(std::wstring strPathNa
 	_rootNode->RegisterIntegerSetVariable(strPathName);
 }
 
+void CUniversalSharedDataTree::RegisterDoubleVectorVariable(std::wstring strPathName)
+{
+	_rootNode->RegisterDoubleVectorVariable(strPathName);
+}
+
+void CUniversalSharedDataTree::RegisterDoubleSetVariable(std::wstring strPathName)
+{
+	_rootNode->RegisterDoubleSetVariable(strPathName);
+}
+
 void CUniversalSharedDataTree::RegisterIntegerVariable(std::wstring strPathName)
 {
 	_rootNode->RegisterIntegerVariable(strPathName);
@@ -86,6 +101,11 @@ void CUniversalSharedDataTree::AddStringValue(std::wstring strPathName, std::wst
 void CUniversalSharedDataTree::AddIntegerValue(std::wstring strPathName, int64_t value)
 {
 	_rootNode->AddIntegerValue(strPathName, value);
+}
+
+void CUniversalSharedDataTree::AddDoubleValue(std::wstring strPathName, double value)
+{
+	_rootNode->AddDoubleValue(strPathName, value);
 }
 
 std::wstring CUniversalSharedDataTree::GetStringValue(std::wstring strPathName)
@@ -138,6 +158,11 @@ std::shared_ptr<CUniversalSharedDataTree> CUniversalSharedDataTree::GetNode(std:
 		return std::make_shared<CUniversalSharedDataTree>("", node);
 	}
 	return nullptr;
+}
+
+void CUniversalSharedDataTree::UnregisterVariable(std::wstring strPathName)
+{
+	_rootNode->UnregisterVariable(strPathName);
 }
 
 CUniversalSharedDataController::CUniversalSharedDataController(std::string)

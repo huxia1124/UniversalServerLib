@@ -107,12 +107,18 @@ public:
 	void SetStringValue(std::wstring strPathName, std::wstring strValue);
 	std::wstring GetStringValue(std::wstring strPathName);
 	std::wstring GetThisStringValue();
+	void SetThisStringValue(std::wstring strValue);
+
 	size_t GetThisValues(std::vector<std::wstring> *values);
+	size_t GetThisValues(std::vector<int32_t> *values);
+
 	void AddStringValue(std::wstring strPathName, std::wstring strValue);
 	void GetChildren(std::vector<std::shared_ptr<CSTXMemoryVariableNode>>* children);
 
 	int32_t GetIntegerValue(std::wstring strPathName);
 	void SetIntegerValue(std::wstring strPathName, int32_t value);
+	int32_t GetThisIntegerValue();
+	void SetThisIntegerValue(int32_t value);
 
 	double GetDoubleValue(std::wstring strPathName);
 	void SetDoubleValue(std::wstring strPathName, double value);

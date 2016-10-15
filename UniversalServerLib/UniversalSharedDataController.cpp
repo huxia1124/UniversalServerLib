@@ -19,6 +19,22 @@
 #include <tchar.h>
 #include "UniversalSharedDataController.h"
 
+//////////////////////////////////////////////////////////////////////////
+
+template<>
+void pushValueToStack<std::wstring>(lua_State* L, std::wstring value)
+{
+	lua_pushstring(L, (LPCSTR)ATL::CW2A(value.c_str()));
+}
+
+template<>
+void pushValueToStack<int32_t>(lua_State* L, int32_t value)
+{
+	lua_pushnumber(L, value);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 concurrency::concurrent_unordered_map<std::wstring, std::wstring> CUniversalSharedDataController::_datamap;
 std::shared_ptr<CSTXMemoryVariableNode> CUniversalSharedDataTree::_s_rootNode = std::make_shared<CSTXMemoryVariableNode>(_T("<root>"));
 
@@ -67,16 +83,25 @@ std::wstring CUniversalSharedDataTree::GetStringValue(std::wstring strPathName)
 
 void CUniversalSharedDataTree::SetStringValue(std::wstring strPathName, std::wstring value)
 {
+	if (strPathName.size() == 0)
+		return _rootNode->SetThisStringValue(value);
+
 	_rootNode->SetStringValue(strPathName, value);
 }
 
 int32_t CUniversalSharedDataTree::GetIntegerValue(std::wstring strPathName)
 {
+	if (strPathName.size() == 0)
+		return _rootNode->GetThisIntegerValue();
+
 	return _rootNode->GetIntegerValue(strPathName);
 }
 
 void CUniversalSharedDataTree::SetIntegerValue(std::wstring strPathName, int32_t value)
 {
+	if (strPathName.size() == 0)
+		return _rootNode->SetThisIntegerValue(value);
+
 	_rootNode->SetIntegerValue(strPathName, value);
 }
 

@@ -41,16 +41,23 @@ namespace LuaIntf
 //////////////////////////////////////////////////////////////////////////
 // CSTXMemoryVariableValueIterator
 
+template<class ElemType>
+void pushValueToStack(lua_State* L, ElemType value);
+
+
+template<class ElemType>
 class CSTXMemoryVariableValueIterator : public LuaIntf::CppFunctor
 {
 public:
-	CSTXMemoryVariableValueIterator(std::vector<std::wstring> &&values)
+	CSTXMemoryVariableValueIterator(std::vector<ElemType> &&values, int elemType)
 	{
 		_values = std::move(values);
+		_elemType = elemType;
 	}
 
 protected:
-	std::vector<std::wstring> _values;
+	std::vector<ElemType> _values;
+	int _elemType = -1;
 	size_t _index = 0;
 
 public:
@@ -59,7 +66,8 @@ public:
 		USES_CONVERSION;
 		if (_index < _values.size())
 		{
-			lua_pushstring(L, (LPCSTR)ATL::CW2A(_values[_index].c_str()));
+			pushValueToStack(L, _values[_index]);
+			//lua_pushstring(L, (LPCSTR)ATL::CW2A(_values[_index].c_str()));
 			_index++;
 			return 1;
 		}
@@ -127,8 +135,16 @@ public:
 	{
 		std::vector<std::wstring> values;
 		_rootNode->GetThisValues(&values);
-		return LuaIntf::CppFunctor::make<CSTXMemoryVariableValueIterator>(L, std::move(values)); // ... is constructor auguments
+		return LuaIntf::CppFunctor::make<CSTXMemoryVariableValueIterator<std::wstring>>(L, std::move(values), _rootNode->GetThisVariableType()); // ... is constructor auguments
 	}
+
+	int GetIntegerValues(lua_State* L)
+	{
+		std::vector<int32_t> values;
+		_rootNode->GetThisValues(&values);
+		return LuaIntf::CppFunctor::make<CSTXMemoryVariableValueIterator<int32_t>>(L, std::move(values), _rootNode->GetThisVariableType()); // ... is constructor auguments
+	}
+
 public:
 	std::wstring GetName();
 	std::wstring GetFullPath();

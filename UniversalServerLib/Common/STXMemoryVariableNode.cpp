@@ -366,6 +366,42 @@ std::wstring CSTXMemoryVariableNode::GetThisStringValue()
 	return _T("");
 }
 
+void CSTXMemoryVariableNode::SetThisStringValue(std::wstring strValue)
+{
+	if (_type < 0)
+		return;
+
+	switch (_type)
+	{
+	case STXVariableTreeNodeType_Int32:		//int32
+		*((int32_t*)_ptr) = _ttoi(strValue.c_str());
+		break;
+	case STXVariableTreeNodeType_Int64:		//int64
+		*((int64_t*)_ptr) = _ttoi64(strValue.c_str());
+		break;
+	case STXVariableTreeNodeType_WString:		//wstring
+		*((std::wstring*)_ptr) = strValue;
+		break;
+	case STXVariableTreeNodeType_Int:		//int
+		*((int*)_ptr) = _ttoi(strValue.c_str());
+		break;
+	case STXVariableTreeNodeType_Float:		//float
+		*((float*)_ptr) = (float)_ttof(strValue.c_str());
+		break;
+	case STXVariableTreeNodeType_Double:		//double
+		*((double*)_ptr) = _ttof(strValue.c_str());
+		break;
+	case STXVariableTreeNodeType_Word:		//uint16_t
+		*((uint16_t*)_ptr) = (uint16_t)_tcstoul(strValue.c_str(), NULL, 10);
+		break;
+	case STXVariableTreeNodeType_DWord:		//uint32_t
+		*((uint32_t*)_ptr) = (uint32_t)_tcstoul(strValue.c_str(), NULL, 10);
+		break;
+	default:
+		break;
+	}
+}
+
 size_t CSTXMemoryVariableNode::GetThisValues(std::vector<std::wstring> *values)
 {
 	const int buflen = 256;
@@ -411,6 +447,42 @@ size_t CSTXMemoryVariableNode::GetThisValues(std::vector<std::wstring> *values)
 		break;
 
 	default:
+		break;
+	}
+
+	return values->size();
+}
+
+size_t CSTXMemoryVariableNode::GetThisValues(std::vector<int32_t> *values)
+{
+	switch (_type)
+	{
+	case STXVariableTreeNodeType_Int32:		//int32
+		values->push_back(*((int32_t*)_ptr));
+		break;
+	case STXVariableTreeNodeType_Int64:		//int64
+		values->push_back(*((int64_t*)_ptr));
+		break;
+	case STXVariableTreeNodeType_WString:		//wstring
+		values->push_back(_ttoi(((std::wstring*)_ptr)->c_str()));
+		break;
+	case STXVariableTreeNodeType_Int:		//int
+		values->push_back(*((int*)_ptr));
+		break;
+	case STXVariableTreeNodeType_Float:		//float
+		values->push_back(*((float*)_ptr));
+		break;
+	case STXVariableTreeNodeType_Double:		//double
+		values->push_back(*((double*)_ptr));
+		break;
+	case STXVariableTreeNodeType_Word:		//uint16_t
+		values->push_back(*((uint16_t*)_ptr));
+		break;
+	case STXVariableTreeNodeType_DWord:		//uint32_t
+		values->push_back(*((uint32_t*)_ptr));
+		break;
+	default:
+		values->push_back(0);
 		break;
 	}
 
@@ -463,6 +535,22 @@ void CSTXMemoryVariableNode::SetIntegerValue(std::wstring strPathName, int32_t v
 		return;
 
 	*((int32_t*)pNode->_ptr) = value;
+}
+
+int32_t CSTXMemoryVariableNode::GetThisIntegerValue()
+{
+	if (_type != STXVariableTreeNodeType_Int32)
+		return 0;
+
+	return (*((int32_t*)_ptr));
+}
+
+void CSTXMemoryVariableNode::SetThisIntegerValue(int32_t value)
+{
+	if (_type != STXVariableTreeNodeType_Int32)
+		return;
+
+	*((int32_t*)_ptr) = value;
 }
 
 double CSTXMemoryVariableNode::GetDoubleValue(std::wstring strPathName)

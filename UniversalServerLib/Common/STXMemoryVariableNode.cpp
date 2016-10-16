@@ -5,46 +5,6 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-int SplitString(const TCHAR *pszSrc, TCHAR chSplit, std::vector<std::wstring> &arrResult)
-{
-	const TCHAR *pValue = pszSrc;
-	size_t nLen = _tcslen(pszSrc);
-	if (nLen > 0)
-	{
-		arrResult.clear();
-		TCHAR *pValueCopy = new TCHAR[nLen + 2];
-		_tcscpy_s(pValueCopy, nLen + 2, pValue);
-
-		TCHAR seps[2] = { 0 };
-		seps[0] = chSplit;
-		seps[1] = 0;
-
-		TCHAR *pStart = pValueCopy, *pEnd = pStart + 1;
-		while (pStart && *pStart)
-		{
-			pEnd = _tcschr(pStart, chSplit);
-			if (pEnd == 0)
-			{
-				break;
-				pEnd = pValueCopy + nLen;
-			}
-
-			TCHAR chEnd = *pEnd;
-			TCHAR *pStartCopy = pStart;
-			pStart = pEnd + 1;
-			*pEnd = 0;
-
-			arrResult.push_back(pStartCopy);
-
-			if (chEnd == 0)
-				break;
-
-		}
-		arrResult.push_back(pStart);
-		delete[]pValueCopy;
-	}
-	return (int)arrResult.size();
-}
 
 bool CSTXMemoryVariableNode::IsNewTypeAcceptable(int newType)
 {
@@ -53,52 +13,67 @@ bool CSTXMemoryVariableNode::IsNewTypeAcceptable(int newType)
 
 std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::RegisterVariable(std::wstring strPathName, STXVariableTreeNodeType nType, void* pAddress, bool managed)
 {
-	std::vector<std::wstring> arrParts;
-	SplitString(strPathName.c_str(), _T('\\'), arrParts);
+	//return Call<std::shared_ptr<CSTXMemoryVariableNode>>(&CSTXMemoryVariableNode::_RegisterVariable, strPathName, nType, pAddress, managed);
 
+	std::vector<wchar_t*> pathArray;
+	wchar_t *str = (wchar_t*)strPathName.data();
+	wchar_t* pch;
+	wchar_t *next_token = NULL;
+	pch = _tcstok_s(str, _T("\\/"), &next_token);
+	while (pch != NULL)
+	{
+		pathArray.push_back(pch);
+		pch = _tcstok_s(NULL, _T("\\/"), &next_token);
+	}
+	pathArray.push_back(nullptr);
+
+	return _RegisterVariable(&pathArray[0], nType, pAddress, managed);
+}
+
+std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::_RegisterVariable(wchar_t **pathArray, STXVariableTreeNodeType nType, void* pAddress, bool managed)
+{
 	std::shared_ptr<CSTXMemoryVariableNode> result;
-	if (arrParts.size() == 0)
+	if (pathArray[0] == nullptr)
 		return result;
 
-	if (arrParts.size() == 1)
+	if (pathArray[1] == nullptr)
 	{
-		_mapContent.lock(strPathName);
-		auto it = _mapContent.find(strPathName);
+		_mapContent.lock(pathArray[0]);
+		auto it = _mapContent.find(pathArray[0]);
 		std::shared_ptr<CSTXMemoryVariableNode> newVariable;
-		if (it == _mapContent.end(strPathName))
+		if (it == _mapContent.end(pathArray[0]))
 		{
 			newVariable = std::make_shared<CSTXMemoryVariableNode>();
-			_mapContent[strPathName] = newVariable;
+			_mapContent[pathArray[0]] = newVariable;
 			newVariable->_type = nType;
 			newVariable->_ptr = pAddress;
 			newVariable->_parentNode = this;
-			newVariable->_name = strPathName;
+			newVariable->_name = pathArray[0];
 			newVariable->_managedValue = managed;
 		}
 		else
 		{
 			newVariable = it->second;
 		}
-		_mapContent.unlock(strPathName);
+		_mapContent.unlock(pathArray[0]);
 
 		return newVariable;
 	}
 
-	std::wstring firstPart = arrParts[0];
-	_mapContent.lock(firstPart);
-	auto it = _mapContent.find(firstPart);
-	if (it == _mapContent.end(firstPart))
+	_mapContent.lock(pathArray[0]);
+	auto it = _mapContent.find(pathArray[0]);
+	if (it == _mapContent.end(pathArray[0]))
 	{
 		auto newVariable = std::make_shared<CSTXMemoryVariableNode>();
-		_mapContent[firstPart] = newVariable;
+		_mapContent[pathArray[0]] = newVariable;
 		newVariable->_parentNode = this;
-		newVariable->_name = firstPart;
+		newVariable->_name = pathArray[0];
 	}
-	it = _mapContent.find(firstPart);
+	it = _mapContent.find(pathArray[0]);
 	auto nodeFound = it->second;
-	_mapContent.unlock(firstPart);
+	_mapContent.unlock(pathArray[0]);
 
-	return nodeFound->RegisterVariable(strPathName.substr(firstPart.size() + 1), nType, pAddress, managed);
+	return nodeFound->_RegisterVariable(pathArray + 1, nType, pAddress, managed);
 }
 
 CSTXMemoryVariableNode::CSTXMemoryVariableNode()
@@ -180,29 +155,44 @@ void* CSTXMemoryVariableNode::GetVariablePtr(std::wstring strPathName)
 
 std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::GetVariableNode(std::wstring strPathName)
 {
-	std::vector<std::wstring> arrParts;
-	SplitString(strPathName.c_str(), _T('\\'), arrParts);
+	//return Call<std::shared_ptr<CSTXMemoryVariableNode>>(&CSTXMemoryVariableNode::_GetVariableNode, strPathName);
 
-	if (arrParts.size() == 0)
-		return NULL;
-
-	std::wstring firstPart = arrParts[0];
-	_mapContent.lock(firstPart);
-	auto it = _mapContent.find(firstPart);
-	if (it == _mapContent.end(firstPart))
+	std::vector<wchar_t*> pathArray;
+	wchar_t *str = (wchar_t*)strPathName.data();
+	wchar_t* pch;
+	wchar_t *next_token = NULL;
+	pch = _tcstok_s(str, _T("\\/"), &next_token);
+	while (pch != NULL)
 	{
-		_mapContent.unlock(firstPart);
+		pathArray.push_back(pch);
+		pch = _tcstok_s(NULL, _T("\\/"), &next_token);
+	}
+	pathArray.push_back(nullptr);
+
+	return _GetVariableNode(&pathArray[0]);
+}
+
+std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::_GetVariableNode(wchar_t **pathArray)
+{
+	if (pathArray[0] == nullptr)
+		return nullptr;
+
+	_mapContent.lock(pathArray[0]);
+	auto it = _mapContent.find(pathArray[0]);
+	if (it == _mapContent.end(pathArray[0]))
+	{
+		_mapContent.unlock(pathArray[0]);
 		return NULL;
 	}
 	auto nodeFound = it->second;
-	_mapContent.unlock(firstPart);
+	_mapContent.unlock(pathArray[0]);
 
-	if (arrParts.size() == 1)
+	if (pathArray[1] == nullptr)
 	{
 		return nodeFound;
 	}
 
-	return nodeFound->GetVariableNode(strPathName.substr(firstPart.size() + 1));
+	return nodeFound->_GetVariableNode(pathArray + 1);
 }
 
 int CSTXMemoryVariableNode::GetVariableType(std::wstring strPathName)
@@ -221,31 +211,46 @@ int CSTXMemoryVariableNode::GetThisVariableType()
 
 void CSTXMemoryVariableNode::UnregisterVariable(std::wstring strPathName)
 {
-	std::vector<std::wstring> arrParts;
-	SplitString(strPathName.c_str(), _T('\\'), arrParts);
+	//Call<void>(&CSTXMemoryVariableNode::_UnregisterVariable, strPathName);
 
-	if (arrParts.size() == 0)
+	std::vector<wchar_t*> pathArray;
+	wchar_t *str = (wchar_t*)strPathName.data();
+	wchar_t* pch;
+	wchar_t *next_token = NULL;
+	pch = _tcstok_s(str, _T("\\/"), &next_token);
+	while (pch != NULL)
+	{
+		pathArray.push_back(pch);
+		pch = _tcstok_s(NULL, _T("\\/"), &next_token);
+	}
+	pathArray.push_back(nullptr);
+
+	return _UnregisterVariable(&pathArray[0]);
+}
+
+void CSTXMemoryVariableNode::_UnregisterVariable(wchar_t **pathArray)
+{
+	if (pathArray[0] == nullptr)
 		return;
 
-	if (arrParts.size() == 1)
+	if (pathArray[1] == nullptr)
 	{
-		_mapContent.erase(strPathName);
+		_mapContent.erase(pathArray[0]);
 		return;
 	}
 
-	std::wstring firstPart = arrParts[0];
-	_mapContent.lock(firstPart);
-	auto it = _mapContent.find(firstPart);
-	if (it == _mapContent.end(firstPart))
+	_mapContent.lock(pathArray[0]);
+	auto it = _mapContent.find(pathArray[0]);
+	if (it == _mapContent.end(pathArray[0]))
 	{
-		_mapContent.unlock(firstPart);
+		_mapContent.unlock(pathArray[0]);
 		return;
 	}
 
 	auto nodeFound = it->second;
-	_mapContent.unlock(firstPart);
+	_mapContent.unlock(pathArray[0]);
 
-	nodeFound->UnregisterVariable(strPathName.substr(firstPart.size() + 1));
+	nodeFound->_UnregisterVariable(pathArray + 1);
 }
 
 void CSTXMemoryVariableNode::SetStringValue(std::wstring strPathName, std::wstring strValue)

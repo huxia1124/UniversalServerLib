@@ -69,6 +69,26 @@ protected:
 
 	CSTXHashMap<std::wstring, std::shared_ptr<CSTXMemoryVariableNode>, 8, 1, CSTXDefaultWStringHash<8, 1>> _mapContent;
 
+
+public:
+	template<typename ReturnType, typename...ArgsOriginal, typename...Args>
+	ReturnType Call(ReturnType(CSTXMemoryVariableNode::*pfn)(ArgsOriginal...argsOriginal), std::wstring strPathName, Args...args)
+	{
+		std::vector<wchar_t*> pathArray;
+		wchar_t *str = (wchar_t*)strPathName.data();
+		wchar_t* pch;
+		wchar_t *next_token = NULL;
+		pch = _tcstok_s(str, _T("\\/"), &next_token);
+		while (pch != NULL)
+		{
+			pathArray.push_back(pch);
+			pch = _tcstok_s(NULL, _T("\\/"), &next_token);
+		}
+		pathArray.push_back(nullptr);
+
+		return (this->*pfn)(&pathArray[0], args...);
+	}
+
 protected:
 	bool IsNewTypeAcceptable(int newType);
 	std::wstring GetStringValue(void *ptr, int dataType);
@@ -79,6 +99,13 @@ protected:
 	void UnlockValue();
 	bool IsContainStringValue(void *ptr, int dataType, std::wstring strValue);
 	bool IsContainIntegerValue(void *ptr, int dataType, int64_t value);
+
+protected:
+	std::shared_ptr<CSTXMemoryVariableNode> _RegisterVariable(wchar_t **pathArray, STXVariableTreeNodeType nType, void* pAddress, bool managed);
+	std::shared_ptr<CSTXMemoryVariableNode> _GetVariableNode(wchar_t **pathArray);
+	void _UnregisterVariable(wchar_t **pathArray);
+
+
 
 public:
 	std::shared_ptr<CSTXMemoryVariableNode> RegisterVariable(std::wstring strPathName, STXVariableTreeNodeType nType, void* pAddress, bool managed);

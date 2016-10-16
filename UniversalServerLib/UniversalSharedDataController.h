@@ -125,7 +125,14 @@ public:
 			return 0;
 		}
 	}
-	
+public:
+	std::shared_ptr<CSTXMemoryVariableNode> GetInternalNode()
+	{
+		return _rootNode;
+	}
+
+public:
+
 	//Get child nodes
 	int GetNodes(lua_State* L)
 	{
@@ -150,6 +157,7 @@ public:
 		_rootNode->GetThisValues(&values);
 		return LuaIntf::CppFunctor::make<CSTXMemoryVariableValueIterator<double>>(L, std::move(values), _rootNode->GetThisVariableType()); // ... is constructor auguments
 	}
+
 
 public:
 	std::wstring GetName();

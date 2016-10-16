@@ -222,10 +222,10 @@ protected:
 	std::atomic<long long> _totalSentCount;
 	std::atomic<long long> _totalReceivedCount;
 
-	CStatisticsBuffer<long long, 30> _statisticsSentBytes;
-	CStatisticsBuffer<long long, 30> _statisticsSentCount;
-	CStatisticsBuffer<long long, 30> _statisticsReceiveBytes;
-	CStatisticsBuffer<long long, 30> _statisticsReceiveCount;
+	CStatisticsBuffer<long long, 20> _statisticsSentBytes;
+	CStatisticsBuffer<long long, 20> _statisticsSentCount;
+	CStatisticsBuffer<long long, 20> _statisticsReceiveBytes;
+	CStatisticsBuffer<long long, 20> _statisticsReceiveCount;
 
 protected:
 	virtual CSTXServerContextBase* OnCreateServerContext();
@@ -319,7 +319,6 @@ protected:
 			return FALSE;
 		}
 
-		LuaIntf::CppObjectSharedPtr<std::shared_ptr<T>, T>* pSp = (LuaIntf::CppObjectSharedPtr<std::shared_ptr<T>, T>*)p;
 		return TRUE;
 	}
 

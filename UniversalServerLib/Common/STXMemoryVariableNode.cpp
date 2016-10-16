@@ -38,44 +38,41 @@ std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::_RegisterVariabl
 	if (pathArray[0] == nullptr)
 		return result;
 
-	if (pathArray[1] == nullptr)
-	{
-		_mapContent.lock(pathArray[0]);
-		auto it = _mapContent.find(pathArray[0]);
-		std::shared_ptr<CSTXMemoryVariableNode> newVariable;
-		if (it == _mapContent.end(pathArray[0]))
+
+	_mapContent.findValueAndPerform(pathArray[0], nullptr, [&](std::shared_ptr<CSTXMemoryVariableNode>& node) {
+		if (pathArray[1] == nullptr)
 		{
-			newVariable = std::make_shared<CSTXMemoryVariableNode>();
-			_mapContent[pathArray[0]] = newVariable;
+			node->_type = nType;
+			node->_ptr = pAddress;
+			node->_parentNode = this;
+			node->_name = pathArray[0];
+			node->_managedValue = managed;
+			result = node;
+		}
+		else
+		{
+			result = node->_RegisterVariable(pathArray + 1, nType, pAddress, managed);
+		}
+	}, [&](std::map<std::wstring, std::shared_ptr<CSTXMemoryVariableNode>> &innerMap) {
+		auto newVariable = std::make_shared<CSTXMemoryVariableNode>();
+		innerMap[pathArray[0]] = newVariable;
+
+		if (pathArray[1] == nullptr)
+		{
 			newVariable->_type = nType;
 			newVariable->_ptr = pAddress;
 			newVariable->_parentNode = this;
 			newVariable->_name = pathArray[0];
 			newVariable->_managedValue = managed;
+			result = newVariable;
 		}
 		else
 		{
-			newVariable = it->second;
+			result = newVariable->_RegisterVariable(pathArray + 1, nType, pAddress, managed);
 		}
-		_mapContent.unlock(pathArray[0]);
+	});
 
-		return newVariable;
-	}
-
-	_mapContent.lock(pathArray[0]);
-	auto it = _mapContent.find(pathArray[0]);
-	if (it == _mapContent.end(pathArray[0]))
-	{
-		auto newVariable = std::make_shared<CSTXMemoryVariableNode>();
-		_mapContent[pathArray[0]] = newVariable;
-		newVariable->_parentNode = this;
-		newVariable->_name = pathArray[0];
-	}
-	it = _mapContent.find(pathArray[0]);
-	auto nodeFound = it->second;
-	_mapContent.unlock(pathArray[0]);
-
-	return nodeFound->_RegisterVariable(pathArray + 1, nType, pAddress, managed);
+	return result;
 }
 
 CSTXMemoryVariableNode::CSTXMemoryVariableNode()
@@ -172,7 +169,7 @@ std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::GetVariableNode(
 	}
 	pathArray[i] = nullptr;
 
-	return _GetVariableNode(&pathArray[0]);
+	return _GetVariableNode(pathArray);
 }
 
 std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::_GetVariableNode(wchar_t **pathArray)
@@ -180,17 +177,19 @@ std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::_GetVariableNode
 	if (pathArray[0] == nullptr)
 		return nullptr;
 
-	_mapContent.lock(pathArray[0]);
-	auto it = _mapContent.find(pathArray[0]);
-	if (it == _mapContent.end(pathArray[0]))
-	{
-		_mapContent.unlock(pathArray[0]);
-		return NULL;
-	}
-	auto nodeFound = it->second;
-	_mapContent.unlock(pathArray[0]);
+	//_mapContent.lock(pathArray[0]);
+	//auto it = _mapContent.find(pathArray[0]);
+	//if (it == _mapContent.end(pathArray[0]))
+	//{
+	//	_mapContent.unlock(pathArray[0]);
+	//	return NULL;
+	//}
+	//auto nodeFound = it->second;
+	//_mapContent.unlock(pathArray[0]);
 
-	if (pathArray[1] == nullptr)
+	auto nodeFound = _mapContent.findValue(pathArray[0], nullptr);
+
+	if (pathArray[1] == nullptr || nodeFound == nullptr)
 	{
 		return nodeFound;
 	}
@@ -243,18 +242,11 @@ void CSTXMemoryVariableNode::_UnregisterVariable(wchar_t **pathArray)
 		return;
 	}
 
-	_mapContent.lock(pathArray[0]);
-	auto it = _mapContent.find(pathArray[0]);
-	if (it == _mapContent.end(pathArray[0]))
-	{
-		_mapContent.unlock(pathArray[0]);
-		return;
-	}
+	_mapContent.findValueAndPerform(pathArray[0], nullptr, [&](std::shared_ptr<CSTXMemoryVariableNode>&node) {
+		node->_UnregisterVariable(pathArray + 1);
+	}, [&](std::map<std::wstring, std::shared_ptr<CSTXMemoryVariableNode>> &innerMap) {
 
-	auto nodeFound = it->second;
-	_mapContent.unlock(pathArray[0]);
-
-	nodeFound->_UnregisterVariable(pathArray + 1);
+	});
 }
 
 void CSTXMemoryVariableNode::SetStringValue(std::wstring strPathName, std::wstring strValue)

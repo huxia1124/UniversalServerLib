@@ -362,3 +362,8 @@ void CServerController::ChangeTimerInterval(unsigned int interval)
 {
 	_server->ChangeTimerInterval(interval);
 }
+
+long long CServerController::GetNextClientUID()
+{
+	return _server->GetNextClientUID();
+}

@@ -96,5 +96,6 @@ public:
 	void SetTimerScript(std::wstring scriptFile);
 	void SetWorkerThreadInitializationScript(std::wstring scriptFile);
 	void ChangeTimerInterval(unsigned int interval);
+	long long GetNextClientUID();
 };
 

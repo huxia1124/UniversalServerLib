@@ -176,6 +176,7 @@ public:
 	virtual ~CUniversalIOCPServer();
 
 protected:
+	static std::atomic<__int64> _s_nClientUIDBase;
 	CSTXHashMap<__int64, CUniversalIOCPServerClientContext*, 256, 8> _mapClients;
 	CSTXHashMap<__int64, CUniversalIOCPServerClientContext*, 4, 8> _mapLogMonitorClients;
 	CSTXHashMap<__int64, CUniversalIOCPServerClientContext*, 4, 8> _mapDebugMonitorClients;
@@ -392,6 +393,7 @@ protected:
 
 public:
 	static std::wstring GetFileContentText(LPCTSTR lpszFile, BOOL *pbResult = NULL);
+	static __int64 GetNextClientUID();
 	
 
 

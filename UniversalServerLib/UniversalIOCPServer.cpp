@@ -61,6 +61,9 @@ namespace LuaIntf
 	LUA_USING_SHARED_PTR_TYPE(std::shared_ptr)
 }
 
+std::atomic<__int64> CUniversalIOCPServer::_s_nClientUIDBase = 0;
+
+
 CUniversalIOCPServer::CUniversalIOCPServer()
 {
 	_logMonitorCount = 0;
@@ -253,7 +256,6 @@ CSTXServerContextBase* CUniversalIOCPServer::OnCreateServerContext()
 
 CSTXIOCPServerClientContext * CUniversalIOCPServer::OnCreateClientContext(tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext)
 {
-	static __int64 nUIDBase = 0;
 	CUniversalIOCPServerClientContext *pNewClient = new CUniversalIOCPServerClientContext();
 	if (pNewClient == NULL)
 	{
@@ -261,7 +263,7 @@ CSTXIOCPServerClientContext * CUniversalIOCPServer::OnCreateClientContext(tr1::s
 		return NULL;
 	}
 
-	pNewClient->_uid = nUIDBase++;
+	pNewClient->_uid = _s_nClientUIDBase++;
 	pNewClient->_serverType = (TcpServerType)pServerContext->GetServerParam();
 
 	_mapClients[pNewClient->_uid] = pNewClient;
@@ -722,13 +724,9 @@ void CUniversalIOCPServer::OnHttpRequest(CSTXIOCPServerClientContext *pClientCon
 
 void CUniversalIOCPServer::SendRawResponseData(__int64 nClientUID, LPVOID pData, unsigned int nDataLen)
 {
-	_mapClients.lock(nClientUID);
-	auto it = _mapClients.find(nClientUID);
-	if (it != _mapClients.end(nClientUID))
-	{
-		SendClientData(it->second, pData, nDataLen);
-	}
-	_mapClients.unlock(nClientUID);
+	_mapClients.findValueAndPerform(nClientUID, nullptr, [&](CUniversalIOCPServerClientContext *& pClientContext){
+		SendClientData(pClientContext, pData, nDataLen);
+	}, nullptr);
 }
 
 void CUniversalIOCPServer::SendRawResponseDataToAdminClients(LPVOID pData, unsigned int nDataLen)
@@ -758,13 +756,9 @@ void CUniversalIOCPServer::SendRawResponseDataToDebugMonitors(LPVOID pData, unsi
 
 void CUniversalIOCPServer::SendWebSocketResponseData(__int64 nClientUID, LPVOID pData, unsigned int nDataLen)
 {
-	_mapClients.lock(nClientUID);
-	auto it = _mapClients.find(nClientUID);
-	if (it != _mapClients.end(nClientUID))
-	{
-		SendWebSocketResponseData(it->second, pData, nDataLen);
-	}
-	_mapClients.unlock(nClientUID);
+	_mapClients.findValueAndPerform(nClientUID, nullptr, [&](CUniversalIOCPServerClientContext *& pClientContext) {
+		SendWebSocketResponseData(pClientContext, pData, nDataLen);
+	}, nullptr);
 }
 
 void CUniversalIOCPServer::SendWebSocketResponseData(CSTXIOCPServerClientContext *pClientContext, LPVOID pData, unsigned int nDataLen)
@@ -826,13 +820,9 @@ void CUniversalIOCPServer::SendHttpResponseData(CSTXIOCPServerClientContext *pCl
 
 void CUniversalIOCPServer::SendHttpResponseData(__int64 nClientUID, unsigned int nResponseCode, const char* pszContentType, LPVOID pData, unsigned int nDataLen)
 {
-	_mapClients.lock(nClientUID);
-	auto it = _mapClients.find(nClientUID);
-	if (it != _mapClients.end(nClientUID))
-	{
-		SendHttpResponseData(it->second, nResponseCode, pszContentType, pData, nDataLen);
-	}
-	_mapClients.unlock(nClientUID);
+	_mapClients.findValueAndPerform(nClientUID, nullptr, [&](CUniversalIOCPServerClientContext *& pClientContext) {
+		SendHttpResponseData(pClientContext, nResponseCode, pszContentType, pData, nDataLen);
+	}, nullptr);
 }
 
 void CUniversalIOCPServer::Parse(const char *pszHeader, void* pUserData, const char *pHeaderEnd)
@@ -1314,13 +1304,9 @@ void CUniversalIOCPServer::OnUrlDownloadComplete(LPSTXIOCPSERVERHTTPCONTEXT pCon
 
 void CUniversalIOCPServer::SetTcpClientTimeout(__int64 nClientUID, DWORD dwTimeout)
 {
-	_mapClients.lock(nClientUID);
-	auto it = _mapClients.find(nClientUID);
-	if (it != _mapClients.end(nClientUID))
-	{
-		it->second->SetOperationTimeout(dwTimeout);
-	}
-	_mapClients.unlock(nClientUID);
+	_mapClients.findValueAndPerform(nClientUID, nullptr, [&](CUniversalIOCPServerClientContext *& pClientContext) {
+		pClientContext->SetOperationTimeout(dwTimeout);
+	}, nullptr);
 }
 
 void CUniversalIOCPServer::SetTcpClientRole(__int64 nClientUID, UniversalTcpClientRole role)
@@ -1328,14 +1314,10 @@ void CUniversalIOCPServer::SetTcpClientRole(__int64 nClientUID, UniversalTcpClie
 	CUniversalIOCPServerClientContext *pClient = NULL;
 	UniversalTcpClientRole oldRole = UniversalTcpClientRole_Default;
 
-	_mapClients.lock(nClientUID);
-	auto it = _mapClients.find(nClientUID);
-	if (it != _mapClients.end(nClientUID))
-	{
-		oldRole = it->second->SetRole(role);
-		pClient = it->second;
-	}
-	_mapClients.unlock(nClientUID);
+	_mapClients.findValueAndPerform(nClientUID, nullptr, [&](CUniversalIOCPServerClientContext *& pClientContext) {
+		oldRole = pClientContext->SetRole(role);
+		pClient = pClientContext;
+	}, nullptr);
 
 	if (pClient)
 	{
@@ -1603,30 +1585,24 @@ void CUniversalIOCPServer::OnFileChangedFiltered(CSTXIOCPFolderMonitorContext *p
 
 void CUniversalIOCPServer::SetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, LPCTSTR lpszValue)
 {
-	_mapClients.lock(nClientUID);
-	auto it = _mapClients.find(nClientUID);
-	if (it != _mapClients.end(nClientUID))
-	{
-		it->second->_userDataStringMap[lpszKey] = lpszValue;
-	}
-	_mapClients.unlock(nClientUID);
+	_mapClients.findValueAndPerform(nClientUID, nullptr, [&](CUniversalIOCPServerClientContext *& pClientContext) {
+		pClientContext->_userDataStringMap[lpszKey] = lpszValue;
+	}, nullptr);
 }
 
 BOOL CUniversalIOCPServer::GetClientUserDataString(__int64 nClientUID, LPCTSTR lpszKey, std::wstring& valueOut)
 {
 	BOOL bResult = FALSE;
-	_mapClients.lock(nClientUID);
-	auto it = _mapClients.find(nClientUID);
-	if (it != _mapClients.end(nClientUID))
-	{
-		auto itUDM = it->second->_userDataStringMap.find(lpszKey);
-		if (itUDM != it->second->_userDataStringMap.end())
+
+	_mapClients.findValueAndPerform(nClientUID, nullptr, [&](CUniversalIOCPServerClientContext *& pClientContext) {
+		auto itUDM = pClientContext->_userDataStringMap.find(lpszKey);
+		if (itUDM != pClientContext->_userDataStringMap.end())
 		{
 			valueOut = itUDM->second;
 			bResult = TRUE;
 		}
-	}
-	_mapClients.unlock(nClientUID);
+	}, nullptr);
+
 	return bResult;
 }
 
@@ -2066,26 +2042,19 @@ long long CUniversalIOCPServer::GetReceivedCountPerSecond()
 UniversalTcpClientRole CUniversalIOCPServer::GetTcpClientRole(__int64 nClientUID)
 {
 	UniversalTcpClientRole role = UniversalTcpClientRole_Default;
-	_mapClients.lock(nClientUID);
-	auto it = _mapClients.find(nClientUID);
-	if (it != _mapClients.end(nClientUID))
-	{
-		role = it->second->GetRole();
-	}
-	_mapClients.unlock(nClientUID);
+
+	_mapClients.findValueAndPerform(nClientUID, nullptr, [&](CUniversalIOCPServerClientContext *& pClientContext) {
+		role = pClientContext->GetRole();
+	}, nullptr);
 
 	return role;
 }
 
 void CUniversalIOCPServer::DisconnectTcpClient(__int64 nClientUID)
 {
-	_mapClients.lock(nClientUID);
-	auto it = _mapClients.find(nClientUID);
-	if (it != _mapClients.end(nClientUID))
-	{
-		DisconnectClient(it->second);
-	}
-	_mapClients.unlock(nClientUID);
+	_mapClients.findValueAndPerform(nClientUID, nullptr, [&](CUniversalIOCPServerClientContext *& pClientContext) {
+		DisconnectClient(pClientContext);
+	}, nullptr);
 }
 
 void CUniversalIOCPServer::EnqueueWorkerThreadScript(LPCTSTR lpszScriptString)
@@ -2609,6 +2578,11 @@ std::wstring CUniversalIOCPServer::GetFileContentText(LPCTSTR lpszFile, BOOL *pb
 	}
 
 	return strFileContent;
+}
+
+__int64 CUniversalIOCPServer::GetNextClientUID()
+{
+	return _s_nClientUIDBase;
 }
 
 LPVOID CUniversalIOCPServer::OnAllocateWorkerThreadLocalStorage()

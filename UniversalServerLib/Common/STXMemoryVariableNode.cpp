@@ -2,6 +2,7 @@
 #include "STXMemoryVariableNode.h"
 #include <tchar.h>
 #include <iterator>
+#include <array>
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -15,17 +16,18 @@ std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::RegisterVariable
 {
 	//return Call<std::shared_ptr<CSTXMemoryVariableNode>>(&CSTXMemoryVariableNode::_RegisterVariable, strPathName, nType, pAddress, managed);
 
-	std::vector<wchar_t*> pathArray;
+	wchar_t* pathArray[64];
+	size_t i = 0;
 	wchar_t *str = (wchar_t*)strPathName.data();
 	wchar_t* pch;
 	wchar_t *next_token = NULL;
 	pch = _tcstok_s(str, _T("\\/"), &next_token);
 	while (pch != NULL)
 	{
-		pathArray.push_back(pch);
+		pathArray[i++] = pch;
 		pch = _tcstok_s(NULL, _T("\\/"), &next_token);
 	}
-	pathArray.push_back(nullptr);
+	pathArray[i] = nullptr;
 
 	return _RegisterVariable(&pathArray[0], nType, pAddress, managed);
 }
@@ -157,17 +159,18 @@ std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::GetVariableNode(
 {
 	//return Call<std::shared_ptr<CSTXMemoryVariableNode>>(&CSTXMemoryVariableNode::_GetVariableNode, strPathName);
 
-	std::vector<wchar_t*> pathArray;
+	wchar_t* pathArray[64];
+	size_t i = 0;
 	wchar_t *str = (wchar_t*)strPathName.data();
 	wchar_t* pch;
 	wchar_t *next_token = NULL;
 	pch = _tcstok_s(str, _T("\\/"), &next_token);
 	while (pch != NULL)
 	{
-		pathArray.push_back(pch);
+		pathArray[i++] = pch;
 		pch = _tcstok_s(NULL, _T("\\/"), &next_token);
 	}
-	pathArray.push_back(nullptr);
+	pathArray[i] = nullptr;
 
 	return _GetVariableNode(&pathArray[0]);
 }
@@ -213,17 +216,18 @@ void CSTXMemoryVariableNode::UnregisterVariable(std::wstring strPathName)
 {
 	//Call<void>(&CSTXMemoryVariableNode::_UnregisterVariable, strPathName);
 
-	std::vector<wchar_t*> pathArray;
+	wchar_t* pathArray[64];
+	size_t i = 0;
 	wchar_t *str = (wchar_t*)strPathName.data();
 	wchar_t* pch;
 	wchar_t *next_token = NULL;
 	pch = _tcstok_s(str, _T("\\/"), &next_token);
 	while (pch != NULL)
 	{
-		pathArray.push_back(pch);
+		pathArray[i++] = pch;
 		pch = _tcstok_s(NULL, _T("\\/"), &next_token);
 	}
-	pathArray.push_back(nullptr);
+	pathArray[i] = nullptr;
 
 	return _UnregisterVariable(&pathArray[0]);
 }

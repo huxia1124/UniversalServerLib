@@ -56,10 +56,10 @@ typedef void*(*pfn_get_date_for_add_loaded_entry)();
 extern pfn_get_date_for_add_loaded_entry g_pfnGetDataForAddLoadedModuleEntry;
 }
 
-namespace LuaIntf
-{
-	LUA_USING_SHARED_PTR_TYPE(std::shared_ptr)
-}
+//namespace LuaIntf
+//{
+//	LUA_USING_SHARED_PTR_TYPE(std::shared_ptr)
+//}
 
 std::atomic<__int64> CUniversalIOCPServer::_s_nClientUIDBase = 0;
 
@@ -1123,6 +1123,11 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 			strMsg.resize(dwBase64Len);
 			CryptBinaryToStringA(pDataBuffer, nBufferLen, CRYPT_STRING_BASE64, (char*)strMsg.c_str(), &dwBase64Len);
 			return strMsg;
+		}).addFunction("GetSharedDataNode", [&] (LuaIntf::LuaRef luaObj) {
+			return pClient->_clientSharedDataRootNode;
+		}).addFunction("SetSharedDataNode", [&] (LuaIntf::LuaRef luaObj, LuaIntf::LuaRef luaParam) {
+			auto val = luaParam.toValue<std::shared_ptr<CUniversalSharedDataTree>>();
+			pClient->_clientSharedDataRootNode = val;
 		}).endModule();
 
 		if (pClient->_serverType == TcpServerTypeBinaryHeaderV)

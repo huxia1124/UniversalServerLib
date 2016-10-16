@@ -25,6 +25,7 @@
 #include "UniversalServerInternal.h"
 #include "UniversalStringCache.h"
 #include <functional>
+#include "UniversalSharedDataController.h"
 
 extern "C"
 {
@@ -134,6 +135,7 @@ public:
 	UniversalTcpClientRole _role = UniversalTcpClientRole_Default;
 	concurrency::concurrent_unordered_map<std::wstring, std::wstring> _userDataStringMap;
 	BOOL _webSocketProtocolMode;
+	std::shared_ptr<CUniversalSharedDataTree> _clientSharedDataRootNode;
 
 protected:
 	//for HTTP

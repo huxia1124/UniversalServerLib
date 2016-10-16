@@ -155,6 +155,36 @@ public:
 
 		return refResult;
 	}
+	TValue findValue(TKey _Keyval, TValue defaultValue)
+	{
+		size_t nHashed = THashClass()(_Keyval);
+		HashMapValue &value = _mapValues[nHashed];
+		value.Lock();
+		_Type_iterator refResult = value.mapContent.find(_Keyval);
+		if (refResult != value.mapContent.end())
+			defaultValue = refResult->second;
+		value.Unlock();
+		return defaultValue;
+	}
+	TValue findValueAndPerform(TKey _Keyval, TValue defaultValue, std::function<void(TValue&)> pfnFoundPerform, std::function<void(std::map<TKey, TValue>&)> pfnFailPerform)
+	{
+		size_t nHashed = THashClass()(_Keyval);
+		HashMapValue &value = _mapValues[nHashed];
+		value.Lock();
+		_Type_iterator refResult = value.mapContent.find(_Keyval);
+		if (refResult != value.mapContent.end())
+		{
+			defaultValue = refResult->second;
+			pfnFoundPerform(defaultValue);
+		}
+		else
+		{
+			if (pfnFailPerform)
+				pfnFailPerform(value.mapContent);
+		}
+		value.Unlock();
+		return defaultValue;
+	}
 // 	_Type_iterator begin()	//No default implements
 	_Type_iterator end(TKey _Keyval)
 	{
@@ -327,6 +357,36 @@ public:
 
 		return refResult;
 	}
+	TValue findValue(std::string _Keyval, TValue defaultValue)
+	{
+		size_t nHashed = CSTXDefaultStringHash<nHashSize, nStep>()(_Keyval);
+		HashMapValue &value = _mapValues[nHashed];
+		value.Lock();
+		_Type_iterator refResult = value.mapContent.find(_Keyval);
+		if (refResult != value.mapContent.end())
+			defaultValue = refResult->second;
+		value.Unlock();
+		return defaultValue;
+	}
+	TValue findValueAndPerform(std::string _Keyval, TValue defaultValue, std::function<void(TValue&)> pfnFoundPerform, std::function<void(std::map<std::string, TValue>&)> pfnFailPerform)
+	{
+		size_t nHashed = CSTXDefaultStringHash<nHashSize, nStep>()(_Keyval);
+		HashMapValue &value = _mapValues[nHashed];
+		value.Lock();
+		_Type_iterator refResult = value.mapContent.find(_Keyval);
+		if (refResult != value.mapContent.end())
+		{
+			defaultValue = refResult->second;
+			pfnFoundPerform(defaultValue);
+		}
+		else
+		{
+			if (pfnFailPerform)
+				pfnFailPerform(value.mapContent);
+		}
+		value.Unlock();
+		return defaultValue;
+	}
 	// 	_Type_iterator begin()	//No default implements
 	_Type_iterator end(std::string _Keyval)
 	{
@@ -498,6 +558,37 @@ public:
 
 		return refResult;
 	}
+	TValue findValue(std::wstring _Keyval, TValue defaultValue)
+	{
+		size_t nHashed = CSTXDefaultWStringHash<nHashSize, nStep>()(_Keyval);
+		HashMapValue &value = _mapValues[nHashed];
+		value.Lock();
+		_Type_iterator refResult = value.mapContent.find(_Keyval);
+		if (refResult != value.mapContent.end())
+			defaultValue = refResult->second;
+		value.Unlock();
+		return defaultValue;
+	}
+	TValue findValueAndPerform(std::wstring _Keyval, TValue defaultValue, std::function<void(TValue&)> pfnFoundPerform, std::function<void(std::map<std::wstring, TValue>&)> pfnFailPerform)
+	{
+		size_t nHashed = CSTXDefaultWStringHash<nHashSize, nStep>()(_Keyval);
+		HashMapValue &value = _mapValues[nHashed];
+		value.Lock();
+		_Type_iterator refResult = value.mapContent.find(_Keyval);
+		if (refResult != value.mapContent.end())
+		{
+			defaultValue = refResult->second;
+			pfnFoundPerform(defaultValue);
+		}
+		else
+		{
+			if(pfnFailPerform)
+				pfnFailPerform(value.mapContent);
+		}
+		value.Unlock();
+		return defaultValue;
+	}
+
 	// 	_Type_iterator begin()	//No default implements
 	_Type_iterator end(std::wstring _Keyval)
 	{
@@ -670,6 +761,18 @@ public:
 
 		return refResult;
 	}
+	bool isValueExists(TKey _Keyval)
+	{
+		bool result = false;
+		size_t nHashed = THashClass()(_Keyval);
+		HashSetValue &value = _mapValues[nHashed];
+		value.Lock();
+		_Type_iterator refResult = value.setContent.find(_Keyval);
+		if (refResult != value.setContent.end())
+			result = true;
+		value.Unlock();
+		return result;
+	}
 	void insert( TKey _Keyval )
 	{
 		size_t nHashed = THashClass()(_Keyval);
@@ -738,8 +841,8 @@ size_t CSTXHashSet<TKey, nHashSize, nStep, THashClass>::erase( TKey _Keyval )
 //////////////////////////////////////////////////////////////////////////
 // CSTXHashSet for std::string
 
-template<int nHashSize, int nStep, typename THashClass>
-class CSTXHashSet<std::string, nHashSize, nStep, THashClass>
+template<int nHashSize, int nStep>
+class CSTXHashSet<std::string, nHashSize, nStep, CSTXDefaultStringHash<nHashSize, nStep>>
 {
 public:
 	CSTXHashSet()
@@ -803,7 +906,7 @@ public:
 public:
 	_Type_iterator erase( _Type_iterator _itval )
 	{
-		size_t nHashed = THashClass()(*_itval);
+		size_t nHashed = CSTXDefaultStringHash<nHashSize, nStep>()(*_itval);
 		HashSetValue &value = _mapValues[nHashed];
 		value.Lock();
 		_Type_iterator refResult = value.setContent.erase(_itval);
@@ -813,7 +916,7 @@ public:
 	}
 	_Type_iterator find( std::string _Keyval )
 	{
-		size_t nHashed = THashClass()(_Keyval);
+		size_t nHashed = CSTXDefaultStringHash<nHashSize, nStep>()(_Keyval);
 		HashSetValue &value = _mapValues[nHashed];
 		value.Lock();
 		_Type_iterator refResult = value.setContent.find(_Keyval);
@@ -821,9 +924,21 @@ public:
 
 		return refResult;
 	}
+	bool isValueExists(std::string _Keyval)
+	{
+		bool result = false;
+		size_t nHashed = CSTXDefaultStringHash<nHashSize, nStep>()(_Keyval);
+		HashSetValue &value = _mapValues[nHashed];
+		value.Lock();
+		_Type_iterator refResult = value.setContent.find(_Keyval);
+		if (refResult != value.setContent.end())
+			result = true;
+		value.Unlock();
+		return result;
+	}
 	void insert( std::string _Keyval )
 	{
-		size_t nHashed = THashClass()(_Keyval);
+		size_t nHashed = CSTXDefaultStringHash<nHashSize, nStep>()(_Keyval);
 		HashSetValue &value = _mapValues[nHashed];
 		value.Lock();
 		value.setContent.insert(_Keyval);
@@ -831,7 +946,7 @@ public:
 	}
 	_Type_iterator end(std::string _Keyval)
 	{
-		size_t nHashed = THashClass()(_Keyval);
+		size_t nHashed = CSTXDefaultStringHash<nHashSize, nStep>()(_Keyval);
 		HashSetValue &value = _mapValues[nHashed];
 		return value.setContent.end();
 	}
@@ -848,20 +963,20 @@ public:
 	}
 	void lock(std::string _Keyval)
 	{
-		size_t nHashed = THashClass()(_Keyval);
+		size_t nHashed = CSTXDefaultStringHash<nHashSize, nStep>()(_Keyval);
 		HashSetValue &value = _mapValues[nHashed];
 		value.Lock();
 	}
 	void unlock(std::string _Keyval)
 	{
-		size_t nHashed = THashClass()(_Keyval);
+		size_t nHashed = CSTXDefaultStringHash<nHashSize, nStep>()(_Keyval);
 		HashSetValue &value = _mapValues[nHashed];
 		value.Unlock();
 	}
 };
 
-template<int nHashSize /*= 8*/, int nStep /*= 1*/, typename THashClass>
-size_t CSTXHashSet<std::string, nHashSize, nStep, THashClass>::size()
+template<int nHashSize /*= 8*/, int nStep /*= 1*/>
+size_t CSTXHashSet<std::string, nHashSize, nStep, CSTXDefaultStringHash<nHashSize, nStep>>::size()
 {
 	size_t sizeTotal = 0;
 	for(size_t i=0;i<nHashSize;i++)
@@ -872,8 +987,8 @@ size_t CSTXHashSet<std::string, nHashSize, nStep, THashClass>::size()
 }
 
 
-template<int nHashSize /*= 8*/, int nStep /*= 1*/, typename THashClass>
-size_t CSTXHashSet<std::string, nHashSize, nStep, THashClass>::erase(std::string _Keyval)
+template<int nHashSize /*= 8*/, int nStep /*= 1*/>
+size_t CSTXHashSet<std::string, nHashSize, nStep, CSTXDefaultStringHash<nHashSize, nStep>>::erase(std::string _Keyval)
 {
 	size_t nHashed = THashClass()(_Keyval);
 	HashSetValue &value = _mapValues[nHashed];
@@ -889,8 +1004,8 @@ size_t CSTXHashSet<std::string, nHashSize, nStep, THashClass>::erase(std::string
 //////////////////////////////////////////////////////////////////////////
 // CSTXHashSet for std::wstring
 
-template<int nHashSize, int nStep, typename THashClass>
-class CSTXHashSet < std::wstring, nHashSize, nStep, THashClass>
+template<int nHashSize, int nStep>
+class CSTXHashSet < std::wstring, nHashSize, nStep, CSTXDefaultWStringHash<nHashSize, nStep>>
 {
 public:
 	CSTXHashSet()
@@ -954,7 +1069,7 @@ public:
 public:
 	_Type_iterator erase( _Type_iterator _itval )
 	{
-		size_t nHashed = THashClass()(*_itval);
+		size_t nHashed = CSTXDefaultWStringHash<nHashSize, nStep>()(*_itval);
 		HashSetValue &value = _mapValues[nHashed];
 		value.Lock();
 		_Type_iterator refResult = value.setContent.erase(_itval);
@@ -964,7 +1079,7 @@ public:
 	}
 	_Type_iterator find( std::wstring _Keyval )
 	{
-		size_t nHashed = THashClass()(_Keyval);
+		size_t nHashed = CSTXDefaultWStringHash<nHashSize, nStep>()(_Keyval);
 		HashSetValue &value = _mapValues[nHashed];
 		value.Lock();
 		_Type_iterator refResult = value.setContent.find(_Keyval);
@@ -972,9 +1087,21 @@ public:
 
 		return refResult;
 	}
+	bool isValueExists(std::wstring _Keyval)
+	{
+		bool result = false;
+		size_t nHashed = CSTXDefaultWStringHash<nHashSize, nStep>()(_Keyval);
+		HashSetValue &value = _mapValues[nHashed];
+		value.Lock();
+		_Type_iterator refResult = value.setContent.find(_Keyval);
+		if (refResult != value.setContent.end())
+			result = true;
+		value.Unlock();
+		return result;
+	}
 	void insert( std::wstring _Keyval )
 	{
-		size_t nHashed = THashClass()(_Keyval);
+		size_t nHashed = CSTXDefaultWStringHash<nHashSize, nStep>()(_Keyval);
 		HashSetValue &value = _mapValues[nHashed];
 		value.Lock();
 		value.setContent.insert(_Keyval);
@@ -982,7 +1109,7 @@ public:
 	}
 	_Type_iterator end(std::wstring _Keyval)
 	{
-		size_t nHashed = THashClass()(_Keyval);
+		size_t nHashed = CSTXDefaultWStringHash<nHashSize, nStep>()(_Keyval);
 		HashSetValue &value = _mapValues[nHashed];
 		return value.setContent.end();
 	}
@@ -999,20 +1126,20 @@ public:
 	}
 	void lock(std::wstring _Keyval)
 	{
-		size_t nHashed = THashClass()(_Keyval);
+		size_t nHashed = CSTXDefaultWStringHash<nHashSize, nStep>()(_Keyval);
 		HashSetValue &value = _mapValues[nHashed];
 		value.Lock();
 	}
 	void unlock(std::wstring _Keyval)
 	{
-		size_t nHashed = THashClass()(_Keyval);
+		size_t nHashed = CSTXDefaultWStringHash<nHashSize, nStep>()(_Keyval);
 		HashSetValue &value = _mapValues[nHashed];
 		value.Unlock();
 	}
 };
 
-template<int nHashSize /*= 8*/, int nStep /*= 1*/, typename THashClass>
-size_t CSTXHashSet<std::wstring, nHashSize, nStep, THashClass>::size()
+template<int nHashSize /*= 8*/, int nStep /*= 1*/>
+size_t CSTXHashSet<std::wstring, nHashSize, nStep, CSTXDefaultWStringHash<nHashSize, nStep>>::size()
 {
 	size_t sizeTotal = 0;
 	for(size_t i=0;i<nHashSize;i++)
@@ -1023,10 +1150,10 @@ size_t CSTXHashSet<std::wstring, nHashSize, nStep, THashClass>::size()
 }
 
 
-template<int nHashSize /*= 8*/, int nStep /*= 1*/, typename THashClass>
-size_t CSTXHashSet<std::wstring, nHashSize, nStep, THashClass>::erase(std::wstring _Keyval)
+template<int nHashSize /*= 8*/, int nStep /*= 1*/>
+size_t CSTXHashSet<std::wstring, nHashSize, nStep, CSTXDefaultWStringHash<nHashSize, nStep>>::erase(std::wstring _Keyval)
 {
-	size_t nHashed = THashClass()(_Keyval);
+	size_t nHashed = CSTXDefaultWStringHash<nHashSize, nStep>()(_Keyval);
 	HashSetValue &value = _mapValues[nHashed];
 	value.Lock();
 	size_t refResult = value.setContent.erase(_Keyval);

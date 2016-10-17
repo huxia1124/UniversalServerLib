@@ -37,7 +37,12 @@
 
 CUniversalIOCPServer *_s_server = NULL;
 
+#ifdef MSC_VER
 _declspec(thread) static Concurrency::concurrent_unordered_set<std::wstring> g_loadedLuaModules;
+#else
+thread_local static Concurrency::concurrent_unordered_set<std::wstring> g_loadedLuaModules;
+#endif
+
 extern "C"
 {
 	void add_loaded_entry(const char *module_name, void *data)
@@ -2242,7 +2247,8 @@ void CUniversalIOCPServer::UpdateAndRunScriptCache(CUniversalStringCache &cache,
 				cache.SetByteCode(b.GetBufferPtr(), b.GetDataLength());
 				cache.SetStringPtr(pScriptPtr);
 				bNeedUpdateModuleReference = TRUE;
-				g_loadedLuaModules.clear();
+				if (g_loadedLuaModules.size() != 0)
+					g_loadedLuaModules.clear();
 				STXTRACELOGE(_T("\t\t\t script loaded and bytecode generated . length = %d."), b.GetDataLength());
 			}
 			else

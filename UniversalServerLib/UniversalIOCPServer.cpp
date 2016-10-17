@@ -1119,7 +1119,7 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 			return serverParam;
 		}).addFunction("GetMessageBase64", [&] {
 			std::string strMsg;
-			DWORD dwBase64Len = (nBufferLen / 3 + 4) * 5;
+			DWORD dwBase64Len = (nBufferLen / 3 + 1) * 4;
 			strMsg.resize(dwBase64Len);
 			CryptBinaryToStringA(pDataBuffer, nBufferLen, CRYPT_STRING_BASE64, (char*)strMsg.c_str(), &dwBase64Len);
 			return strMsg;

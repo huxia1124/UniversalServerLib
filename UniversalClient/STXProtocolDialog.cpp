@@ -255,7 +255,11 @@ LRESULT CSTXProtocolDialog::OnConnectNotify(UINT msg, WPARAM wParam, LPARAM lPar
 
 	_connectionContext = lParam == 0 ? (CSTXSocketConnectionContext*)wParam : NULL;
 	if (_connectionContext)
+	{
 		_connectionContext->AddRef();
+		_connectionContext->SetIsDataReadableNotify(m_hWnd, WM_SOCKET_DATAREADABLE_NOTIFY);
+	}
+
 
 	::EnableWindow(GetDlgItem(IDC_BUTTON_SEND), lParam == 0);
 
@@ -276,6 +280,32 @@ LRESULT CSTXProtocolDialog::OnDisconnectNotify(UINT msg, WPARAM wParam, LPARAM l
 
 	::EnableWindow(GetDlgItem(IDC_BUTTON_SEND), FALSE);
 	InvalidateRect(NULL);
+	return 0;
+}
+
+LRESULT CSTXProtocolDialog::OnIsDataReadableNotify(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
+{
+	void *dataPtr = (void*)wParam;
+	DWORD dwMsgDataLen = lParam;
+
+	if (dwMsgDataLen == 0)
+		return 0;
+
+	BYTE nLengthBytes = 0;
+	LONG nLength = CSTXProtocol::DecodeCompactInteger(dataPtr, &nLengthBytes);
+
+	if (nLength < 0)
+		return 0;
+
+	if ((UINT)nLength > 1024 * 1024)
+	{
+		MessageBox(_T("Data is too large. maybe wrong protocol."), _T("Error"));
+		return 0;
+	}
+
+	if ((DWORD)(nLength + nLengthBytes) <= dwMsgDataLen)
+		return nLengthBytes + nLength;
+
 	return 0;
 }
 

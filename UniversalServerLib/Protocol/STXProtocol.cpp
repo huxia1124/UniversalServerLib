@@ -961,7 +961,10 @@ int CSTXProtocol::Decode( void *pData, size_t *pDataReadLen, size_t cbInputDataL
 	unsigned char nLengthBytes = 0;
 	size_t nObjectContentLength = DecodeCompactInteger(pData, &nLengthBytes);
 
-	if (cbInputDataLen > 0 && nObjectContentLength + nLengthBytes + 1 > cbInputDataLen)
+	if (nObjectContentLength == 0)
+		return 0;
+
+	if (cbInputDataLen > 0 && nObjectContentLength + nLengthBytes> cbInputDataLen)
 	{
 		throw std::runtime_error("Decode(void*,long*,long) : Error not enough actual data.");
 		return 2;	//Error not enough actual data
@@ -988,13 +991,19 @@ int CSTXProtocol::Decode( void *pData, size_t *pDataReadLen, size_t cbInputDataL
 	return 0;
 }
 
-int CSTXProtocol::DecodeWithDecrypt(void * pData, size_t * pDataReadLen, uint32_t dwKey)
+int CSTXProtocol::DecodeWithDecrypt(void * pData, size_t * pDataReadLen, uint32_t dwKey, size_t cbInputDataLen)
 {
 	unsigned char nLengthBytes = 0;
 	size_t nObjectContentLength = DecodeCompactInteger(pData, &nLengthBytes);
 
-	//if (cbInputDataLen > 0 && nObjectContentLength + nLengthBytes + 1 > cbInputDataLen)
-	//	return 2;	//Error not enough actual data
+	if (nObjectContentLength == 0)
+		return 0;
+
+	if (cbInputDataLen > 0 && nObjectContentLength + nLengthBytes > cbInputDataLen)
+	{
+		throw std::runtime_error("Decode(void*,long*,long) : Error not enough actual data.");
+		return 2;	//Error not enough actual data
+	}
 
 	char k = (char)((~(dwKey % 0x100)) & 0xFF);
 
@@ -1865,6 +1874,9 @@ int CSTXProtocol::EnumValues(std::function<void(unsigned char originalType, STXP
 			SkipNextField();
 		}
 		break;
+		default:
+			SkipNextField();
+			continue;
 		}
 
 		pfnEnum(originalType, &val, &valExtra, pUserData);

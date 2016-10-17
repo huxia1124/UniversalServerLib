@@ -53,16 +53,28 @@ void CUniversalClientSocketConnectionContext::OnReceived(LPVOID lpDataRecv, DWOR
 	CString responseMsg;
 	size_t nLenParsed = 0;
 	CSTXProtocol p;
-	if (_dialog->_encryptionEnabled)
+	try
 	{
-		p.DecodeWithDecrypt(lpDataRecv, &nLenParsed, 1332);
+		if (_dialog->_encryptionEnabled)
+		{
+			p.DecodeWithDecrypt(lpDataRecv, &nLenParsed, 1332);
+		}
+		else
+		{
+			p.Decode(lpDataRecv, &nLenParsed, cbRecvLen);
+		}
 	}
-	else
+	catch (std::runtime_error e)
 	{
-		p.Decode(lpDataRecv, &nLenParsed);
+		responseMsg = e.what();
+		_dialog->AppendResponseMsg(responseMsg);
+		return;
 	}
-	p.EnumValues([&responseMsg](unsigned char, STXPROTOCOLVALUE *pVal, STXPROTOCOLVALUE *pValExtra, void *pUserData)
+
+	int nFields = 0;
+	p.EnumValues([&responseMsg, &nFields](unsigned char, STXPROTOCOLVALUE *pVal, STXPROTOCOLVALUE *pValExtra, void *pUserData)
 	{
+		nFields++;
 		CSTXProtocolString val(pVal);
 		CSTXProtocolString valExtra(pValExtra);
 		TCHAR szText[4096];
@@ -82,6 +94,10 @@ void CUniversalClientSocketConnectionContext::OnReceived(LPVOID lpDataRecv, DWOR
 		responseMsg += _T("\n");
 
 	}, 0);
+
+	if (nFields == 0)
+		responseMsg = _T("<Empty object received>");
+
 
 	_dialog->AppendResponseMsg(responseMsg);
 

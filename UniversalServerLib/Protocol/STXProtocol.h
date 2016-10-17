@@ -345,7 +345,7 @@ public:
 	//return: 0 if success, non-zero otherwise
 	int Decode(void *pData, size_t *pDataReadLen);
 	int Decode(void *pData, size_t *pDataReadLen, size_t cbInputDataLen);
-	int DecodeWithDecrypt(void *pData, size_t *pDataReadLen, uint32_t dwKey);
+	int DecodeWithDecrypt(void *pData, size_t *pDataReadLen, uint32_t dwKey, size_t cbInputDataLen = 0);
 
 	//Retrieve custom data of given type.
 	//This method can only perform on RAW data field. It will not check the actual type of the data.

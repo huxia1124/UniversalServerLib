@@ -32,6 +32,7 @@
 
 #define WM_SOCKET_CONNECT_NOTIFY		(WM_USER + 10)
 #define WM_SOCKET_DISCONNECT_NOTIFY		(WM_USER + 11)
+#define WM_SOCKET_DATAREADABLE_NOTIFY		(WM_USER + 12)
 
 class CSTXProtocolDialog : public CDialogImpl<CSTXProtocolDialog>
 {
@@ -69,6 +70,7 @@ protected:
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_SOCKET_CONNECT_NOTIFY, OnConnectNotify)
 		MESSAGE_HANDLER(WM_SOCKET_DISCONNECT_NOTIFY, OnDisconnectNotify)
+		MESSAGE_HANDLER(WM_SOCKET_DATAREADABLE_NOTIFY, OnIsDataReadableNotify)
 
 		COMMAND_ID_HANDLER(IDC_BUTTON_ADD, OnAddClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_SEND, OnSendClicked)
@@ -112,6 +114,7 @@ protected:
 	LRESULT OnCbTypeSelChange(WORD wNotifyCode, WORD wID, HWND hWndCtl,BOOL& bHandled);
 	LRESULT OnConnectNotify(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
 	LRESULT OnDisconnectNotify(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
+	LRESULT OnIsDataReadableNotify(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
 
 	LRESULT OnAddClicked(WORD, UINT, HWND, BOOL&);
 	LRESULT OnSendClicked(WORD, UINT, HWND, BOOL&);

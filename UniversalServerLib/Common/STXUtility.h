@@ -990,7 +990,7 @@ size_t CSTXHashSet<std::string, nHashSize, nStep, CSTXDefaultStringHash<nHashSiz
 template<int nHashSize /*= 8*/, int nStep /*= 1*/>
 size_t CSTXHashSet<std::string, nHashSize, nStep, CSTXDefaultStringHash<nHashSize, nStep>>::erase(std::string _Keyval)
 {
-	size_t nHashed = THashClass()(_Keyval);
+	size_t nHashed = CSTXDefaultStringHash<nHashSize, nStep>()(_Keyval);
 	HashSetValue &value = _mapValues[nHashed];
 	value.Lock();
 	size_t refResult = value.setContent.erase(_Keyval);

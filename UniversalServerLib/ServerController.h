@@ -34,8 +34,8 @@ public:
 	virtual ~CServerController();
 
 public:
-	CUniversalIOCPServer *_server;
-	CUniversalServer *_pServer;
+	CUniversalIOCPServer *_server = nullptr;
+	CUniversalServer *_pServer = nullptr;
 
 	std::future<int> _future;
 	concurrency::concurrent_unordered_map<std::wstring, std::wstring> _datamap;

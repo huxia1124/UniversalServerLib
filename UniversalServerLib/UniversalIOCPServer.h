@@ -211,16 +211,16 @@ public:
 	CUniversalServer *_pServer;
 	HANDLE _hRPCThread;
 	UINT m_nRPCServerPort;
-	std::atomic<UINT> m_nThreadIndexBase;		//used to generate zero-based index identifier for worker threads
+	std::atomic<UINT> m_nThreadIndexBase = 0;		//used to generate zero-based index identifier for worker threads
 
 protected:
 	//Statistics members
 	UINT _statisticsEnabled = 1;					//Main switch for statistics data gathering
-	std::atomic<long long> _totalSentBytes;
-	std::atomic<long long> _totalReceivedBytes;
-	std::atomic<long long> _totalConnected;
-	std::atomic<long long> _totalSentCount;
-	std::atomic<long long> _totalReceivedCount;
+	std::atomic<long long> _totalSentBytes = 0;
+	std::atomic<long long> _totalReceivedBytes = 0;
+	std::atomic<long long> _totalConnected = 0;
+	std::atomic<long long> _totalSentCount = 0;
+	std::atomic<long long> _totalReceivedCount = 0;
 
 	CStatisticsBuffer<long long, 20> _statisticsSentBytes;
 	CStatisticsBuffer<long long, 20> _statisticsSentCount;

@@ -6,7 +6,6 @@
 #include <memory>
 #include <vector>
 #include <set>
-#include <tchar.h>
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -29,6 +28,7 @@ enum STXVariableTreeNodeType
 	STXVariableTreeNodeType_IntegerSet = 12,
 	STXVariableTreeNodeType_DoubleVector = 13,
 	STXVariableTreeNodeType_DoubleSet = 14,
+	STXVariableTreeNodeType_Custom = 30000,
 };
 
 class CSTXMemoryVariableNode
@@ -59,9 +59,18 @@ protected:
 	// 6: double (c++ standard double)
 	// 7: WORD
 	// 8: DWORD
-	// 9: set<wstring>
-	// 10: vector<wstring>
+	// 9: vector<wstring>
+	// 10: set<wstring>
+	// 11: vector<int64_t>
+	// 12: set<int64_t>
+	// 13: vector<double>
+	// 14: set<double>
+	// 30000: Custom value
 	STXVariableTreeNodeType _type;
+
+	const type_info *_varType = nullptr;			//used for custom type
+	void* _varDestructor = nullptr;		//used for custom type
+
 	void* _ptr;
 	CSTXMemoryVariableNode *_parentNode = nullptr;
 	std::wstring _name;
@@ -100,6 +109,7 @@ protected:
 	void UnlockValue();
 	bool IsContainStringValue(void *ptr, int dataType, std::wstring strValue);
 	bool IsContainIntegerValue(void *ptr, int dataType, int64_t value);
+	void ClearValue(void *ptr, int dataType);
 
 protected:
 	std::shared_ptr<CSTXMemoryVariableNode> _RegisterVariable(wchar_t **pathArray, STXVariableTreeNodeType nType, void* pAddress, bool managed);
@@ -152,6 +162,30 @@ public:
 	void RegisterDoubleSetVariable(std::wstring strPathName, std::set<double> value);
 	void RegisterDoubleSetVariable(std::wstring strPathName);
 
+	template<typename CustomType>
+	void RegisterCustomVariable(std::wstring strPathName, CustomType value)
+	{
+		auto nodeExists = GetVariableNode(strPathName);
+		if (nodeExists)
+		{
+			if (!nodeExists->IsNewTypeAcceptable(STXVariableTreeNodeType_Custom))
+			{
+				throw std::runtime_error("The node already has a value of different type.");
+			}
+			return;
+		}
+		CustomType *v = new CustomType(value);
+		auto var = RegisterVariable(strPathName, STXVariableTreeNodeType_Custom, v, true);
+		var->_managedValue = true;
+		var->_varType = &typeid(value);
+		var->_varDestructor = (void*)&deleter<CustomType>;
+	}
+
+	template<typename T>
+	static void deleter(void *ptr)
+	{
+		delete static_cast<T*>(ptr);
+	}
 
 public:
 	std::wstring GetName();
@@ -175,6 +209,7 @@ public:
 	bool IsContainIntegerValue(std::wstring strPathName, int64_t value);
 	bool IsContainThisStringValue(std::wstring strValue);
 	bool IsContainThisIntegerValue(int64_t value);
+	void ClearValue(std::wstring strPathName);
 
 	void GetChildren(std::vector<std::shared_ptr<CSTXMemoryVariableNode>>* children);
 
@@ -188,4 +223,20 @@ public:
 
 	int64_t IncreaseIntegerValue(std::wstring strPathName, int64_t delta);
 	int64_t IncreaseThisIntegerValue(int64_t delta);
+
+	template<typename CustomType>
+	CustomType GetCustomValue(std::wstring strPathName, CustomType defaultValue)
+	{
+		auto pNode = GetVariableNode(strPathName);
+		if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
+			return defaultValue;
+
+		if (pNode->_type != STXVariableTreeNodeType_Custom)
+			return defaultValue;
+
+		if(typeid(CustomType) != *pNode->_varType)
+			return defaultValue;
+
+		return (*((CustomType*)pNode->_ptr));
+	}
 };

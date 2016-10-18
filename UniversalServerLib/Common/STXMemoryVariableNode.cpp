@@ -136,6 +136,9 @@ CSTXMemoryVariableNode::~CSTXMemoryVariableNode()
 		case STXVariableTreeNodeType_DoubleSet:		//set<double>
 			delete (std::set<double>*)_ptr;
 			break;
+		case STXVariableTreeNodeType_Custom:		//Any custom type
+			((void(*)(void*))_varDestructor)(_ptr);
+			break;
 
 		default:
 			break;
@@ -956,6 +959,68 @@ bool CSTXMemoryVariableNode::IsContainThisIntegerValue(int64_t value)
 	auto result = IsContainIntegerValue(_ptr, _type, value);
 	UnlockValue();
 	return result;
+}
+
+void CSTXMemoryVariableNode::ClearValue(void *ptr, int dataType)
+{
+	switch (_type)
+	{
+	case STXVariableTreeNodeType_Int32:		//int32
+		*((int32_t*)_ptr) = 0;
+		break;
+	case STXVariableTreeNodeType_Int64:		//int64
+		*((int64_t*)_ptr) = 0;
+		break;
+	case STXVariableTreeNodeType_WString:		//wstring
+		((std::wstring*)_ptr)->clear();
+		break;
+	case STXVariableTreeNodeType_Int:		//int
+		*((int*)_ptr) = 0;
+		break;
+	case STXVariableTreeNodeType_Float:		//float
+		*((float*)_ptr) = 0;
+		break;
+	case STXVariableTreeNodeType_Double:		//double
+		*((double*)_ptr) = 0;
+		break;
+	case STXVariableTreeNodeType_Word:		//uint16_t
+		*((uint16_t*)_ptr) = 0;
+		break;
+	case STXVariableTreeNodeType_DWord:		//uint32_t
+		*((uint32_t*)_ptr) = 0;
+		break;
+	case STXVariableTreeNodeType_DoubleVector:		//vector<double>
+		((std::vector<double>*)_ptr)->clear();
+		break;
+	case STXVariableTreeNodeType_DoubleSet:		//set<double>
+		((std::set<double>*)_ptr)->clear();
+		break;
+	case STXVariableTreeNodeType_WStringVector:		//vector<wstring>
+		((std::vector<std::wstring>*)_ptr)->clear();
+		break;
+	case STXVariableTreeNodeType_WStringSet:		//set<wstring>
+		((std::set<std::wstring>*)_ptr)->clear();
+		break;
+	case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
+		((std::vector<int64_t>*)_ptr)->clear();
+		break;
+	case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
+		((std::set<int64_t>*)_ptr)->clear();
+		break;
+	default:
+		break;
+	}
+}
+
+void CSTXMemoryVariableNode::ClearValue(std::wstring strPathName)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
+		return;
+
+	pNode->LockValue();
+	ClearValue(pNode->_ptr, pNode->_type);
+	pNode->UnlockValue();
 }
 
 void CSTXMemoryVariableNode::GetChildren(std::vector<std::shared_ptr<CSTXMemoryVariableNode>>* children)

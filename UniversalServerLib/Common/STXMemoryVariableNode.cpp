@@ -57,12 +57,13 @@ std::shared_ptr<CSTXMemoryVariableNode> CSTXMemoryVariableNode::_RegisterVariabl
 		auto newVariable = std::make_shared<CSTXMemoryVariableNode>();
 		innerMap[pathArray[0]] = newVariable;
 
+		newVariable->_parentNode = this;
+		newVariable->_name = pathArray[0];
+
 		if (pathArray[1] == nullptr)
 		{
 			newVariable->_type = nType;
 			newVariable->_ptr = pAddress;
-			newVariable->_parentNode = this;
-			newVariable->_name = pathArray[0];
 			newVariable->_managedValue = managed;
 			result = newVariable;
 		}

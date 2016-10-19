@@ -2066,7 +2066,6 @@ long long CUniversalIOCPServer::GetSentCountPerSecond()
 long long CUniversalIOCPServer::GetReceivedBytesPerSecond()
 {
 	return _statisticsReceiveBytes.GetAverage();
-
 }
 
 long long CUniversalIOCPServer::GetReceivedCountPerSecond()

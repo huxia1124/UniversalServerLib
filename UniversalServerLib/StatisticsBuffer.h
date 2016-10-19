@@ -8,6 +8,9 @@ public:
 	CStatisticsBuffer();
 	~CStatisticsBuffer();
 
+protected:
+	int _validBufferSize = seconds;
+
 public:
 	T _data[seconds];
 	long long _timePoint[seconds];
@@ -18,13 +21,34 @@ public:
 	void AddValue(T val);
 	T GetTotal();
 	T GetAverage();
+	int GetMaxBufferSize();
+	int GetValidBufferSize();
+	void SetValidBufferSize(int size);
 };
+
+template<class T /*= __int64*/, int seconds /*= 10*/>
+void CStatisticsBuffer<T, seconds>::SetValidBufferSize(int size)
+{
+	_validBufferSize = max(1, min(seconds, size));
+}
+
+template<class T /*= __int64*/, int seconds /*= 10*/>
+int CStatisticsBuffer<T, seconds>::GetValidBufferSize()
+{
+	return _validBufferSize;
+}
+
+template<class T /*= __int64*/, int seconds /*= 10*/>
+int CStatisticsBuffer<T, seconds>::GetMaxBufferSize()
+{
+	return seconds;
+}
 
 template<class T /*= __int64*/, int seconds /*= 10*/>
 T CStatisticsBuffer<T, seconds>::GetAverage()
 {
 	T total = GetTotal();
-	return total / seconds;
+	return total / _validBufferSize;
 }
 
 template<class T /*= __int64*/, int seconds /*= 10*/>
@@ -34,10 +58,11 @@ T CStatisticsBuffer<T, seconds>::GetTotal()
 	auto currentSec = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
 	T total = 0;
-	for (int k = 0; k < seconds; k++) {
-		auto timepoint = _timePoint[(k + _lastIndex + 1) % seconds];
-		if (timepoint >= currentSec - seconds && timepoint <= currentSec)
-			total += _data[(k + _lastIndex + 1) % seconds];
+	for (int k = 0; k < _validBufferSize; k++) {
+		int index = (-k + _lastIndex + seconds) % seconds;
+		auto timepoint = _timePoint[index];
+		if (timepoint >= currentSec - _validBufferSize && timepoint < currentSec)
+			total += _data[index];
 	}
 	return total;
 }

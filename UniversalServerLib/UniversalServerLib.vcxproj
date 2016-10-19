@@ -152,7 +152,6 @@
     <ClInclude Include="Common\blockingconcurrentqueue.h" />
     <ClInclude Include="Common\concurrentqueue.h" />
     <ClInclude Include="Common\Cryptographic.h" />
-    <ClInclude Include="Common\FastSpinlock.h" />
     <ClInclude Include="Common\StackWalker.h" />
     <ClInclude Include="Common\STXLog.h" />
     <ClInclude Include="Common\STXMemoryVariableNode.h" />
@@ -263,7 +262,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\Cryptographic.cpp" />
-    <ClCompile Include="Common\FastSpinlock.cpp" />
     <ClCompile Include="Common\StackWalker.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

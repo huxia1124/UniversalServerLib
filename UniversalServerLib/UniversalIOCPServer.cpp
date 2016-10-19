@@ -2360,7 +2360,7 @@ void CUniversalIOCPServer::RunScriptCache(CUniversalStringCache &cache, LONGLONG
 		STXTRACELOGE(_T("[r][i]\t\t%S"), pLuaLoadError);
 	}
 
-	//TODO: check environment reliablilty here
+	//TODO: check environment reliability here
 	CheckLuaEnvironment(L);
 }
 

@@ -23,10 +23,10 @@
 #include <set>
 #include <iterator>
 #include <tchar.h>
-#include "FastSpinlock.h"
 #include "STXUtility.h"
 #include <concurrent_vector.h>
 #include <concurrent_unordered_set.h>
+#include <mutex>
 
 #define DEFAULT_STRING_CACHE_HISTORY_MAX_COUNT		3
 
@@ -103,7 +103,7 @@ protected:
 	std::queue<std::set<std::wstring, _CNoCaseLess>*> _referenceModulesHistory;
 	LONGLONG _ver;
 
-	FastSpinlock _lock;
+	std::recursive_mutex _mtx;
 
 	ByteCodeInfo *_byteCode;	//byteCode in use
 	static int _globalIndexBase;
@@ -225,11 +225,11 @@ public:
 	}
 	void Lock()
 	{
-		_lock.EnterLock();
+		_mtx.lock();
 	}
 	void Unlock()
 	{
-		_lock.LeaveLock();
+		_mtx.unlock();
 	}
 	BOOL IsEmpty()
 	{

@@ -30,7 +30,7 @@
 #include <queue>
 #include <memory>
 #include <concurrentqueue.h>
-#include "FastSpinlock.h"
+#include <mutex>
 
 using namespace std;
 
@@ -249,7 +249,7 @@ struct tagSTXIOCPOPERATION
 	DWORD dwFlags;			// 此操作的Flags.
 	CSTXIOCPBuffer *pBuffer;	// 为此操作分配的缓冲区对象指针.不是所有类型的操作都需要缓冲区。如果操作不需要缓冲区，则 pBuffer 为 NULL
 
-	FastSpinlock lock;
+	std::recursive_mutex lock;
 	LONG m_nRef;
 	tr1::shared_ptr<STXIOCPCONTEXTKEY> pContextKey;		//对ContextKey的引用
 
@@ -296,11 +296,11 @@ public:
 public:
 	void Lock()
 	{
-		lock.EnterLock();
+		lock.lock();
 	}
 	void Unlock()
 	{
-		lock.LeaveLock();
+		lock.unlock();
 	}
 	LONG AddRef()
 	{
@@ -823,8 +823,8 @@ protected:
 	LONG m_cbBufferSize;
 	LONG m_cbWriteOffset;
 
-	FastSpinlock m_lock;
-	FastSpinlock m_lockSend;
+	std::recursive_mutex _mtxLock;
+	std::recursive_mutex _mtxLockSend;
 
 	BOOL m_bDisconnected;
 	DWORD m_dwOperationTimeout;

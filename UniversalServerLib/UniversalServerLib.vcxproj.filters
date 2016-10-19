@@ -414,9 +414,6 @@
     <ClInclude Include="Common\concurrentqueue.h">
       <Filter>头文件\Server\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Common\FastSpinlock.h">
-      <Filter>头文件\Server\Common</Filter>
-    </ClInclude>
     <ClInclude Include="Protocol\STXProtocolLua.h">
       <Filter>头文件\Server\Protocol</Filter>
     </ClInclude>
@@ -676,9 +673,6 @@
     </ClCompile>
     <ClCompile Include="UniversalServerInternal.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\FastSpinlock.cpp">
-      <Filter>源文件\Server\Common</Filter>
     </ClCompile>
     <ClCompile Include="UniversalServerRPC_s.c">
       <Filter>源文件\rpc</Filter>

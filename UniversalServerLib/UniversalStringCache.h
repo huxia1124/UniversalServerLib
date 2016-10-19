@@ -24,11 +24,10 @@
 #include <iterator>
 #include <tchar.h>
 #include "STXUtility.h"
-#include <concurrent_vector.h>
 #include <concurrent_unordered_set.h>
 #include <mutex>
 
-#define DEFAULT_STRING_CACHE_HISTORY_MAX_COUNT		3
+#define DEFAULT_STRING_CACHE_HISTORY_MAX_COUNT		5
 
 class CUniversalStringCache
 {

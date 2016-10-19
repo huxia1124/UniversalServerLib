@@ -478,7 +478,6 @@ protected:
 	CSTXHashMap<DWORD_PTR, LPSTXIOCPOPERATION, 64, 1> m_mapCustomOperation;				//所有用户自定义操作
 	CSTXHashMap<DWORD_PTR, LPSTXIOCPOPERATION, 64, 1> m_mapInternalCustomOperation;				//所有内部自定义操作
 
-	CRITICAL_SECTION m_csClientContextMap;							// m_mapClientContext
 	CRITICAL_SECTION m_csServersMap;								// m_mapTcpServers 和 m_mapUdpServers
 	CRITICAL_SECTION m_csPending;									// m_queueRead
 	CRITICAL_SECTION m_csConnections;								// m_mapConnections

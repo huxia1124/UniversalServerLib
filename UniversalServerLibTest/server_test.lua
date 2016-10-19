@@ -9,6 +9,8 @@ function start()
 		server.TimerInterval = 1000   --Default value is 60000
 		server:SetTimerScript("scripts/timer.lua")
 		server:SetWorkerThreadInitializationScript("scripts/worker_thread_initialization.lua")
+		server:SetTcpServerClientConnectedScript(6800, "scripts/new_client.lua")
+		server:SetTcpServerClientDisconnectedScript(6800, "scripts/client_disconnect.lua")
 
 		server:StartRPC(3399)
 		server:StartServer(0, 20000, 50000, 2048)

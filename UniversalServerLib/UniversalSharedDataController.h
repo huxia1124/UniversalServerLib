@@ -163,6 +163,8 @@ public:
 	std::wstring GetName();
 	std::wstring GetFullPath();
 
+	size_t GetChildrenCount(std::wstring strPathName);
+	void RegisterStringVariable(std::wstring strPathName);
 	void RegisterStringVectorVariable(std::wstring strPathName);
 	void RegisterStringSetVariable(std::wstring strPathName);
 	void RegisterIntegerVectorVariable(std::wstring strPathName);

@@ -53,6 +53,19 @@ std::wstring CUniversalSharedDataTree::GetFullPath()
 	return _rootNode->GetFullPath();
 }
 
+size_t CUniversalSharedDataTree::GetChildrenCount(std::wstring strPathName)
+{
+	if (strPathName.size() == 0)
+		return _rootNode->GetThisChildrenCount();
+		
+	return _rootNode->GetChildrenCount(strPathName);
+}
+
+void CUniversalSharedDataTree::RegisterStringVariable(std::wstring strPathName)
+{
+	_rootNode->RegisterStringVariable(strPathName, _T(""));
+}
+
 void CUniversalSharedDataTree::RegisterStringVectorVariable(std::wstring strPathName)
 {
 	_rootNode->RegisterStringVectorVariable(strPathName);

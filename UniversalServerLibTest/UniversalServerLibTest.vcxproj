@@ -428,8 +428,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="client_disconnect.lua" />
     <None Include="inspect.lua" />
     <None Include="libcjson.lua" />
+    <None Include="new_client.lua" />
     <None Include="recv.lua" />
     <None Include="recv_test.lua" />
     <None Include="recv_var.lua" />

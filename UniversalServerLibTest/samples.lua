@@ -36,7 +36,7 @@ a:AddStringValue("Test2\\Test-2-2", "abc")	--this duplicated value will be ignor
 print("------------------------------------")
 function display(node, level)
   for x in node:GetNodes() do
-  print(string.rep(" ", level*2)..x.Name)
+  print(string.rep(" ", level*2)..x.Name.."  "..x:GetNodeString())
   local n = x:GetValues()
   for y in n do
   print(string.rep(" ", level*2+1)..tostring(inspect(y)))

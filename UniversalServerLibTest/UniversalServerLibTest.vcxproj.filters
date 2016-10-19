@@ -265,5 +265,11 @@
     <None Include="samples.lua">
       <Filter>lua_script</Filter>
     </None>
+    <None Include="new_client.lua">
+      <Filter>lua_script</Filter>
+    </None>
+    <None Include="client_disconnect.lua">
+      <Filter>lua_script</Filter>
+    </None>
   </ItemGroup>
 </Project>

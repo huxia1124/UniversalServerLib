@@ -244,6 +244,22 @@ void CUniversalIOCPServer::OnClientDisconnect(CSTXIOCPServerClientContext *pClie
 
 	if (!bSkipScript)
 	{
+		//Lua script preparation. The following methods can be used in lua script:
+		// utils.GetClientUid()
+		// utils.GetServerParam()
+		// utils.GetServerPort()
+
+		lua_State *L = GetLuaStateForCurrentThread();
+		LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetClientUid", [&] {
+			return pClient->_uid;
+		}).addFunction("GetServerParam", [&] {
+			USES_CONVERSION;
+			std::string serverParam = (LPCSTR)ATL::CW2A(pClient->GetServerContext()->GetServerParamString().c_str());
+			return serverParam;
+		}).addFunction("GetServerPort", [&] {
+			return pClient->GetServerContext()->GetListeningPort();
+		}).endModule();
+
 		//Run script
 		auto serverContext = pClient->GetServerContext();
 		auto scriptCache = GetTcpServerClientDisconnectedScript(dynamic_cast<CUniversalIOCPTcpServerContext*>(serverContext.get()));
@@ -305,6 +321,7 @@ BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContex
 		//Lua script preparation. The following methods can be used in lua script:
 		// utils.GetClientUid()
 		// utils.GetServerParam()
+		// utils.GetServerPort()
 
 		lua_State *L = GetLuaStateForCurrentThread();
 		LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetClientUid", [&] {
@@ -313,6 +330,8 @@ BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContex
 			USES_CONVERSION;
 			std::string serverParam = (LPCSTR)ATL::CW2A(pClient->GetServerContext()->GetServerParamString().c_str());
 			return serverParam;
+		}).addFunction("GetServerPort", [&] {
+			return pClient->GetServerContext()->GetListeningPort();
 		}).endModule();
 
 		
@@ -1024,6 +1043,7 @@ BOOL CUniversalIOCPServer::OnWebSocketClientReceived(CUniversalIOCPServerClientC
 	//Lua script preparation. The following methods can be used in lua script:
 	// utils.GetClientUid()
 	// utils.GetServerParam()
+	// utils.GetServerPort()
 	// utils.GetMessageBase64()
 	// utils.GetMessage() - text message
 
@@ -1035,6 +1055,8 @@ BOOL CUniversalIOCPServer::OnWebSocketClientReceived(CUniversalIOCPServerClientC
 		USES_CONVERSION;
 		std::string serverParam = (LPCSTR)ATL::CW2A(pClientContext->GetServerContext()->GetServerParamString().c_str());
 		return serverParam;
+	}).addFunction("GetServerPort", [&] {
+		return pClientContext->GetServerContext()->GetListeningPort();
 	}).endModule();
 
 
@@ -1114,6 +1136,7 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 		// utils.GetClientUid()
 		// utils.GetServerParam()
 		// utils.GetMessageBase64()
+		// utils.GetServerPort()
 
 		lua_State *L = GetLuaStateForCurrentThread();
 		LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetClientUid", [&] {
@@ -1122,6 +1145,8 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 			USES_CONVERSION;
 			std::string serverParam = (LPCSTR)ATL::CW2A(pClient->GetServerContext()->GetServerParamString().c_str());
 			return serverParam;
+		}).addFunction("GetServerPort", [&] {
+			return pClient->GetServerContext()->GetListeningPort();
 		}).addFunction("GetMessageBase64", [&] {
 			std::string strMsg;
 			DWORD dwBase64Len = (nBufferLen / 3 + 1) * 4;

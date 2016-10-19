@@ -239,4 +239,8 @@ public:
 
 		return (*((CustomType*)pNode->_ptr));
 	}
+
+	size_t GetThisChildrenCount();
+	size_t GetChildrenCount(std::wstring strPathName);
+
 };

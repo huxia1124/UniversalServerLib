@@ -1162,6 +1162,20 @@ int64_t CSTXMemoryVariableNode::IncreaseThisIntegerValue(int64_t delta)
 	return IncreaseIntegerValue(_ptr, _type, delta);
 }
 
+size_t CSTXMemoryVariableNode::GetThisChildrenCount()
+{
+	return _mapContent.size();
+}
+
+size_t CSTXMemoryVariableNode::GetChildrenCount(std::wstring strPathName)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL)
+		return 0;
+
+	return pNode->GetThisChildrenCount();
+}
+
 int CSTXMemoryVariableNode::GetChildrenNames(std::vector<std::wstring> *pArrNames)
 {
 	if (pArrNames == NULL)

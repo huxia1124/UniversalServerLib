@@ -171,6 +171,11 @@ void CServerController::SetTcpClientRole(__int64 nClientUID, int nRole)
 	_server->SetTcpClientRole(nClientUID, (UniversalTcpClientRole)nRole);
 }
 
+int CServerController::GetTcpClientRole(__int64 nClientUID)
+{
+	return _server->GetTcpClientRole(nClientUID);
+}
+
 void CServerController::SetTcpClientTimeout(__int64 nClientUID, unsigned int nTimeout)
 {
 	_server->SetTcpClientTimeout(nClientUID, nTimeout);

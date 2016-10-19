@@ -62,6 +62,7 @@ public:
 	void SendPackageToConnection(long nConnectionID, std::shared_ptr<CSTXProtocolLua> spData);
 	void DisconnectClient(__int64 nClientUID);
 	void SetTcpClientRole(__int64 nClientUID, int nRole);
+	int GetTcpClientRole(__int64 nClientUID);
 	void SetTcpClientTimeout(__int64 nClientUID, unsigned int nTimeout);
 	void SetRPCPort(unsigned int nPort);
 	void StartRPC(int nPort);

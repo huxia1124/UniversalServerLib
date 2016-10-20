@@ -52,7 +52,7 @@ class CUniversalServer;
 
 enum TcpServerType
 {
-	TcpServerTypeStream = 1,				//Stream data. 
+	TcpServerTypeStream = 1,				//Stream data. Whenever data is coming from client, it will trigger message handler 
 	TcpServerTypeHttp = 2,					//HTTP server
 	TcpServerTypeBinaryHeader2 = 3,			//Package starts with 2 bytes header
 	TcpServerTypeBinaryHeader4 = 4,			//Package starts with 4 bytes header
@@ -61,18 +61,19 @@ enum TcpServerType
 
 enum UniversalTcpClientRole
 {
-	UniversalTcpClientRole_Default = 0,
-	UniversalTcpClientRole_DebugMonitor = 1800,
-	UniversalTcpClientRole_LogMonitor = 2000,
-	UniversalTcpClientRole_Admin = 8000,
+	UniversalTcpClientRole_Default = 0,					//Normal client. nothing special
+	UniversalTcpClientRole_DebugMonitor = 1800,			//This client will receive debug output
+	UniversalTcpClientRole_LogMonitor = 2000,			//This client will receive debug output and log output
+	UniversalTcpClientRole_Admin = 8000,				//This client will receive debug output and log output
+														//, and can perform some low level operations on the server [not implemented]
 };
 
 enum TcpConnectionType
 {
-	TcpConnectionTypeStream = 1,
-	TcpConnectionTypeBinaryHeader2 = 3,		//Package starts with 2 bytes header
-	TcpConnectionTypeBinaryHeader4 = 4,		//Package starts with 4 bytes header
-	TcpConnectionTypeBinaryHeaderV = 5		//Package starts with variable length header
+	TcpConnectionTypeStream = 1,			//Stream data. Whenever data is coming, it will trigger message handler 
+	TcpConnectionTypeBinaryHeader2 = 3,		//Package starts with 2 bytes header. message handler will only be triggered when a single complete package is received
+	TcpConnectionTypeBinaryHeader4 = 4,		//Package starts with 4 bytes header. message handler will only be triggered when a single complete package is received
+	TcpConnectionTypeBinaryHeaderV = 5		//Package starts with variable length header. message handler will only be triggered when a single complete package is received
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,9 +82,18 @@ enum TcpConnectionType
 // To store TLS(thread local storage) data for worker threads
 struct CUniversalServerWorkerThreadData
 {
-	LONGLONG _scriptVersions[64];		//The size of this array indicates the maximum number of custom scripts
+	//Used to track the version of the lua scripts being using in current thread
+	//The size of this array indicates the maximum number of custom scripts
+	LONGLONG _scriptVersions[64];
+
+	//Lua environment of current thread
 	lua_State *_pLuaState;
+
+	//User-defined data for current thread. This field is currently not used and reserved for the future
 	LPVOID _pUserData;
+
+	//The zero-based index of current thread
+	//Each worker thread has a unique, zero-based index number.
 	UINT _threadIndex;
 };
 
@@ -93,6 +103,10 @@ class CUniversalIOCPTcpServerContext : public CSTXIOCPTcpServerContext
 {
 	friend class CUniversalIOCPServer;
 protected:
+
+	//Scripts configuration
+	//These members are copies from the content of CUniversalIOCPServer::_mapTcpServer***Scripts.
+	//just for quick access when script is set, for better performance
 	std::shared_ptr<CUniversalStringCache> _tcpServerRecvScript;
 	std::shared_ptr<CUniversalStringCache> _tcpServerConnectedScript;
 	std::shared_ptr<CUniversalStringCache> _tcpServerClientDisconnectedScript;
@@ -109,10 +123,16 @@ public:
 	virtual ~CUniversalIOCPTcpConnectionContext();
 
 protected:
+	//Scripts configuration
+	//These members are copies from the content of CUniversalIOCPServer::_mapTcpConnection***Scripts.
+	//just for quick access when script is set, for better performance
+
 	std::shared_ptr<CUniversalStringCache> _tcpConnectionRecvScript;
 	std::shared_ptr<CUniversalStringCache> _tcpConnectionDisconnectedScript;
 
 public:
+
+	//Connection ID
 	__int64 _uid;
 
 };
@@ -135,6 +155,8 @@ public:
 	UniversalTcpClientRole _role = UniversalTcpClientRole_Default;
 	concurrency::concurrent_unordered_map<std::wstring, std::wstring> _userDataStringMap;
 	BOOL _webSocketProtocolMode;
+
+	//Used to cache a SharedData node for quick access. Performance consideration.
 	std::shared_ptr<CUniversalSharedDataTree> _clientSharedDataRootNode;
 
 protected:

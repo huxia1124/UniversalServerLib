@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "STXProtocolDialog.h"
 #include "STXScriptDialog.h"
+#include <regex>
 
 
 CSTXProtocolDialog::CSTXProtocolDialog()
@@ -46,6 +47,47 @@ void CSTXProtocolDialog::InitializeServerCombobox()
 	index = _cbServers.AddString(_T("127.0.0.1:6800"));
 	index = _cbServers.AddString(_T("127.0.0.1:9111"));
 	_cbServers.SetCurSel(index);
+}
+
+bool CSTXProtocolDialog::ValidationInput(LPCTSTR lpszInput1, LPCTSTR lpszInput2)
+{
+	DWORD_PTR dwSel = _cbDataType.GetItemData(_cbDataType.GetCurSel());
+	switch (dwSel)
+	{
+	case STXPROTOCOL_DATA_TYPE_BYTE:
+	{
+		std::wregex rgx(_T("0x[0-9A-Fa-f]{1,2}|[0-9]{1,3}"), std::regex_constants::ECMAScript | std::regex_constants::icase);
+		std::wcmatch m;
+		if (!std::regex_match(lpszInput1, m, rgx))
+			return false;
+		break;
+	}
+	case STXPROTOCOL_DATA_TYPE_WORD:
+	{
+		std::wregex rgx(_T("0x[0-9A-Fa-f]{1,4}|[0-9]{1,5}"), std::regex_constants::ECMAScript | std::regex_constants::icase);
+		std::wcmatch m;
+		if (!std::regex_match(lpszInput1, m, rgx))
+			return false;
+		break;
+	}
+	case STXPROTOCOL_DATA_TYPE_DWORD:
+	{
+		std::wregex rgx(_T("0x[0-9A-Fa-f]{1,8}|[0-9]{1,10}"), std::regex_constants::ECMAScript | std::regex_constants::icase);
+		std::wcmatch m;
+		if (!std::regex_match(lpszInput1, m, rgx))
+			return false;
+		break;
+	}
+	case STXPROTOCOL_DATA_TYPE_I64:
+	{
+		std::wregex rgx(_T("0x[0-9A-Fa-f]{1,16}|[0-9]{1,20}"), std::regex_constants::ECMAScript | std::regex_constants::icase);
+		std::wcmatch m;
+		if (!std::regex_match(lpszInput1, m, rgx))
+			return false;
+		break;
+	}
+	}
+	return true;
 }
 
 void CSTXProtocolDialog::BuildPackage(CSTXProtocol &p)
@@ -327,6 +369,14 @@ LRESULT CSTXProtocolDialog::OnAddClicked(WORD, UINT, HWND, BOOL&)
 	TCHAR *pText2 = new TCHAR[nLen2 + 2];
 	pText2[nLen2 + 1] = 0;
 	_edtContent2.GetWindowText(pText2, nLen2 + 1);
+
+	if (!ValidationInput(pText, pText2))
+	{
+		delete[]pText;
+		delete[]pText2;
+		MessageBox(_T("Invalid input value!"), _T("Error"), MB_ICONWARNING | MB_OK);
+		return 0;
+	}
 
 	int nTotalLen = nLen + 2 + nLen2 + 2 + 2;
 	TCHAR *pNewText = NULL;
@@ -742,11 +792,43 @@ void CSTXProtocolDialog::UpdateEnterFields()
 	DWORD_PTR dwSel = _cbDataType.GetItemData(_cbDataType.GetCurSel());
 	switch (dwSel)
 	{
+	case STXPROTOCOL_DATA_TYPE_BYTE:
+	case STXPROTOCOL_DATA_TYPE_WORD:
+	case STXPROTOCOL_DATA_TYPE_DWORD:
+	case STXPROTOCOL_DATA_TYPE_I64:
+		SetDlgItemText(IDC_EDIT_VALUE, _T("0"));
+		::EnableWindow(GetDlgItem(IDC_EDIT_VALUE2), FALSE);
+		break;
+	case STXPROTOCOL_DATA_TYPE_FLOAT:
+	case STXPROTOCOL_DATA_TYPE_DOUBLE:
+		SetDlgItemText(IDC_EDIT_VALUE, _T("0.0"));
+		::EnableWindow(GetDlgItem(IDC_EDIT_VALUE2), FALSE);
+		break;
 	case STXPROTOCOL_DATA_TYPE_UTF8_PAIR:
 	case STXPROTOCOL_DATA_TYPE_UNICODE_PAIR:
-	case STXPROTOCOL_DATA_TYPE_UTF8_DWORD_PAIR:
+		SetDlgItemText(IDC_EDIT_VALUE, _T(""));
+		SetDlgItemText(IDC_EDIT_VALUE2, _T(""));
 		::EnableWindow(GetDlgItem(IDC_EDIT_VALUE2), TRUE); break;
+	case STXPROTOCOL_DATA_TYPE_UTF8_DWORD_PAIR:
+		SetDlgItemText(IDC_EDIT_VALUE, _T(""));
+		SetDlgItemText(IDC_EDIT_VALUE2, _T("0"));
+		::EnableWindow(GetDlgItem(IDC_EDIT_VALUE2), TRUE); break;
+	case STXPROTOCOL_DATA_TYPE_RAW:
+		SetDlgItemText(IDC_EDIT_VALUE, _T("0xAB12CD6F"));
+		::EnableWindow(GetDlgItem(IDC_EDIT_VALUE2), FALSE);
+		break;
+	case STXPROTOCOL_DATA_TYPE_GUID:
+	{
+		GUID guid;
+		HRESULT hCreateGuid = CoCreateGuid(&guid);
+		OLECHAR* bstrGuid;
+		StringFromCLSID(guid, &bstrGuid);
+		SetDlgItemText(IDC_EDIT_VALUE, bstrGuid);
+		CoTaskMemFree(bstrGuid);
+		break;
+	}
 	default:
+		SetDlgItemText(IDC_EDIT_VALUE, _T(""));
 		::EnableWindow(GetDlgItem(IDC_EDIT_VALUE2), FALSE);
 	}
 

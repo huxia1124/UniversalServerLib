@@ -88,6 +88,8 @@ protected:
 protected:
 	void InitializeDataTypeCombobox();
 	void InitializeServerCombobox();
+	bool ValidationInput(LPCTSTR lpszInput1, LPCTSTR lpszInput2);
+
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
 

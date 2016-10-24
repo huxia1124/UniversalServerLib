@@ -126,7 +126,6 @@ protected:
 	//Scripts configuration
 	//These members are copies from the content of CUniversalIOCPServer::_mapTcpConnection***Scripts.
 	//just for quick access when script is set, for better performance
-
 	std::shared_ptr<CUniversalStringCache> _tcpConnectionRecvScript;
 	std::shared_ptr<CUniversalStringCache> _tcpConnectionDisconnectedScript;
 
@@ -226,6 +225,7 @@ protected:
 	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionRecvScripts;					//ConnectionID -> ScriptCache
 	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionDisconnectedScripts;			//ConnectionID -> ScriptCache
 	std::shared_ptr<CUniversalStringCache> _timerScript;				//executed in OnTimer
+	std::shared_ptr<CUniversalStringCache> _fileChangedScript;				//executed when monitored files changed
 	std::string _workerThreadInitializationScript;
 
 public:
@@ -386,6 +386,9 @@ public:
 	void SetLogLevel(int level);
 	void SetDebugOutputLevel(int level);
 	long long GetDefaultFolderMonitorId();
+	void SetFileChangedScript(LPCTSTR lpszScriptFile);
+	size_t GetWorkerThreadScriptCapacity();
+	size_t GetWorkerThreadScriptUsage();
 
 public:
 	//Statistics data. can be enabled/disabled through

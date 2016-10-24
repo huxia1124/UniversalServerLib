@@ -372,3 +372,18 @@ long long CServerController::GetNextClientUID()
 {
 	return _server->GetNextClientUID();
 }
+
+void CServerController::SetFileChangedScript(std::wstring scriptFile)
+{
+	_server->SetFileChangedScript(scriptFile.c_str());
+}
+
+size_t CServerController::GetWorkerThreadScriptCapacity()
+{
+	return _server->GetWorkerThreadScriptCapacity();
+}
+
+size_t CServerController::GetWorkerThreadScriptUsage()
+{
+	return _server->GetWorkerThreadScriptUsage();
+}

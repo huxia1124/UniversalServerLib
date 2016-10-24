@@ -98,5 +98,8 @@ public:
 	void SetWorkerThreadInitializationScript(std::wstring scriptFile);
 	void ChangeTimerInterval(unsigned int interval);
 	long long GetNextClientUID();
+	void SetFileChangedScript(std::wstring scriptFile);
+	size_t GetWorkerThreadScriptCapacity();
+	size_t GetWorkerThreadScriptUsage();
 };
 

@@ -429,6 +429,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="client_disconnect.lua" />
+    <None Include="file_changed.lua" />
     <None Include="inspect.lua" />
     <None Include="libcjson.lua" />
     <None Include="new_client.lua" />

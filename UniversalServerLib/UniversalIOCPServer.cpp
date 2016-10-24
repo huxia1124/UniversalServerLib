@@ -1992,12 +1992,45 @@ void CUniversalIOCPServer::SetTimerScript(LPCTSTR lpszScriptFile)
 	{
 		scriptCache = std::make_shared<CUniversalStringCache>();
 		scriptCache->SetNeedUpdate(true);
+		//Not using global versioning. Tracked by a separated variable because this script only run in a single thread
 		//scriptCache->EnableTraceThreadVersion();
 		scriptCache->SetStringName(lpszScriptFile);
 		_timerScript = scriptCache;
 	}
 	
 	UpdateScriptTrackingInfo(originalName, lpszScriptFile, scriptCache);
+}
+
+void CUniversalIOCPServer::SetFileChangedScript(LPCTSTR lpszScriptFile)
+{
+	std::shared_ptr<CUniversalStringCache> scriptCache = _fileChangedScript;
+	std::wstring originalName;
+	if (scriptCache)
+	{
+		originalName = scriptCache->GetStringName();
+		scriptCache->SetNeedUpdate(true);
+		scriptCache->SetStringName(lpszScriptFile);
+	}
+	else
+	{
+		scriptCache = std::make_shared<CUniversalStringCache>();
+		scriptCache->SetNeedUpdate(true);
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->SetStringName(lpszScriptFile);
+		_fileChangedScript = scriptCache;
+	}
+	
+	UpdateScriptTrackingInfo(originalName, lpszScriptFile, scriptCache);
+}
+
+size_t CUniversalIOCPServer::GetWorkerThreadScriptCapacity()
+{
+	return sizeof(CUniversalServerWorkerThreadData::_scriptVersions) / sizeof(LONGLONG);
+}
+
+size_t CUniversalIOCPServer::GetWorkerThreadScriptUsage()
+{
+	return (size_t)CUniversalStringCache::GetScriptIndexBase();
 }
 
 void CUniversalIOCPServer::SetWorkerThreadInitializationScript(LPCTSTR lpszScriptFile)
@@ -2530,6 +2563,31 @@ void CUniversalIOCPServer::OnServerFileChanged(DWORD dwAction, LPCTSTR lpszRelat
 	BOOL bSkipScript = FALSE;
 	if(_pServer && _pServer->_callback)
 		_pServer->_callback->OnServerFileChanged(dwAction, lpszRelativePathName, lpszFileFullPathName, &bSkipScript);
+
+	if (!bSkipScript)
+	{
+		if (_fileChangedScript)
+		{
+			lua_State *L = GetLuaStateForCurrentThread();
+			LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetFileChangeAction", [&] {
+				return dwAction;
+			}).addFunction("GetFileChangeActionString", [&] {
+				static LPCSTR actionText[10] = { nullptr, "Added", "Removed", "Modified", "Renaming", "Renamed", nullptr, nullptr, "Refreshed", nullptr };
+				return std::string(actionText[dwAction]);
+			}).addFunction("GetChangedFileRelativePathName", [&] {
+				USES_CONVERSION;
+				std::string pathName = (LPCSTR)ATL::CW2A(lpszRelativePathName);
+				return pathName;
+			}).addFunction("GetChangedFileFullPathName", [&] {
+				USES_CONVERSION;
+				std::string pathName = (LPCSTR)ATL::CW2A(lpszFileFullPathName);
+				return pathName;
+			}).endModule();
+
+
+			RunScriptCache(*_fileChangedScript.get());
+		}
+	}
 }
 
 std::wstring CUniversalIOCPServer::GetFileContentText(LPCTSTR lpszFile, BOOL *pbResult)

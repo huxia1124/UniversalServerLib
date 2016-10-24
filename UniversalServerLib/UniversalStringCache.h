@@ -322,4 +322,8 @@ public:
 		if(_globalIndex < 0)
 			_globalIndex = _globalIndexBase++;
 	}
+	static int GetScriptIndexBase()
+	{
+		return _globalIndexBase;
+	}
 };

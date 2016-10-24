@@ -271,5 +271,8 @@
     <None Include="client_disconnect.lua">
       <Filter>lua_script</Filter>
     </None>
+    <None Include="file_changed.lua">
+      <Filter>lua_script</Filter>
+    </None>
   </ItemGroup>
 </Project>

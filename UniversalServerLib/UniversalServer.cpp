@@ -190,6 +190,7 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addFunction("SetWorkerThreadInitializationScript", &CServerController::SetWorkerThreadInitializationScript, LUA_ARGS(std::wstring))
 		.addFunction("SetTimerInterval", &CServerController::ChangeTimerInterval, LUA_ARGS(unsigned int))
 		.addFunction("GetNextClientUid", &CServerController::GetNextClientUID)
+		.addFunction("SetFileChangedScript", &CServerController::SetFileChangedScript, LUA_ARGS(std::wstring))
 
 		//Properties
 		.addPropertyReadOnly("DefaultFolderMonitorId", &CServerController::GetDefaultFolderMonitorId, &CServerController::GetDefaultFolderMonitorId)
@@ -203,6 +204,8 @@ void LuaBindClasses(lua_State *pLuaState, CUniversalServer *pServer)
 		.addPropertyReadOnly("TotalSentCount", &CServerController::GetTotalSentCount, &CServerController::GetTotalSentCount)
 		.addProperty("StatisticsLevel", &CServerController::GetStatisticsLevel, &CServerController::GetStatisticsLevel, &CServerController::SetStatisticsLevel)
 		.addProperty("TimerInterval", &CServerController::GetTimerInterval, &CServerController::GetTimerInterval, &CServerController::SetTimerInterval)
+		.addPropertyReadOnly("WorkerThreadScriptCapacity", &CServerController::GetWorkerThreadScriptCapacity, &CServerController::GetWorkerThreadScriptCapacity)
+		.addPropertyReadOnly("WorkerThreadScriptUsage", &CServerController::GetWorkerThreadScriptUsage, &CServerController::GetWorkerThreadScriptUsage)
 		//*/
 		//.addFunction("Terminate", &CUniversalIOCPServer::Initialize)
 		//.addFunction("load", &Web::load, LUA_ARGS(LuaIntf::_opt<std::string>, LuaIntf::_opt<int>))

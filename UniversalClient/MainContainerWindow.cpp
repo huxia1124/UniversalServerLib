@@ -48,7 +48,7 @@ LRESULT CMainContainerWindow::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	return 0;
 }
 
-LRESULT CMainContainerWindow::OnTreeItemClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
+LRESULT CMainContainerWindow::OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 {
 	LPSTXATVNITEM pNM = reinterpret_cast<LPSTXATVNITEM>(pnmh);
 

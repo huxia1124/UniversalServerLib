@@ -41,7 +41,7 @@ protected:
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 
-		NOTIFY_CODE_HANDLER(STXATVN_ITEMCLICK, OnTreeItemClick)
+		NOTIFY_CODE_HANDLER(STXATVN_SELECTEDITEMCHANGED, OnTreeSelectedItemChanged)
 		NOTIFY_CODE_HANDLER(STXATVN_ITEMDBLCLICK, OnTreeItemDblClick)
 	END_MSG_MAP()
 
@@ -59,7 +59,7 @@ protected:
 
 protected:
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
-	LRESULT OnTreeItemClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
+	LRESULT OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 	LRESULT OnTreeItemDblClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 	LRESULT OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
 	{

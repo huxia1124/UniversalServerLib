@@ -19,30 +19,51 @@
 
 #include <atlwin.h>
 
+#include "STXProtocolDialog.h"
 #include "STXAnchor.h"
-#include "MainContainerWindow.h"
+#include "STXAnimatedTreeCtrlNS.h"
+#include <set>
+#include <map>
+#include <memory>
 
-class CMainWindow : public CWindowImpl<CMainWindow, CWindow, CFrameWinTraits>
+class CMainContainerWindow : public CDialogImpl<CMainContainerWindow>
 {
 public:
-	CMainWindow();
-	~CMainWindow();
+	CMainContainerWindow();
+	~CMainContainerWindow();
 
+	enum { IDD = IDD_DIALOG_MAIN_CONTAINER };
 protected:
-	BEGIN_MSG_MAP(CMainWindow)
+
+
+	BEGIN_MSG_MAP(CMainContainerWindow)
 		MESSAGE_HANDLER(WM_CLOSE, OnClose)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+
+		NOTIFY_CODE_HANDLER(STXATVN_ITEMCLICK, OnTreeItemClick)
+		NOTIFY_CODE_HANDLER(STXATVN_ITEMDBLCLICK, OnTreeItemDblClick)
 	END_MSG_MAP()
 
 
 protected:
-	CMainContainerWindow _dlgMain;
 	CSTXAnchor *_anchor;
+	CSTXAnimatedTreeCtrlNS _tree;
+
+	HSTXTREENODE _nodeProtocolTest = nullptr;
+	HSTXTREENODE _nodeServerScriptParent = nullptr;
+	HSTXTREENODE _nodeServerData = nullptr;
+
+	std::shared_ptr<CWindow> _currentMasterDialog;
+	std::map<std::wstring, std::shared_ptr<CWindow>> _masterDialogs;
 
 protected:
+	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnTreeItemClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
+	LRESULT OnTreeItemDblClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 	LRESULT OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
 	{
+
 		DestroyWindow();
 		return 0;
 	}
@@ -57,28 +78,13 @@ protected:
 		PostQuitMessage(0);
 		return 0;
 	}
-	LRESULT OnCreate(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
-	{
-		ModifyStyle(0, WS_CLIPCHILDREN);
-		RECT rcWnd;
-		GetClientRect(&rcWnd);
-		//_dlg.Create(m_hWnd);
-		//_dlg.MoveWindow(&rcWnd);
-		//_dlg.ShowWindow(SW_SHOW);
 
-		_dlgMain.Create(m_hWnd);
-		_dlgMain.MoveWindow(&rcWnd);
-		_dlgMain.ShowWindow(SW_SHOW);
 
-		_anchor = new CSTXAnchor(m_hWnd);
+	void CreateMasterTree();
+	void InitializeTreeItems();
 
-		//_anchor->AddItem(_dlg.m_hWnd, STXANCHOR_ALL);
-		_anchor->AddItem(_dlgMain.m_hWnd, STXANCHOR_ALL);
-
-		//_anchor->AddItem(IDC_STATIC_TIPS_TEXT, STXANCHOR_BOTTOM | STXANCHOR_LEFT);
-		
-		return 0;
-	}
+	void CreateProtocolTestWindow();
+	void CreateScriptWindow(HSTXTREENODE currentNode);
 
 };
 

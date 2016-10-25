@@ -76,7 +76,6 @@ protected:
 		COMMAND_ID_HANDLER(IDC_BUTTON_SEND, OnSendClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_CONNECT, OnConnectClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_HISTORY, OnHistoryClicked)
-		COMMAND_ID_HANDLER(IDC_BUTTON_SCRIPT_DIALOG, OnShowScriptDialogClicked)
 
 		COMMAND_HANDLER(IDC_COMBO_TYPE, CBN_SELCHANGE, OnCbTypeSelChange)
 
@@ -122,7 +121,6 @@ protected:
 	LRESULT OnSendClicked(WORD, UINT, HWND, BOOL&);
 	LRESULT OnConnectClicked(WORD, UINT, HWND, BOOL&);
 	LRESULT OnHistoryClicked(WORD, UINT, HWND, BOOL&);
-	LRESULT OnShowScriptDialogClicked(WORD, UINT, HWND, BOOL&);
 
 	void AddContentToList(LPCTSTR lpszValue);
 	LPVOID GetDataFromHexString(LPCTSTR lpszHexValue, DWORD* pdwLen);

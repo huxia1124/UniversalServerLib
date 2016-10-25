@@ -34,11 +34,16 @@ class CUniversalClientModule
 public:
 	int WinMain(int nCmdShow)
 	{
+		CoInitialize(NULL);
+		ULONG_PTR m_gdiplusToken = 0;
+		Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+		Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
+
 		WSADATA wsd;
 		if (WSAStartup(MAKEWORD(1, 1), &wsd) == 0)
 		{
 			CMainWindow wnd;
-			wnd.Create(NULL, NULL, _T("UniversalClient"));
+			wnd.Create(NULL, NULL, _T("Server Management Tool"));
 			wnd.ShowWindow(SW_SHOW);
 
 			RunMessageLoop();
@@ -49,6 +54,9 @@ public:
 		{
 			//DebugBreak();
 		}
+
+		Gdiplus::GdiplusShutdown(m_gdiplusToken);
+		CoUninitialize();
 
 		return 0;
 	}

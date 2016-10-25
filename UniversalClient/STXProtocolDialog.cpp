@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "STXProtocolDialog.h"
-#include "STXScriptDialog.h"
 #include <regex>
 
 
@@ -512,20 +511,6 @@ LRESULT CSTXProtocolDialog::OnHistoryClicked(WORD, UINT, HWND, BOOL&)
 
 		_cbServers.SetWindowText(item._target.c_str());
 	}
-
-	return 0;
-}
-
-LRESULT CSTXProtocolDialog::OnShowScriptDialogClicked(WORD, UINT, HWND, BOOL&)
-{
-	auto dlg = std::make_shared<CSTXScriptDialog>();
-	dlg->Create(m_hWnd);
-	dlg->ShowWindow(SW_SHOW);
-
-	_scriptDialogs.push_back(dlg);
-
-	//CSTXScriptDialog dlg;
-	//dlg.DoModal(this->m_hWnd);
 
 	return 0;
 }

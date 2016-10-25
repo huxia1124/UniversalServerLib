@@ -132,6 +132,15 @@
     <ClInclude Include="STXScriptDialog.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="MainContainerWindow.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="STXAnimatedTreeCtrlNS.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="STXAccessibleWrapperBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -165,6 +174,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="STXScriptDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MainContainerWindow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="STXAnimatedTreeCtrlNS.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="STXAccessibleWrapperBase.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

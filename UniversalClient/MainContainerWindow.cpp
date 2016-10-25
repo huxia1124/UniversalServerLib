@@ -17,6 +17,7 @@
 
 #include "stdafx.h"
 #include "MainContainerWindow.h"
+#include "STXServerDataDialog.h"
 
 
 CMainContainerWindow::CMainContainerWindow()
@@ -60,7 +61,10 @@ LRESULT CMainContainerWindow::OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh
 	{
 		CreateScriptWindow(pNM->hNode);
 	}
-
+	else if (pNM->hNode == _nodeServerData)
+	{
+		CreateServerDataWindow();
+	}
 	return 0;
 }
 
@@ -98,9 +102,42 @@ void CMainContainerWindow::InitializeTreeItems()
 	_nodeServerScriptParent = nodeScripts;
 
 	auto nodeData = _tree.Internal_InsertItem(_T("Data"));
-	_nodeServerData = _tree.Internal_InsertItem(_T("Server data viewer (TODO)"), nodeData);
+	_nodeServerData = _tree.Internal_InsertItem(_T("Server data viewer (Alpha)"), nodeData);
 }
 
+void CMainContainerWindow::CreateServerDataWindow()
+{
+	if (_currentMasterDialog)
+	{
+		_currentMasterDialog->ShowWindow(SW_HIDE);
+	}
+
+	LPCTSTR windowKey = _T("_ServerDataWindow");
+
+	auto contentPlaceholder = GetDlgItem(IDC_STATIC_CONTENT);
+	RECT rcContent;
+	contentPlaceholder.GetWindowRect(&rcContent);
+	this->ScreenToClient(&rcContent);
+
+	auto it = _masterDialogs.find(windowKey);
+	if (it != _masterDialogs.end())
+	{
+		_currentMasterDialog = it->second;
+		_currentMasterDialog->ShowWindow(SW_SHOW);
+		return;
+	}
+
+	auto dlg = std::make_shared<CSTXServerDataDialog>();
+	_currentMasterDialog = dlg;
+
+	dlg->Create(m_hWnd, rcContent);
+	dlg->MoveWindow(&rcContent);
+	dlg->ShowWindow(SW_SHOW);
+
+	_masterDialogs[windowKey] = dlg;
+
+	_anchor->AddItem(dlg->m_hWnd, STXANCHOR_ALL);
+}
 void CMainContainerWindow::CreateProtocolTestWindow()
 {
 	if (_currentMasterDialog)

@@ -1711,7 +1711,7 @@ void CSTXAnimatedTreeCtrlNS::OnKeyDown_Right()
 	if(m_hSelectedNode == NULL)
 		return;
 
-	if(!m_hSelectedNode->m_bExpanded && m_hSelectedNode->m_arrChildNodes.size() > 0)
+	if(!m_hSelectedNode->m_bExpanded && (m_hSelectedNode->m_arrChildNodes.size() > 0 || m_hSelectedNode->m_dwItemStyle & STXTVIS_FORCE_SHOW_EXPANDER))
 		Internal_Expand(m_hSelectedNode, STXATVE_EXPAND);
 	else
 	{

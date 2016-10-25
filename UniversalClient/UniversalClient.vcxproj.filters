@@ -141,6 +141,9 @@
     <ClInclude Include="STXAccessibleWrapperBase.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="STXServerDataDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -183,6 +186,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="STXAccessibleWrapperBase.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="STXServerDataDialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

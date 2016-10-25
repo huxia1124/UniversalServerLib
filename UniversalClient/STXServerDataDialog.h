@@ -18,74 +18,63 @@
 #pragma once
 
 #include <atlwin.h>
+#include <atlapp.h>
+#include <atlctrls.h>
+#include <vector>
+#include <string>
 
-#include "STXProtocolDialog.h"
+#include "Resource.h"
 #include "STXAnchor.h"
 #include "STXAnimatedTreeCtrlNS.h"
-#include <set>
-#include <map>
-#include <memory>
 
-class CMainContainerWindow : public CDialogImpl<CMainContainerWindow>
+class CSTXServerDataDialog : public CDialogImpl<CSTXServerDataDialog>
 {
 public:
-	CMainContainerWindow();
-	~CMainContainerWindow();
+	CSTXServerDataDialog();
+	~CSTXServerDataDialog();
 
-	enum { IDD = IDD_DIALOG_MAIN_CONTAINER };
+public:
+	enum {IDD = IDD_DIALOG_SERVER_DATA};
+
 protected:
+	CSTXAnchor *_anchor;
+	WTL::CComboBox _cbRPCHost;
+	std::wstring _host;
+	std::wstring _port;
+	CSTXAnimatedTreeCtrlNS _tree;
+	HWND _hWndCurrentEditor = NULL;
 
-
-	BEGIN_MSG_MAP(CMainContainerWindow)
-		MESSAGE_HANDLER(WM_CLOSE, OnClose)
-		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+protected:
+	BEGIN_MSG_MAP(CSTXScriptDialog)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-
+		COMMAND_ID_HANDLER(IDC_BUTTON_REFRESH, OnRefreshClicked)
+		NOTIFY_CODE_HANDLER(STXATVN_ITEMEXPANDING, OnTreeItemExpanding)
+		NOTIFY_CODE_HANDLER(STXATVN_POSTDELETEITEM, OnTreeItemPostDelete)
 		NOTIFY_CODE_HANDLER(STXATVN_SELECTEDITEMCHANGED, OnTreeSelectedItemChanged)
-		NOTIFY_CODE_HANDLER(STXATVN_ITEMDBLCLICK, OnTreeItemDblClick)
+
 	END_MSG_MAP()
 
 
 protected:
-	CSTXAnchor *_anchor;
-	CSTXAnimatedTreeCtrlNS _tree;
 
-	HSTXTREENODE _nodeProtocolTest = nullptr;
-	HSTXTREENODE _nodeServerScriptParent = nullptr;
-	HSTXTREENODE _nodeServerData = nullptr;
 
-	std::shared_ptr<CWindow> _currentMasterDialog;
-	std::map<std::wstring, std::shared_ptr<CWindow>> _masterDialogs;
+	void InitializeRPCHostCombobox();
+	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
+
+
+
+	LRESULT OnRefreshClicked(WORD, UINT, HWND, BOOL&);
+	LRESULT OnTreeItemExpanding(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
+	LRESULT OnTreeItemPostDelete(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
+	LRESULT OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
+
+	void GetErrorText(RPC_STATUS NTStatusMessage, CString &err);
+	void CreateDataTree();
+	void CreateDataEditor(HSTXTREENODE treeNode);
+	CString GetSelectedItemFullPath();
 
 protected:
-	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
-	LRESULT OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
-	LRESULT OnTreeItemDblClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
-	LRESULT OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
-	{
-
-		DestroyWindow();
-		return 0;
-	}
-	LRESULT OnDestroy(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
-	{
-		if (_anchor)
-		{
-			delete _anchor;
-			_anchor = NULL;
-		}
-
-		PostQuitMessage(0);
-		return 0;
-	}
-
-
-	void CreateMasterTree();
-	void InitializeTreeItems();
-
-	void CreateProtocolTestWindow();
-	void CreateServerDataWindow();
-	void CreateScriptWindow(HSTXTREENODE currentNode);
-
+	void GetSharedDataTreeNodes(LPCTSTR lpszPath, std::vector<std::wstring>* pNodeNames, std::vector<int>* pNodeTypes, CString &err);
+	void GetSharedDataTreeNodeStringValue(LPCTSTR lpszPath, CString &value, CString &err);
 };
 

@@ -197,6 +197,9 @@ public:
 	bool IsValueExists(std::wstring strPathName);
 	bool IsContainStringValue(std::wstring strPathName, std::wstring value);
 	bool IsContainIntegerValue(std::wstring strPathName, int64_t value);
+
+public:
+	static std::shared_ptr<CSTXMemoryVariableNode> GetRootNode();
 };
 
 //////////////////////////////////////////////////////////////////////////

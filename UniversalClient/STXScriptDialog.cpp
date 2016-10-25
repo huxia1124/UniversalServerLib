@@ -41,6 +41,7 @@ void CSTXScriptDialog::InitializeRPCHostCombobox()
 
 LRESULT CSTXScriptDialog::OnRunScriptClicked(WORD, UINT, HWND, BOOL&)
 {
+
 	::EnableWindow(GetDlgItem(IDOK), FALSE);
 	UpdateWindow();
 
@@ -63,8 +64,6 @@ LRESULT CSTXScriptDialog::OnRunScriptClicked(WORD, UINT, HWND, BOOL&)
 	}
 
 	delete[]pTextHost;
-
-
 
 	int nLen = _edtScript.GetWindowTextLength();
 	//if (nLen == 0)

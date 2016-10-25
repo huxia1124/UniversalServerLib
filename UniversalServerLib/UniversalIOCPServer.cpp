@@ -1452,6 +1452,8 @@ void CUniversalIOCPServer::OnShutDown()
 	CSTXIOCPServer::OnShutDown();
 }
 
+#include <atlsafe.h>
+
 extern "C"
 {
 	void RunScriptFile(handle_t IDL_handle, const WCHAR *pszScriptFile)
@@ -1470,6 +1472,65 @@ extern "C"
 	void EnqueueWorkerThreadScriptString(handle_t IDL_handle, const WCHAR *pszScript)
 	{
 		_s_server->_pServer->EnqueueWorkerThreadScriptString(pszScript);
+	}
+	void GetSharedDataTreeNodes(handle_t IDL_handle, const WCHAR* szPath, SAFEARRAY **nodeNames, SAFEARRAY **nodeTypes)
+	{
+		auto rootNode = CUniversalSharedDataTree::GetRootNode();
+		std::shared_ptr<CSTXMemoryVariableNode> targetNode = rootNode;
+		if (szPath == NULL || szPath[0] == 0)
+		{
+
+		}
+		else
+		{
+			targetNode = rootNode->GetVariableNode(szPath);
+		}
+		if (targetNode == nullptr)
+		{
+			return;
+		}
+
+		std::vector<std::shared_ptr<CSTXMemoryVariableNode>> children;
+		targetNode->GetChildren(&children);
+		*nodeNames = SafeArrayCreateVector(VT_BSTR, 0, children.size());
+		*nodeTypes = SafeArrayCreateVector(VT_I4, 0, children.size());
+
+		ATL::CComSafeArray<BSTR> sa;
+		sa.Attach(*nodeNames);
+
+		ATL::CComSafeArray<int> saType;
+		saType.Attach(*nodeTypes);
+
+		LONG i = 0;
+		for (auto node : children)
+		{
+			BSTR pStr = SysAllocString(CComBSTR(node->GetName().c_str()));
+			sa.SetAt(i, pStr);
+			saType.SetAt(i, node->GetThisVariableType());
+			i++;
+		}
+
+		sa.Detach();
+		saType.Detach();
+	}
+	void GetSharedDataTreeNodeStringValue(handle_t IDL_handle, const WCHAR *szPath, BSTR *pstrValue)
+	{
+		auto rootNode = CUniversalSharedDataTree::GetRootNode();
+		std::shared_ptr<CSTXMemoryVariableNode> targetNode = rootNode;
+		if (szPath == NULL || szPath[0] == 0)
+		{
+
+		}
+		else
+		{
+			targetNode = rootNode->GetVariableNode(szPath);
+		}
+		if (targetNode == nullptr)
+		{
+			return;
+		}
+
+		*pstrValue = SysAllocString(CComBSTR(targetNode->GetThisStringValue().c_str()));
 	}
 	void* /*__RPC_FAR**/ __RPC_USER midl_user_allocate(size_t len)
 	{

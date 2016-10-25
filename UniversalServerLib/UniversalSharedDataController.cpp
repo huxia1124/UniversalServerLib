@@ -227,6 +227,11 @@ bool CUniversalSharedDataTree::IsContainIntegerValue(std::wstring strPathName, i
 	return _rootNode->IsContainIntegerValue(strPathName, value);
 }
 
+std::shared_ptr<CSTXMemoryVariableNode> CUniversalSharedDataTree::GetRootNode()
+{
+	return _s_rootNode;
+}
+
 CUniversalSharedDataController::CUniversalSharedDataController(std::string)
 {
 }

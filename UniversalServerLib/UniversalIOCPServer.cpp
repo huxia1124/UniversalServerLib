@@ -1473,7 +1473,7 @@ extern "C"
 	{
 		_s_server->_pServer->EnqueueWorkerThreadScriptString(pszScript);
 	}
-	void GetSharedDataTreeNodes(handle_t IDL_handle, const WCHAR* szPath, SAFEARRAY **nodeNames, SAFEARRAY **nodeTypes)
+	void GetSharedDataTreeNodes(handle_t IDL_handle, const WCHAR* szPath, SAFEARRAY **nodeNames, SAFEARRAY **nodeTypes, SAFEARRAY **nodeFlags)
 	{
 		auto rootNode = CUniversalSharedDataTree::GetRootNode();
 		std::shared_ptr<CSTXMemoryVariableNode> targetNode = rootNode;
@@ -1494,6 +1494,7 @@ extern "C"
 		targetNode->GetChildren(&children);
 		*nodeNames = SafeArrayCreateVector(VT_BSTR, 0, children.size());
 		*nodeTypes = SafeArrayCreateVector(VT_I4, 0, children.size());
+		*nodeFlags = SafeArrayCreateVector(VT_UI4, 0, children.size());
 
 		ATL::CComSafeArray<BSTR> sa;
 		sa.Attach(*nodeNames);
@@ -1501,17 +1502,22 @@ extern "C"
 		ATL::CComSafeArray<int> saType;
 		saType.Attach(*nodeTypes);
 
+		ATL::CComSafeArray<unsigned long> saFlags;
+		saFlags.Attach(*nodeFlags);
+
 		LONG i = 0;
 		for (auto node : children)
 		{
 			BSTR pStr = SysAllocString(CComBSTR(node->GetName().c_str()));
 			sa.SetAt(i, pStr);
 			saType.SetAt(i, node->GetThisVariableType());
+			saFlags.SetAt(i, node->GetThisVariableFlags());
 			i++;
 		}
 
 		sa.Detach();
 		saType.Detach();
+		saFlags.Detach();
 	}
 	void GetSharedDataTreeNodeStringValue(handle_t IDL_handle, const WCHAR *szPath, BSTR *pstrValue)
 	{
@@ -1611,6 +1617,7 @@ void CUniversalIOCPServer::OnServerInitialized()
 		this->AddFolderMonitorIgnoreFileExtension(_defaultFolderMonitorID, _T(".log"));
 	}
 
+	InitializeServerDataForShareDataTree();
 	CreateServerRPCThread();
 }
 
@@ -2250,6 +2257,33 @@ void CUniversalIOCPServer::LuaBindSTXProtocolClasses(lua_State *L)
 		.addPropertyReadOnly("NextFieldType", &CSTXProtocolLua::GetNextFieldType, &CSTXProtocolLua::GetNextFieldType)
 		.addPropertyReadOnly("DataSize", &CSTXProtocolLua::GetDataSize, &CSTXProtocolLua::GetDataSize)
 		.endClass();
+}
+
+void CUniversalIOCPServer::InitializeServerDataForShareDataTree()
+{
+	auto root = CUniversalSharedDataTree::GetRootNode();
+
+	auto RegisterReadOnlyDWordValue = [&](LPCTSTR lpszPath, DWORD &refValue) {
+		root->RegisterDWordVariable(lpszPath, (uint32_t*)&refValue);
+		root->SetVariableReadOnly(lpszPath, true);
+	};
+	auto RegisterReadOnlyStringValue = [&](LPCTSTR lpszPath, LPCTSTR refValue) {
+		root->RegisterStringVariable(lpszPath, refValue);
+		root->SetVariableReadOnly(lpszPath, true);
+	};
+
+	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\RWBufferSize"), m_BaseServerInfo.dwBufferSize);
+	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\TimerInterval"), m_BaseServerInfo.dwTimerInterval);
+	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\AcceptBufferSize"), m_BaseServerInfo.dwAcceptBufferSize);
+	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\BufferInitialCount"), m_BaseServerInfo.dwBufferInitialCount);
+	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\BufferMaxCount"), m_BaseServerInfo.dwBufferMaxCount);
+	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\DefaultOperationTimeout"), m_BaseServerInfo.dwDefaultOperationTimeout);
+	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\FolderMonitorBufferSize"), m_BaseServerInfo.dwFolderMonitorBufferSize);
+	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\LogBufferSize"), m_BaseServerInfo.dwLogBufferSize);
+	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\LogFlags"), m_BaseServerInfo.dwLogFlags);
+	RegisterReadOnlyStringValue(_T("Server\\Initial\\Information\\IniFilePathName"), m_szIniFilePath);
+
+	
 }
 
 int CUniversalIOCPServer::LoadScriptCache(lua_State *pLuaState, CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread)

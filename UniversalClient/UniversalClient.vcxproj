@@ -170,6 +170,7 @@
   <ItemGroup>
     <ClInclude Include="..\UniversalServerLib\Protocol\STXProtocol.h" />
     <ClInclude Include="..\UniversalServerLib\UniversalServerRPC_h.h" />
+    <ClInclude Include="Common.h" />
     <ClInclude Include="MainContainerWindow.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Resource.h" />
@@ -244,6 +245,7 @@
     <ResourceCompile Include="UniversalClient.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\readonly_32.png" />
     <Image Include="small.ico" />
     <Image Include="UniversalClient.ico" />
   </ItemGroup>

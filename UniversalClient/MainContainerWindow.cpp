@@ -19,6 +19,32 @@
 #include "MainContainerWindow.h"
 #include "STXServerDataDialog.h"
 
+IStream* LoadImageFromResource(HMODULE hModule, LPCWSTR lpName, LPCWSTR lpType)
+{
+	HRSRC hRC = FindResource(hModule, lpName, lpType);
+	if (hRC == NULL)
+		return NULL;
+
+	HGLOBAL hPkg = LoadResource(hModule, hRC);
+	if (hPkg == NULL)
+		return NULL;
+
+	DWORD dwSize = SizeofResource(hModule, hRC);
+	LPVOID pData = LockResource(hPkg);
+
+	HGLOBAL hImage = GlobalAlloc(GMEM_FIXED, dwSize);
+	LPVOID pImageBuf = GlobalLock(hImage);
+	memcpy(pImageBuf, pData, dwSize);
+	GlobalUnlock(hImage);
+
+	UnlockResource(hPkg);
+
+	IStream *pStream = NULL;
+	CreateStreamOnHGlobal(hImage, TRUE, &pStream);
+
+	return pStream;
+}
+
 
 CMainContainerWindow::CMainContainerWindow()
 {
@@ -102,7 +128,7 @@ void CMainContainerWindow::InitializeTreeItems()
 	_nodeServerScriptParent = nodeScripts;
 
 	auto nodeData = _tree.Internal_InsertItem(_T("Data"));
-	_nodeServerData = _tree.Internal_InsertItem(_T("Server data viewer (Alpha)"), nodeData);
+	_nodeServerData = _tree.Internal_InsertItem(_T("Server data viewer"), nodeData);
 }
 
 void CMainContainerWindow::CreateServerDataWindow()

@@ -95,7 +95,6 @@ protected:
 protected:
 	void RunServerScriptFile(LPCTSTR lpszScriptFile);
 	void RunServerScriptString(LPCTSTR lpszScript, CString &result, CString &err);
-	void GetSharedDataTreeNodes(LPCTSTR lpszPath);
 	void EnqueueServerWorkerThreadScriptString(LPCTSTR lpszScript, CString &err);
 
 };

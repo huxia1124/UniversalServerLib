@@ -305,6 +305,7 @@ public:
 	void StopServerRPC();
 
 protected:
+	void InitializeServerDataForShareDataTree();
 	int LoadScriptCache(lua_State *pLuaState, CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread);
 	void UpdateLuaModuleReference(lua_State *pLuaState, CUniversalStringCache &cache);
 	void SetLuaCacheDirtyForModuleChange(LPCTSTR lpszScriptModule);

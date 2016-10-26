@@ -144,6 +144,9 @@
     <ClInclude Include="STXServerDataDialog.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -202,6 +205,9 @@
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="UniversalClient.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\readonly_32.png">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

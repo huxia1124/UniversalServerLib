@@ -271,8 +271,9 @@ std::wstring CSTXMemoryVariableNode::GetStringValue(std::wstring strPathName)
 		return _T("");
 
 	pNode->LockValue();
-	return GetStringValue(pNode->_ptr, pNode->_type);
+	auto result = GetStringValue(pNode->_ptr, pNode->_type);
 	pNode->UnlockValue();
+	return result;
 }
 
 std::wstring CSTXMemoryVariableNode::GetStringValue(void *ptr, int dataType)
@@ -1037,10 +1038,29 @@ int64_t CSTXMemoryVariableNode::GetThisIntegerValue()
 		return intervalValue.first();
 	}
 
-	if (_type != STXVariableTreeNodeType_Int64)
-		return 0;
+	switch (_type)
+	{
+	case STXVariableTreeNodeType_Int64:		//int64
+		return (*((int64_t*)_ptr));
+	case STXVariableTreeNodeType_Int32:		//int32
+		return *((int32_t*)_ptr);
+	case STXVariableTreeNodeType_Int:		//int
+		return *((int*)_ptr);
+		break;
+	case STXVariableTreeNodeType_Float:		//float
+		return (int)(*((float*)_ptr));
+		break;
+	case STXVariableTreeNodeType_Double:		//double
+		return (int)(*((double*)_ptr));
+		break;
+	case STXVariableTreeNodeType_Word:		//uint16_t
+		return *((uint16_t*)_ptr);
+		break;
+	case STXVariableTreeNodeType_DWord:		//uint32_t
+		return *((uint32_t*)_ptr);
+	}
 
-	return (*((int64_t*)_ptr));
+	return 0;
 }
 
 void CSTXMemoryVariableNode::SetThisIntegerValue(int64_t value)

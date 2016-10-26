@@ -27,6 +27,15 @@
 #include "STXAnchor.h"
 #include "STXAnimatedTreeCtrlNS.h"
 
+struct TreeNodeData
+{
+	int status = 0;
+	int dataType = 0;
+	unsigned flags = 0;
+	std::wstring nodeName;
+	std::wstring nodeFullPathName;
+};
+
 class CSTXServerDataDialog : public CDialogImpl<CSTXServerDataDialog>
 {
 public:
@@ -48,6 +57,7 @@ protected:
 	BEGIN_MSG_MAP(CSTXScriptDialog)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDC_BUTTON_REFRESH, OnRefreshClicked)
+		COMMAND_ID_HANDLER(IDC_BUTTON_SAVE_DATA, OnSaveDataClicked)
 		NOTIFY_CODE_HANDLER(STXATVN_ITEMEXPANDING, OnTreeItemExpanding)
 		NOTIFY_CODE_HANDLER(STXATVN_POSTDELETEITEM, OnTreeItemPostDelete)
 		NOTIFY_CODE_HANDLER(STXATVN_SELECTEDITEMCHANGED, OnTreeSelectedItemChanged)
@@ -64,6 +74,8 @@ protected:
 
 
 	LRESULT OnRefreshClicked(WORD, UINT, HWND, BOOL&);
+	LRESULT OnSaveDataClicked(WORD, UINT, HWND, BOOL&);
+
 	LRESULT OnTreeItemExpanding(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 	LRESULT OnTreeItemPostDelete(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 	LRESULT OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
@@ -72,10 +84,15 @@ protected:
 	void CreateDataTree();
 	void CreateDataEditor(HSTXTREENODE treeNode);
 	CString GetSelectedItemFullPath();
+	CString GetTreeNodeFullPath(HSTXTREENODE treeNode);
 	void DeleteAllChildNodes(HSTXTREENODE parentNode);
+	void SetTreeNodeAppearance(HSTXTREENODE treeNode, TreeNodeData *nodeData);
+	CString GenerateTreeNodeText(LPCTSTR lpszOriginalName, TreeNodeData *nodeData);
+	CString CombineNodePath(LPCTSTR pathLeft, LPCTSTR pathRight);
 
 protected:
-	void GetSharedDataTreeNodes(LPCTSTR lpszPath, std::vector<std::wstring>* pNodeNames, std::vector<int>* pNodeTypes, CString &err);
+	void GetSharedDataTreeNodes(LPCTSTR lpszPath, std::vector<std::wstring>* pNodeNames, std::vector<int>* pNodeTypes, std::vector<unsigned long>* pNodeFlags, CString &err);
 	void GetSharedDataTreeNodeStringValue(LPCTSTR lpszPath, CString &value, CString &err);
+	void RunServerScriptString(LPCTSTR lpszScript, CString &result, CString &err);
 };
 

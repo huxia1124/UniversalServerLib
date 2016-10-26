@@ -28,8 +28,11 @@ enum STXVariableTreeNodeType
 	STXVariableTreeNodeType_IntegerSet = 12,
 	STXVariableTreeNodeType_DoubleVector = 13,
 	STXVariableTreeNodeType_DoubleSet = 14,
+	STXVariableTreeNodeType_IntFunction = 15,
 	STXVariableTreeNodeType_Custom = 30000,
 };
+
+#define STXMEMVAR_FLAG_READONLY			0x00000001
 
 class CSTXMemoryVariableNode
 {
@@ -75,6 +78,7 @@ protected:
 	CSTXMemoryVariableNode *_parentNode = nullptr;
 	std::wstring _name;
 	bool _managedValue = false;		//if true, the data in _ptr should be deleted by this object
+	bool _readOnly = false;
 	std::recursive_mutex _value_mtx;	//used when modifying node value
 
 	CSTXHashMap<std::wstring, std::shared_ptr<CSTXMemoryVariableNode>, 8, 1, CSTXDefaultWStringHash<8, 1>> _mapContent;
@@ -110,6 +114,7 @@ protected:
 	bool IsContainStringValue(void *ptr, int dataType, std::wstring strValue);
 	bool IsContainIntegerValue(void *ptr, int dataType, int64_t value);
 	void ClearValue(void *ptr, int dataType);
+	uint32_t GetVariableFlags(CSTXMemoryVariableNode *node);
 
 protected:
 	std::shared_ptr<CSTXMemoryVariableNode> _RegisterVariable(wchar_t **pathArray, STXVariableTreeNodeType nType, void* pAddress, bool managed);
@@ -151,6 +156,7 @@ public:
 	void RegisterStringSetVariable(std::wstring strPathName);
 	void RegisterIntegerVariable(std::wstring strPathName, int64_t value);
 	void RegisterIntegerVariable(std::wstring strPathName);
+	void RegisterIntegerVariable(std::wstring strPathName, std::function<int64_t(void)> pfnValueGet, std::function<void(int64_t)> pfnValueSet = nullptr);
 	void RegisterDoubleVariable(std::wstring strPathName, double value);
 	void RegisterDoubleVariable(std::wstring strPathName);
 	void RegisterIntegerVectorVariable(std::wstring strPathName, std::vector<int64_t> value);
@@ -201,10 +207,12 @@ public:
 	void AddStringValue(std::wstring strPathName, std::wstring strValue);
 	void AddIntegerValue(std::wstring strPathName, int64_t value);
 	void AddDoubleValue(std::wstring strPathName, double value);
+
 	void RemoveStringValue(std::wstring strPathName, std::wstring strValue);
 	void RemoveThisStringValue(std::wstring strValue);
 	void RemoveIntegerValue(std::wstring strPathName, int64_t value);
 	void RemoveThisIntegerValue(int64_t value);
+
 	bool IsContainStringValue(std::wstring strPathName, std::wstring strValue);
 	bool IsContainIntegerValue(std::wstring strPathName, int64_t value);
 	bool IsContainThisStringValue(std::wstring strValue);
@@ -242,5 +250,12 @@ public:
 
 	size_t GetThisChildrenCount();
 	size_t GetChildrenCount(std::wstring strPathName);
+	bool IsReadOnlyVariable(std::wstring strPathName);
+	bool IsThisReadOnlyVariable();
+	void SetVariableReadOnly(std::wstring strPathName, bool readOnly = true);
+	void SetThisVariableReadOnly(bool readOnly = true);
+
+	uint32_t GetVariableFlags(std::wstring strPathName);
+	uint32_t GetThisVariableFlags();
 
 };

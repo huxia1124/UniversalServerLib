@@ -140,7 +140,9 @@ CSTXMemoryVariableNode::~CSTXMemoryVariableNode()
 		case STXVariableTreeNodeType_Custom:		//Any custom type
 			((void(*)(void*))_varDestructor)(_ptr);
 			break;
-
+		case STXVariableTreeNodeType_IntFunction:		//pair<std::function<int64_t(void)>, function<void(int64_t)>>
+			delete (std::pair<std::function<int64_t(void)>, std::function<void(int64_t)>>*)_ptr;
+			break;
 		default:
 			break;
 		}
@@ -1037,10 +1039,7 @@ int64_t CSTXMemoryVariableNode::GetIntegerValue(std::wstring strPathName)
 	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
 		return 0;
 
-	if (pNode->_type != STXVariableTreeNodeType_Int64)
-		return 0;
-
-	return (*((int64_t*)pNode->_ptr));
+	return pNode->GetThisIntegerValue();
 }
 
 void CSTXMemoryVariableNode::SetIntegerValue(std::wstring strPathName, int64_t value)
@@ -1049,14 +1048,20 @@ void CSTXMemoryVariableNode::SetIntegerValue(std::wstring strPathName, int64_t v
 	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
 		return;
 
-	if (pNode->_type != STXVariableTreeNodeType_Int64)
-		return;
-
-	*((int64_t*)pNode->_ptr) = value;
+	pNode->SetThisIntegerValue(value);
 }
 
 int64_t CSTXMemoryVariableNode::GetThisIntegerValue()
 {
+	if (_type == STXVariableTreeNodeType_IntFunction)
+	{
+		auto &intervalValue = *((std::pair<std::function<int64_t(void)>, std::function<void(int64_t)>>*)_ptr);
+		if (!intervalValue.first)
+			return 0;
+
+		return intervalValue.first();
+	}
+
 	if (_type != STXVariableTreeNodeType_Int64)
 		return 0;
 
@@ -1065,6 +1070,19 @@ int64_t CSTXMemoryVariableNode::GetThisIntegerValue()
 
 void CSTXMemoryVariableNode::SetThisIntegerValue(int64_t value)
 {
+	if (_readOnly)
+		return;
+
+	if (_type == STXVariableTreeNodeType_IntFunction)
+	{
+		auto &intervalValue = *((std::pair<std::function<int64_t(void)>, std::function<void(int64_t)>>*)_ptr);
+		if (!intervalValue.second)
+			return;
+
+		return intervalValue.second(value);
+	}
+
+
 	if (_type != STXVariableTreeNodeType_Int64)
 		return;
 
@@ -1174,6 +1192,57 @@ size_t CSTXMemoryVariableNode::GetChildrenCount(std::wstring strPathName)
 		return 0;
 
 	return pNode->GetThisChildrenCount();
+}
+
+bool CSTXMemoryVariableNode::IsReadOnlyVariable(std::wstring strPathName)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL)
+		return false;
+
+	return pNode->_readOnly;
+}
+
+bool CSTXMemoryVariableNode::IsThisReadOnlyVariable()
+{
+	return _readOnly;
+}
+
+void CSTXMemoryVariableNode::SetVariableReadOnly(std::wstring strPathName, bool readOnly /*= true*/)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL)
+		return;
+
+	pNode->_readOnly = readOnly;
+}
+
+void CSTXMemoryVariableNode::SetThisVariableReadOnly(bool readOnly /*= true*/)
+{
+	_readOnly = readOnly;
+}
+
+uint32_t CSTXMemoryVariableNode::GetVariableFlags(CSTXMemoryVariableNode *node)
+{
+	uint32_t flags = 0;
+	if (node->_readOnly)
+		flags |= STXMEMVAR_FLAG_READONLY;
+
+	return flags;
+}
+
+uint32_t CSTXMemoryVariableNode::GetVariableFlags(std::wstring strPathName)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL)
+		return 0;
+
+	return GetVariableFlags(pNode.get());
+}
+
+uint32_t CSTXMemoryVariableNode::GetThisVariableFlags()
+{
+	return GetVariableFlags(this);
 }
 
 int CSTXMemoryVariableNode::GetChildrenNames(std::vector<std::wstring> *pArrNames)
@@ -1358,6 +1427,23 @@ void CSTXMemoryVariableNode::RegisterIntegerVariable(std::wstring strPathName, i
 void CSTXMemoryVariableNode::RegisterIntegerVariable(std::wstring strPathName)
 {
 	RegisterInt64Variable(strPathName, (int64_t)0);
+}
+
+void CSTXMemoryVariableNode::RegisterIntegerVariable(std::wstring strPathName, std::function<int64_t(void)> pfnValueGet, std::function<void(int64_t)> pfnValueSet /*= nullptr*/)
+{
+	auto nodeExists = GetVariableNode(strPathName);
+	if (nodeExists)
+	{
+		if (!nodeExists->IsNewTypeAcceptable(STXVariableTreeNodeType_IntFunction))
+		{
+			throw std::runtime_error("The node already has a value of different type.");
+		}
+		return;
+	}
+	auto internalValue = new std::pair<std::function<int64_t(void)>, std::function<void(int64_t)>>(pfnValueGet, pfnValueSet);
+	auto var = RegisterVariable(strPathName, STXVariableTreeNodeType_IntFunction, internalValue, true);
+	var->_managedValue = true;
+	var->_readOnly = (pfnValueSet == nullptr);
 }
 
 void CSTXMemoryVariableNode::RegisterIntegerVectorVariable(std::wstring strPathName, std::vector<int64_t> value)

@@ -228,6 +228,7 @@ public:
 
 	double GetDoubleValue(std::wstring strPathName);
 	void SetDoubleValue(std::wstring strPathName, double value);
+	void SetThisDoubleValue(double value);
 
 	int64_t IncreaseIntegerValue(std::wstring strPathName, int64_t delta);
 	int64_t IncreaseThisIntegerValue(int64_t delta);

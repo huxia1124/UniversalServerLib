@@ -261,35 +261,7 @@ void CSTXMemoryVariableNode::SetStringValue(std::wstring strPathName, std::wstri
 	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
 		return;
 
-	switch (pNode->_type)
-	{
-	case STXVariableTreeNodeType_Int32:		//int32
-		*((int32_t*)pNode->_ptr) = _ttoi(strValue.c_str());
-		break;
-	case STXVariableTreeNodeType_Int64:		//int64
-		*((int64_t*)pNode->_ptr) = _ttoi64(strValue.c_str());
-		break;
-	case STXVariableTreeNodeType_WString:		//wstring
-		*((std::wstring*)pNode->_ptr) = strValue;
-		break;
-	case STXVariableTreeNodeType_Int:		//int
-		*((int*)pNode->_ptr) = _ttoi(strValue.c_str());
-		break;
-	case STXVariableTreeNodeType_Float:		//float
-		*((float*)pNode->_ptr) = (float)_ttof(strValue.c_str());
-		break;
-	case STXVariableTreeNodeType_Double:		//double
-		*((double*)pNode->_ptr) = _ttof(strValue.c_str());
-		break;
-	case STXVariableTreeNodeType_Word:		//uint16_t
-		*((uint16_t*)pNode->_ptr) = (uint16_t)_tcstoul(strValue.c_str(), NULL, 10);
-		break;
-	case STXVariableTreeNodeType_DWord:		//uint32_t
-		*((uint32_t*)pNode->_ptr) = (uint32_t)_tcstoul(strValue.c_str(), NULL, 10);
-		break;
-	default:
-		break;
-	}
+	pNode->SetThisStringValue(strValue);
 }
 
 std::wstring CSTXMemoryVariableNode::GetStringValue(std::wstring strPathName)
@@ -443,6 +415,9 @@ std::wstring CSTXMemoryVariableNode::GetThisStringValue()
 
 void CSTXMemoryVariableNode::SetThisStringValue(std::wstring strValue)
 {
+	if (_readOnly)
+		return;
+
 	if (_type < 0)
 		return;
 
@@ -1107,10 +1082,18 @@ void CSTXMemoryVariableNode::SetDoubleValue(std::wstring strPathName, double val
 	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
 		return;
 
-	if (pNode->_type != STXVariableTreeNodeType_Double)
+	pNode->SetThisDoubleValue(value);
+}
+
+void CSTXMemoryVariableNode::SetThisDoubleValue(double value)
+{
+	if (_readOnly)
 		return;
 
-	*((double*)pNode->_ptr) = value;
+	if (_type != STXVariableTreeNodeType_Double)
+		return;
+
+	*((double*)_ptr) = value;
 }
 
 int64_t CSTXMemoryVariableNode::IncreaseIntegerValue(std::wstring strPathName, int64_t delta)

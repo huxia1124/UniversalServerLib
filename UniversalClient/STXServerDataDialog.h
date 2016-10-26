@@ -72,6 +72,7 @@ protected:
 	void CreateDataTree();
 	void CreateDataEditor(HSTXTREENODE treeNode);
 	CString GetSelectedItemFullPath();
+	void DeleteAllChildNodes(HSTXTREENODE parentNode);
 
 protected:
 	void GetSharedDataTreeNodes(LPCTSTR lpszPath, std::vector<std::wstring>* pNodeNames, std::vector<int>* pNodeTypes, CString &err);

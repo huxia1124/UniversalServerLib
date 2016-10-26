@@ -279,6 +279,19 @@ void CSTXAnchor::DeleteItem(HWND pToolWnd)
 	}
 }
 
+void CSTXAnchor::DeleteItem(UINT uDlgItemID)
+{
+	for (size_t i = 0; i < m_arrpItems.size(); i++)
+	{
+		if (m_arrpItems[i]->m_AnchorItemInfo.iItemType == STXANCHOR_ITEM_DLGITEM && (UINT)(m_arrpItems[i]->m_AnchorItemInfo.dwAnchorTool) == uDlgItemID)
+		{
+			delete m_arrpItems[i];
+			m_arrpItems.erase(m_arrpItems.begin() + i);
+			break;
+		}
+	}
+}
+
 //static
 LRESULT CALLBACK CSTXAnchor::NewWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {

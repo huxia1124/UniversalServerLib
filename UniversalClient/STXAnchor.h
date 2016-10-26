@@ -90,6 +90,7 @@ public:
 	void AddItem(UINT uDlgItemID,DWORD dwAnchor);
 	void AddAllChildren(DWORD dwAnchor);
 	void DeleteItem(HWND pToolWnd);
+	void DeleteItem(UINT uDlgItemID);
 
 	void Adjust(int cxOld,int cyOld,int cxNew,int cyNew);
 	void Adjust(int cxDelta,int cyDelta);

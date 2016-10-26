@@ -64,12 +64,21 @@ LRESULT CSTXServerDataDialog::OnRefreshClicked(WORD, UINT, HWND, BOOL&)
 
 	delete[]pTextHost;
 
-	_tree.Internal_DeleteItem(STXTVI_ROOT);
+	auto selectedTreeNode = _tree.GetSelectedItem();
+	CString selectedTreeNodePath = GetSelectedItemFullPath();
+	if (selectedTreeNode == NULL)
+	{
+		selectedTreeNode = STXTVI_ROOT;
+	}
+
+	//_tree.Internal_DeleteItem(selectedTreeNode);
+
+	DeleteAllChildNodes(selectedTreeNode);
 
 	std::vector<std::wstring> nodeNames;
 	std::vector<int> nodeTypes;
 	CString error;
-	GetSharedDataTreeNodes(_T(""), &nodeNames, &nodeTypes, error);
+	GetSharedDataTreeNodes(selectedTreeNodePath, &nodeNames, &nodeTypes, error);
 
 	if (!error.IsEmpty())
 	{
@@ -80,7 +89,7 @@ LRESULT CSTXServerDataDialog::OnRefreshClicked(WORD, UINT, HWND, BOOL&)
 		size_t count = nodeNames.size();
 		for (int i = 0; i < count; i++)
 		{
-			auto treeNode = _tree.Internal_InsertItem(nodeNames[i].c_str());
+			auto treeNode = _tree.Internal_InsertItem(nodeNames[i].c_str(), selectedTreeNode);
 			TreeNodeData *itemData = new TreeNodeData();
 			itemData->dataType = nodeTypes[i];
 			_tree.Internal_SetItemData(treeNode, (DWORD_PTR)itemData);
@@ -328,6 +337,18 @@ CString CSTXServerDataDialog::GetSelectedItemFullPath()
 	}
 	fullPath.TrimLeft(_T('\\'));
 	return fullPath;
+}
+
+void CSTXServerDataDialog::DeleteAllChildNodes(HSTXTREENODE parentNode)
+{
+	auto child = _tree.Internal_GetNextItem(parentNode, STXATVGN_CHILD);
+
+	while (child)
+	{
+		auto tmp = _tree.Internal_GetNextSiblingItem(child);
+		_tree.Internal_DeleteItem(child);
+		child = tmp;
+	}
 }
 
 void ExtractSafeArrayBSTR(SAFEARRAY *psa, std::vector<std::wstring>* pNodeNames)

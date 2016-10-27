@@ -93,7 +93,7 @@ LRESULT CSTXServerDataDialog::OnRefreshClicked(WORD, UINT, HWND, BOOL&)
 			itemData->flags = nodeFlags[i];
 			itemData->nodeName = nodeNames[i];
 			itemData->nodeFullPathName = (LPCTSTR)CombineNodePath(GetTreeNodeFullPath(selectedTreeNode), nodeNames[i].c_str());
-			auto treeNode = _tree.Internal_InsertItem(GenerateTreeNodeText(nodeNames[i].c_str(), itemData, count), selectedTreeNode);
+			auto treeNode = _tree.Internal_InsertItem(GenerateTreeNodeText(nodeNames[i].c_str(), itemData, count), selectedTreeNode, STXTVI_LAST);
 			_tree.Internal_SetItemData(treeNode, (DWORD_PTR)itemData);
 			itemData->nodeFullPathName = GetTreeNodeFullPath(treeNode);
 			SetTreeNodeAppearance(treeNode, itemData);
@@ -245,7 +245,7 @@ LRESULT CSTXServerDataDialog::OnTreeItemExpanding(int idCtrl, LPNMHDR pnmh, BOOL
 			itemData->flags = nodeFlags[i];
 			itemData->nodeName = nodeNames[i];
 			itemData->nodeFullPathName = (LPCTSTR)CombineNodePath(GetTreeNodeFullPath(pNM->hNode), nodeNames[i].c_str());
-			auto treeNode = _tree.Internal_InsertItem(GenerateTreeNodeText(nodeNames[i].c_str(), itemData, count), pNM->hNode);
+			auto treeNode = _tree.Internal_InsertItem(GenerateTreeNodeText(nodeNames[i].c_str(), itemData, count), pNM->hNode, STXTVI_LAST);
 			_tree.Internal_SetItemData(treeNode, (DWORD_PTR)itemData);
 			SetTreeNodeAppearance(treeNode, itemData);
 			_tree.Internal_Expand(treeNode, STXATVE_COLLAPSE);
@@ -342,6 +342,11 @@ void CSTXServerDataDialog::CreateDataEditor(HSTXTREENODE treeNode)
 {
 	TreeNodeData *existingItemData = (TreeNodeData*)_tree.Internal_GetItemData(treeNode);
 	int dataType = existingItemData->dataType;
+
+	if (existingItemData->flags & 0x00000001)		//Read-Only
+		::EnableWindow(GetDlgItem(IDC_BUTTON_SAVE_DATA), FALSE);
+	else
+		::EnableWindow(GetDlgItem(IDC_BUTTON_SAVE_DATA), TRUE);
 
 	// 1: int32
 	// 2: int64

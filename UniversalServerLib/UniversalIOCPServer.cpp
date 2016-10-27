@@ -310,6 +310,7 @@ CSTXIOCPTcpConnectionContext* CUniversalIOCPServer::OnCreateTcpConnectionContext
 BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContext)
 {
 	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
+	pClientContext->UpdateLastDataReceiveTime();
 	if (_statisticsEnabled)
 	{
 		_totalConnected++;
@@ -2282,6 +2283,9 @@ void CUniversalIOCPServer::InitializeServerDataForShareDataTree()
 		root->RegisterDWordVariable(lpszPath, (uint32_t*)&refValue);
 		root->SetVariableReadOnly(lpszPath, true);
 	};
+	auto RegisterReadWriteDWordValue = [&](LPCTSTR lpszPath, DWORD &refValue) {
+		root->RegisterDWordVariable(lpszPath, (uint32_t*)&refValue);
+	};
 	auto RegisterReadOnlyStringValue = [&](LPCTSTR lpszPath, LPCTSTR refValue) {
 		root->RegisterStringVariable(lpszPath, refValue);
 		root->SetVariableReadOnly(lpszPath, true);
@@ -2292,7 +2296,7 @@ void CUniversalIOCPServer::InitializeServerDataForShareDataTree()
 	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\AcceptBufferSize"), m_BaseServerInfo.dwAcceptBufferSize);
 	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\BufferInitialCount"), m_BaseServerInfo.dwBufferInitialCount);
 	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\BufferMaxCount"), m_BaseServerInfo.dwBufferMaxCount);
-	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\DefaultOperationTimeout"), m_BaseServerInfo.dwDefaultOperationTimeout);
+	RegisterReadWriteDWordValue(_T("Server\\Initial\\Information\\DefaultOperationTimeout"), m_BaseServerInfo.dwDefaultOperationTimeout);
 	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\FolderMonitorBufferSize"), m_BaseServerInfo.dwFolderMonitorBufferSize);
 	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\LogBufferSize"), m_BaseServerInfo.dwLogBufferSize);
 	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\LogFlags"), m_BaseServerInfo.dwLogFlags);
@@ -2327,6 +2331,7 @@ void CUniversalIOCPServer::InitializeServerDataForShareDataTree()
 	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\WorkerThreadScriptCapacity"), [&] {return GetWorkerThreadScriptCapacity();});
 	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\WorkerThreadScriptUsage"), [&] {return GetWorkerThreadScriptUsage(); });
 	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\DefaultFolderMonitorId"), [&] {return GetDefaultFolderMonitorId(); });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\NextClientUID"), [&] {return GetNextClientUID(); });
 
 
 	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\SystemResource\\PhysicalMemoryUsed(KB)"), [&]{
@@ -2957,6 +2962,24 @@ void CUniversalIOCPServer::OnTcpSubServerInitialized(CSTXIOCPTcpServerContext *p
 	root->RegisterIntegerVariable(dataPathRunTime.c_str(), [=] {return pServerContext->GetRunTime() / 1000; });
 	auto dataPathServerParam = dataPathRoot + _T("\\Information\\ServerParameter");
 	root->RegisterStringVariable(dataPathServerParam.c_str(), [=] {return pServerContext->GetServerParamString(); });
+
+	auto dataPathDataReceivedScript = dataPathRoot + _T("\\Configuration\\DataReceivedScript");
+	root->RegisterStringVariable(dataPathDataReceivedScript.c_str(), [=] {
+		auto scriptCache = _mapTcpServerRecvScripts.findValue(pServerContext->GetListeningPort(), nullptr);
+		return scriptCache ? scriptCache->GetStringName() : _T("");
+	}, [=](std::wstring value) {this->SetTcpServerReceiveScript(pServerContext->GetListeningPort(), value.c_str()); });
+
+	auto dataPathClientConnectedScript = dataPathRoot + _T("\\Configuration\\ClientConnectedScript");
+	root->RegisterStringVariable(dataPathClientConnectedScript.c_str(), [=] {
+		auto scriptCache = _mapTcpServerConnectedScripts.findValue(pServerContext->GetListeningPort(), nullptr);
+		return scriptCache ? scriptCache->GetStringName() : _T("");
+	}, [=](std::wstring value) {this->SetTcpServerClientConnectedScript(pServerContext->GetListeningPort(), value.c_str()); });
+
+	auto dataPathClientDisconnectedScript = dataPathRoot + _T("\\Configuration\\ClientDisconnectedScript");
+	root->RegisterStringVariable(dataPathClientDisconnectedScript.c_str(), [=] {
+		auto scriptCache = _mapTcpServerClientDisconnectedScripts.findValue(pServerContext->GetListeningPort(), nullptr);
+		return scriptCache ? scriptCache->GetStringName() : _T("");
+	}, [=](std::wstring value) {this->SetTcpServerClientDisconnectedScript(pServerContext->GetListeningPort(), value.c_str()); });
 }
 
 void CUniversalIOCPServer::OnTcpSubServerDestroyed(CSTXIOCPTcpServerContext *pServerContext)

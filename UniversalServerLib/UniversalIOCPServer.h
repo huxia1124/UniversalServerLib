@@ -221,7 +221,8 @@ protected:
 	CSTXHashMap<std::wstring, std::set<CUniversalStringCache*>, 4, 1, CSTXNoCaseWStringHash<4, 1> > _mapLuaModuleReference;
 
 	//Scripts configuration
-	Concurrency::concurrent_vector<Concurrency::concurrent_queue<std::shared_ptr<std::wstring>>> _workerThreadActionScripts;		//Runs whenever new action 
+	//Runs whenever new action was posted for worker threads
+	Concurrency::concurrent_vector<Concurrency::concurrent_queue<std::shared_ptr<std::wstring>>> _workerThreadActionScripts;
 
 	//A copy of TLS data of worker threads
 	Concurrency::concurrent_vector<std::shared_ptr<CUniversalServerWorkerThreadData>> _workerThreadData;

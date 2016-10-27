@@ -28,6 +28,7 @@
 #include <atlconv.h>
 #include <concurrent_vector.h>
 #include <concurrent_unordered_set.h>
+#include <psapi.h>
 
 #include "UniversalServerRPC_h.h"
 #include <atlcomcli.h>
@@ -224,7 +225,7 @@ void CUniversalIOCPServer::OnClientDisconnect(CSTXIOCPServerClientContext *pClie
 	__super::OnClientDisconnect(pClientContext);
 
 	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
-	
+
 	BOOL bSkipScript = FALSE;
 	if (_pServer && _pServer->_callback)
 		_pServer->_callback->OnTcpClientDisconnected(pClient->GetServerContext()->GetServerParamString().c_str(), pClient->_uid, &bSkipScript);
@@ -268,6 +269,8 @@ void CUniversalIOCPServer::OnClientDisconnect(CSTXIOCPServerClientContext *pClie
 			RunScriptCache(*scriptCache.get());
 		}
 	}
+
+	UninitializeTcpClientdataForSharedDataTree(pClient);
 }
 
 CSTXServerContextBase* CUniversalIOCPServer::OnCreateServerContext()
@@ -312,6 +315,8 @@ BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContex
 		_totalConnected++;
 	}
 
+	InitializeTcpClientDataForSharedDataTree(pClient);
+
 	BOOL bSkipScript = FALSE;
 	if (_pServer && _pServer->_callback)
 		_pServer->_callback->OnTcpClientConnected(pClient->GetServerContext()->GetServerParamString().c_str(), pClient->_uid, &bSkipScript);
@@ -332,6 +337,9 @@ BOOL CUniversalIOCPServer::OnAccepted(CSTXIOCPServerClientContext *pClientContex
 			return serverParam;
 		}).addFunction("GetServerPort", [&] {
 			return pClient->GetServerContext()->GetListeningPort();
+		}).addFunction("GetClientIp", [&](LuaIntf::LuaRef luaObj, LuaIntf::LuaRef luaParam) {
+			USES_CONVERSION;
+			return std::string((LPCSTR)ATL::CW2A(pClient->GetClientIP()));
 		}).endModule();
 
 		
@@ -1064,13 +1072,15 @@ BOOL CUniversalIOCPServer::OnWebSocketClientReceived(CUniversalIOCPServerClientC
 		std::string strMsg;
 		strMsg.append((const char*)pDataBuffer, (const char*)pDataBuffer + cbDataLen);
 		return strMsg;
-
 	}).addFunction("GetMessageBase64", [&] {
 		std::string strMsg;
 		DWORD dwBase64Len = (cbDataLen / 3 + 4) * 5;
 		strMsg.resize(dwBase64Len);
 		CryptBinaryToStringA(pDataBuffer, cbDataLen, CRYPT_STRING_BASE64, (char*)strMsg.c_str(), &dwBase64Len);
 		return strMsg;
+	}).addFunction("GetClientIp", [&](LuaIntf::LuaRef luaObj, LuaIntf::LuaRef luaParam) {
+		USES_CONVERSION;
+		return std::string((LPCSTR)ATL::CW2A(pClientContext->GetClientIP()));
 	}).endModule();
 
 	//Run script
@@ -1087,16 +1097,18 @@ BOOL CUniversalIOCPServer::OnWebSocketClientReceived(CUniversalIOCPServerClientC
 
 BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClientContext, CSTXIOCPBuffer *pBuffer)
 {
+	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
 	if (_statisticsEnabled)
 	{
 		_totalReceivedCount++;
 		_totalReceivedBytes += pBuffer->GetDataLength();
 
-		_statisticsReceiveBytes.AddValue(pBuffer->GetDataLength());
+		_statisticsReceivedBytes.AddValue(pBuffer->GetDataLength());
 		_statisticsReceiveCount.AddValue(1);
-	}
 
-	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
+		pClient->AddTotalReceivedPackageCount(1);
+		pClient->AddTotalReceivedBytes(pBuffer->GetDataLength());
+	}
 
 	if (pClient)
 	{
@@ -1158,6 +1170,9 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 		}).addFunction("SetSharedDataNode", [&] (LuaIntf::LuaRef luaObj, LuaIntf::LuaRef luaParam) {
 			auto val = luaParam.toValue<std::shared_ptr<CUniversalSharedDataTree>>();
 			pClient->_clientSharedDataRootNode = val;
+		}).addFunction("GetClientIp", [&](LuaIntf::LuaRef luaObj, LuaIntf::LuaRef luaParam) {
+			USES_CONVERSION;
+			return std::string((LPCSTR)ATL::CW2A(pClient->GetClientIP()));
 		}).endModule();
 
 		if (pClient->_serverType == TcpServerTypeBinaryHeaderV)
@@ -2166,7 +2181,7 @@ long long CUniversalIOCPServer::GetSentCountPerSecond()
 
 long long CUniversalIOCPServer::GetReceivedBytesPerSecond()
 {
-	return _statisticsReceiveBytes.GetAverage();
+	return _statisticsReceivedBytes.GetAverage();
 }
 
 long long CUniversalIOCPServer::GetReceivedCountPerSecond()
@@ -2282,8 +2297,108 @@ void CUniversalIOCPServer::InitializeServerDataForShareDataTree()
 	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\LogBufferSize"), m_BaseServerInfo.dwLogBufferSize);
 	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\LogFlags"), m_BaseServerInfo.dwLogFlags);
 	RegisterReadOnlyStringValue(_T("Server\\Initial\\Information\\IniFilePathName"), m_szIniFilePath);
+	RegisterReadOnlyStringValue(_T("Server\\Initial\\Information\\XmlFilePathName"), m_szXmlFilePath);
 
-	
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\TotalTcpClientCount"), [&] {return m_mapClientContext.size(); });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\TotalSentPackageCount"), [&] {return (long long)_totalSentCount; });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\TotalReceivedPackageCount"), [&] {return (long long)_totalReceivedCount; });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\TotalSentBytes"), [&] {return (long long)_totalSentBytes; });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\TotalReceivedBytes"), [&] {return (long long)_totalReceivedBytes; });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\TotalConnectedCount"), [&] {return (long long)_totalConnected; });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\SentBytesPerSecond"), [&] {return (long long)_statisticsSentBytes.GetAverage(); });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\ReceivedBytesPerSecond"), [&] {return (long long)_statisticsReceivedBytes.GetAverage(); });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\SentPackagesPerSecond"), [&] {return (long long)_statisticsSentCount.GetAverage(); });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\ReceivedPackagesPerSecond"), [&] {return (long long)_statisticsReceiveCount.GetAverage(); });
+
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\RWBufferCountAvailable"), [&] {return (long long)m_Buffers.GetBufferAvailableCount(); });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\RWBufferCountTotal"), [&] {return (long long)m_Buffers.GetBufferTotalCount(); });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\WorkerThreadCount"), [&] {return (long long)m_arrWorkerThreads.size(); });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\MonitoringFolder"), [&] {
+		auto innerRoot = CUniversalSharedDataTree::GetRootNode();
+		innerRoot->RemoveAllChildren(_T("Server\\Runtime\\Information\\MonitoringFolder"));
+		TCHAR szTemp[128];
+		m_mapMonitoredDir.foreach([&](std::pair<HANDLE, LPSTXIOCPCONTEXTKEY> item) {
+			_stprintf_s(szTemp, _T("Server\\Runtime\\Information\\MonitoringFolder\\0x%X"), item.first);
+			innerRoot->RegisterStringVariable(szTemp, item.second->szMonitoredFolder);
+			innerRoot->SetVariableReadOnly(szTemp, true);
+		});
+		return (long long)m_mapMonitoredDir.size();
+	});
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\WorkerThreadScriptCapacity"), [&] {return GetWorkerThreadScriptCapacity();});
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\WorkerThreadScriptUsage"), [&] {return GetWorkerThreadScriptUsage(); });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\DefaultFolderMonitorId"), [&] {return GetDefaultFolderMonitorId(); });
+
+
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\SystemResource\\PhysicalMemoryUsed(KB)"), [&]{
+		PROCESS_MEMORY_COUNTERS_EX pmc;
+		GetProcessMemoryInfo(GetCurrentProcess(), (PPROCESS_MEMORY_COUNTERS)&pmc, sizeof(pmc));
+		SIZE_T physMemUsedByMe = pmc.WorkingSetSize;
+		return physMemUsedByMe / 1024;
+	});
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Information\\SystemResource\\VirtualMemoryUsed(KB)"), [&] {
+		PROCESS_MEMORY_COUNTERS_EX pmc;
+		GetProcessMemoryInfo(GetCurrentProcess(), (PPROCESS_MEMORY_COUNTERS)&pmc, sizeof(pmc));
+		SIZE_T virtualMemUsedByMe = pmc.PrivateUsage;
+		return virtualMemUsedByMe / 1024;
+	});
+
+
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Configuration\\TimerInterval"), [&] {return (int64_t)m_BaseServerInfo.dwTimerInterval; }, [&](int64_t value) {this->ChangeTimerInterval((DWORD)value); });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Configuration\\StatisticsLevel"), [&] {return (int64_t)_statisticsEnabled; }, [&](int64_t value) {_statisticsEnabled = (UINT)value; });
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Configuration\\LogLevel"), [&] {return (int64_t)g_LogGlobal.GetLogLevel(); }, [&](int64_t value) {SetLogLevel((int)value); });
+	root->RegisterStringVariable(_T("Server\\Runtime\\Configuration\\Scripts\\TimerScript"), [&] {return _timerScript->GetStringName(); }, [&](std::wstring value) {SetTimerScript(value.c_str()); });
+	root->RegisterStringVariable(_T("Server\\Runtime\\Configuration\\Scripts\\FileChangedScript"), [&] {return _fileChangedScript->GetStringName(); }, [&](std::wstring value) {SetFileChangedScript(value.c_str()); });
+
+
+
+}
+
+void CUniversalIOCPServer::InitializeTcpClientDataForSharedDataTree(CUniversalIOCPServerClientContext *pClientContext)
+{
+	auto root = CUniversalSharedDataTree::GetRootNode();
+	std::wstring dataPathRoot = _T("Server\\Runtime\\TCP\\");
+	TCHAR szTemp[16];
+	_stprintf_s(szTemp, _T("%d"), pClientContext->GetServerContext()->GetListeningPort());
+	dataPathRoot += szTemp;
+	dataPathRoot += _T("\\Clients\\");
+	_stprintf_s(szTemp, _T("%I64d-%I64d"), pClientContext->_uid/100 * 100, pClientContext->_uid / 100 * 100 + 99);		//Group clients in 100
+	dataPathRoot += szTemp;
+	_stprintf_s(szTemp, _T("\\%I64d"), pClientContext->_uid);
+	dataPathRoot += szTemp;
+	dataPathRoot += _T("\\");
+
+	auto dataPathRole = dataPathRoot + _T("Role");
+	root->RegisterIntegerVariable(dataPathRole.c_str(), [=] {return pClientContext->GetRole(); }, [=](int64_t value) {SetTcpClientRole(pClientContext->_uid, (UniversalTcpClientRole)value); });
+	auto dataPathIP = dataPathRoot + _T("IP");
+	root->RegisterStringVariable(dataPathIP.c_str(), [=] {return pClientContext->GetClientIP(); });
+	auto dataPathOnlineTime = dataPathRoot + _T("OnlineTime(sec)");
+	root->RegisterIntegerVariable(dataPathOnlineTime.c_str(), [=] {return pClientContext->GetOnlineTime() / 1000; });
+	auto dataPathTotalReceivedBytes = dataPathRoot + _T("TotalReceivedBytes");
+	root->RegisterIntegerVariable(dataPathTotalReceivedBytes.c_str(), [=] {return pClientContext->_totalReceivedBytes; });
+	auto dataPathTotalReceivedPackages = dataPathRoot + _T("TotalReceivedPackageCount");
+	root->RegisterIntegerVariable(dataPathTotalReceivedPackages.c_str(), [=] {return pClientContext->_totalReceivedPackageCount; });
+}
+
+void CUniversalIOCPServer::UninitializeTcpClientdataForSharedDataTree(CUniversalIOCPServerClientContext *pClientContext)
+{
+	auto root = CUniversalSharedDataTree::GetRootNode();
+	std::wstring dataPathRoot = _T("Server\\Runtime\\TCP\\");
+	TCHAR szTemp[16];
+	_stprintf_s(szTemp, _T("%d"), pClientContext->GetServerContext()->GetListeningPort());
+	dataPathRoot += szTemp;
+	dataPathRoot += _T("\\Clients\\");
+	_stprintf_s(szTemp, _T("%I64d-%I64d"), pClientContext->_uid / 100 * 100, pClientContext->_uid / 100 * 100 + 99);	//Group clients in 100
+	dataPathRoot += szTemp;
+
+	std::wstring dataPathForClient = dataPathRoot;
+	_stprintf_s(szTemp, _T("\\%I64d"), pClientContext->_uid);
+	dataPathForClient += szTemp;
+
+	root->UnregisterVariable(dataPathForClient.c_str());
+	if (root->GetChildrenCount(dataPathRoot) == 0)
+	{
+		root->UnregisterVariable(dataPathRoot.c_str());
+	}
 }
 
 int CUniversalIOCPServer::LoadScriptCache(lua_State *pLuaState, CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread)
@@ -2831,6 +2946,30 @@ void CUniversalIOCPServer::OnTimerUninitialize()
 	lua_close(_pLuaStateForTimer);
 }
 
+void CUniversalIOCPServer::OnTcpSubServerInitialized(CSTXIOCPTcpServerContext *pServerContext)
+{
+	auto root = CUniversalSharedDataTree::GetRootNode();
+	std::wstring dataPathRoot = _T("Server\\Runtime\\SubServer\\TCP\\");
+	TCHAR szTemp[16];
+	_stprintf_s(szTemp, _T("%d"), pServerContext->GetListeningPort());
+	dataPathRoot += szTemp;
+	auto dataPathRunTime = dataPathRoot + _T("\\Information\\RunTime(sec)");
+	root->RegisterIntegerVariable(dataPathRunTime.c_str(), [=] {return pServerContext->GetRunTime() / 1000; });
+	auto dataPathServerParam = dataPathRoot + _T("\\Information\\ServerParameter");
+	root->RegisterStringVariable(dataPathServerParam.c_str(), [=] {return pServerContext->GetServerParamString(); });
+}
+
+void CUniversalIOCPServer::OnTcpSubServerDestroyed(CSTXIOCPTcpServerContext *pServerContext)
+{
+	auto root = CUniversalSharedDataTree::GetRootNode();
+	std::wstring dataPath = _T("Server\\Runtime\\SubServer\\TCP\\");
+	TCHAR szTemp[16];
+	_stprintf_s(szTemp, _T("%d"), pServerContext->GetListeningPort());
+	dataPath += szTemp;
+
+	root->UnregisterVariable(dataPath.c_str());
+}
+
 LPCTSTR CUniversalIOCPServer::OnGetUserDefinedExceptionName(DWORD dwExceptionCode)
 {
 	if (dwExceptionCode == 0x20000001)
@@ -2926,7 +3065,7 @@ CUniversalIOCPServerClientContext::CUniversalIOCPServerClientContext() : m_reqPa
 	m_cbWSBufferSize = 0;
 	m_cbWSWriteOffset = 0;
 	m_bLastWebSocketPacketFin = FALSE;
-
+	_connectedTick = GetTickCount64();
 }
 
 CUniversalIOCPServerClientContext::~CUniversalIOCPServerClientContext()
@@ -3122,3 +3261,17 @@ UniversalTcpClientRole CUniversalIOCPServerClientContext::GetRole()
 	return _role;
 }
 
+ULONGLONG CUniversalIOCPServerClientContext::GetOnlineTime()
+{
+	return GetTickCount64() - _connectedTick;
+}
+
+void CUniversalIOCPServerClientContext::AddTotalReceivedPackageCount(int32_t delta)
+{
+	_totalReceivedPackageCount += delta;
+}
+
+void CUniversalIOCPServerClientContext::AddTotalReceivedBytes(int64_t delta)
+{
+	_totalReceivedBytes += delta;
+}

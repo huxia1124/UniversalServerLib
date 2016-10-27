@@ -115,6 +115,7 @@ void CMainContainerWindow::CreateMasterTree()
 
 	CSTXAnimatedTreeCtrlNS::RegisterAnimatedTreeCtrlClass();
 	_tree.Create(_T(""), WS_CHILD | WS_VISIBLE | WS_BORDER, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, m_hWnd, IDC_MASTER_TREE);
+	_tree.Internal_SetAnimationDuration(400);
 	_anchor->AddItem(IDC_MASTER_TREE, STXANCHOR_LEFT | STXANCHOR_TOP | STXANCHOR_BOTTOM);
 }
 

@@ -140,8 +140,11 @@ CSTXMemoryVariableNode::~CSTXMemoryVariableNode()
 		case STXVariableTreeNodeType_Custom:		//Any custom type
 			((void(*)(void*))_varDestructor)(_ptr);
 			break;
-		case STXVariableTreeNodeType_IntFunction:		//pair<std::function<int64_t(void)>, function<void(int64_t)>>
+		case STXVariableTreeNodeType_IntFunction:		//pair<function<int64_t(void)>, function<void(int64_t)>>
 			delete (std::pair<std::function<int64_t(void)>, std::function<void(int64_t)>>*)_ptr;
+			break;
+		case STXVariableTreeNodeType_WStringFunction:		//pair<function<wstring(void)>, function<void(wstring)>>
+			delete (std::pair<std::function<std::wstring(void)>, std::function<void(std::wstring)>>*)_ptr;
 			break;
 		default:
 			break;
@@ -399,6 +402,11 @@ std::wstring CSTXMemoryVariableNode::GetStringValue(void *ptr, int dataType)
 		return strTmp;
 		break;
 	}
+	case STXVariableTreeNodeType_IntFunction:
+		_itot_s((*((std::pair<std::function<int64_t(void)>, std::function<void(int64_t)>>*)ptr)).first(), szTmp, buflen, 10);
+		return szTmp;
+	case STXVariableTreeNodeType_WStringFunction:
+		return (*((std::pair<std::function<std::wstring(void)>, std::function<void(std::wstring)>>*)ptr)).first();
 	default:
 		break;
 	}
@@ -449,6 +457,20 @@ void CSTXMemoryVariableNode::SetThisStringValue(std::wstring strValue)
 		break;
 	case STXVariableTreeNodeType_DWord:		//uint32_t
 		*((uint32_t*)_ptr) = (uint32_t)_tcstoul(strValue.c_str(), NULL, 10);
+		break;
+	case STXVariableTreeNodeType_IntFunction:
+	{
+		auto &intervalValue = *((std::pair<std::function<int64_t(void)>, std::function<void(int64_t)>>*)_ptr);
+		if (intervalValue.second)
+			intervalValue.second(_ttoi64(strValue.c_str()));
+	}
+	break;
+	case STXVariableTreeNodeType_WStringFunction:
+		{
+			auto &intervalValue = *((std::pair<std::function<std::wstring(void)>, std::function<void(std::wstring)>>*)_ptr);
+			if (intervalValue.second)
+				intervalValue.second(strValue);
+		}
 		break;
 	default:
 		break;
@@ -841,6 +863,20 @@ void CSTXMemoryVariableNode::RemoveThisIntegerValue(int64_t value)
 	RemoveIntegerValue(_ptr, _type, value);
 }
 
+void CSTXMemoryVariableNode::RemoveAllChildren(std::wstring strPathName)
+{
+	auto pNode = GetVariableNode(strPathName);
+	if (pNode == NULL || pNode->_ptr == NULL || pNode->_type < 0)
+		return;
+
+	pNode->RemoveThisAllChildren();
+}
+
+void CSTXMemoryVariableNode::RemoveThisAllChildren()
+{
+	_mapContent.clear();
+}
+
 bool CSTXMemoryVariableNode::IsContainStringValue(std::wstring strPathName, std::wstring strValue)
 {
 	auto pNode = GetVariableNode(strPathName);
@@ -1230,6 +1266,8 @@ uint32_t CSTXMemoryVariableNode::GetVariableFlags(CSTXMemoryVariableNode *node)
 	uint32_t flags = 0;
 	if (node->_readOnly)
 		flags |= STXMEMVAR_FLAG_READONLY;
+	if (node->_mapContent.size())
+		flags |= STXMEMVAR_FLAG_NOT_EMPTY;
 
 	return flags;
 }
@@ -1355,6 +1393,23 @@ void CSTXMemoryVariableNode::RegisterStringVariable(std::wstring strPathName, st
 	std::wstring *v = new std::wstring(value);
 	auto var = RegisterVariable(strPathName, STXVariableTreeNodeType_WString, v, true);
 	var->_managedValue = true;
+}
+
+void CSTXMemoryVariableNode::RegisterStringVariable(std::wstring strPathName, std::function<std::wstring(void)> pfnValueGet, std::function<void(std::wstring)> pfnValueSet /*= nullptr*/)
+{
+	auto nodeExists = GetVariableNode(strPathName);
+	if (nodeExists)
+	{
+		if (!nodeExists->IsNewTypeAcceptable(STXVariableTreeNodeType_WStringFunction))
+		{
+			throw std::runtime_error("The node already has a value of different type.");
+		}
+		return;
+	}
+	auto internalValue = new std::pair<std::function<std::wstring(void)>, std::function<void(std::wstring)>>(pfnValueGet, pfnValueSet);
+	auto var = RegisterVariable(strPathName, STXVariableTreeNodeType_WStringFunction, internalValue, true);
+	var->_managedValue = true;
+	var->_readOnly = (pfnValueSet == nullptr);
 }
 
 void CSTXMemoryVariableNode::RegisterStringVectorVariable(std::wstring strPathName, std::vector<std::wstring> value)

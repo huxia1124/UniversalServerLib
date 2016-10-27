@@ -3197,7 +3197,7 @@ bool CSTXAnimatedTreeCtrlNS::STXAnimatedTreeDefaultSortFuncWrapper(std::tr1::sha
 		return s_sortStructure.pfnSortItem(pNode1.get(), pNode2.get(), s_sortStructure.lParamSort) < 0;
 }
 
-BOOL CSTXAnimatedTreeCtrlNS::Internal_SortChildren( HSTXTREENODE hItem, STXAnimatedTreeSortFuncType pfnSortFunc, LPARAM lParamSort )
+BOOL CSTXAnimatedTreeCtrlNS::Internal_SortChildren( HSTXTREENODE hItem, std::function<int(LPARAM, LPARAM, LPARAM)> pfnSortFunc, LPARAM lParamSort )
 {
 	if(hItem == NULL || hItem == STXTVI_FIRST || hItem == STXTVI_LAST)
 		return FALSE;
@@ -3222,7 +3222,7 @@ BOOL CSTXAnimatedTreeCtrlNS::Internal_SortChildren( HSTXTREENODE hItem, STXAnima
 	return TRUE;
 }
 
-BOOL CSTXAnimatedTreeCtrlNS::Internal_SortChildrenByItem( HSTXTREENODE hItem, STXAnimatedTreeSortItemFuncType pfnSortFunc, LPARAM lParamSort )
+BOOL CSTXAnimatedTreeCtrlNS::Internal_SortChildrenByItem( HSTXTREENODE hItem, std::function<int(HSTXTREENODE, HSTXTREENODE, LPARAM)> pfnSortFunc, LPARAM lParamSort )
 {
 	if(hItem == NULL || hItem == STXTVI_FIRST || hItem == STXTVI_LAST)
 		return FALSE;

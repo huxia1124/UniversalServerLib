@@ -29,10 +29,12 @@ enum STXVariableTreeNodeType
 	STXVariableTreeNodeType_DoubleVector = 13,
 	STXVariableTreeNodeType_DoubleSet = 14,
 	STXVariableTreeNodeType_IntFunction = 15,
+	STXVariableTreeNodeType_WStringFunction = 16,
 	STXVariableTreeNodeType_Custom = 30000,
 };
 
 #define STXMEMVAR_FLAG_READONLY			0x00000001
+#define STXMEMVAR_FLAG_NOT_EMPTY		0x40000000
 
 class CSTXMemoryVariableNode
 {
@@ -68,6 +70,8 @@ protected:
 	// 12: set<int64_t>
 	// 13: vector<double>
 	// 14: set<double>
+	// 15: IntFunction
+	// 16: WstringFunction
 	// 30000: Custom value
 	STXVariableTreeNodeType _type;
 
@@ -140,6 +144,7 @@ public:
 	void RegisterInt32Variable(std::wstring strPathName, int32_t *pAddress);
 	void RegisterInt64Variable(std::wstring strPathName, int64_t *pAddress);
 	void RegisterStringVariable(std::wstring strPathName, std::wstring *pAddress);
+	void RegisterStringVariable(std::wstring strPathName, std::function<std::wstring(void)> pfnValueGet, std::function<void(std::wstring)> pfnValueSet = nullptr);
 	void RegisterIntVariable(std::wstring strPathName, int *pAddress);
 	void RegisterFloatVariable(std::wstring strPathName, float *pAddress);
 	void RegisterDoubleVariable(std::wstring strPathName, double *pAddress);
@@ -212,6 +217,8 @@ public:
 	void RemoveThisStringValue(std::wstring strValue);
 	void RemoveIntegerValue(std::wstring strPathName, int64_t value);
 	void RemoveThisIntegerValue(int64_t value);
+	void RemoveAllChildren(std::wstring strPathName);
+	void RemoveThisAllChildren();
 
 	bool IsContainStringValue(std::wstring strPathName, std::wstring strValue);
 	bool IsContainIntegerValue(std::wstring strPathName, int64_t value);

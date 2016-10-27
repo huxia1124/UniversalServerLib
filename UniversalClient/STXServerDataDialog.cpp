@@ -35,7 +35,6 @@ void CSTXServerDataDialog::InitializeRPCHostCombobox()
 
 LRESULT CSTXServerDataDialog::OnRefreshClicked(WORD, UINT, HWND, BOOL&)
 {
-
 	::EnableWindow(GetDlgItem(IDC_BUTTON_REFRESH), FALSE);
 	UpdateWindow();
 
@@ -65,6 +64,10 @@ LRESULT CSTXServerDataDialog::OnRefreshClicked(WORD, UINT, HWND, BOOL&)
 	{
 		selectedTreeNode = STXTVI_ROOT;
 	}
+	else
+	{
+		RefreshNodeText(selectedTreeNode);
+	}
 
 	//_tree.Internal_DeleteItem(selectedTreeNode);
 
@@ -90,12 +93,14 @@ LRESULT CSTXServerDataDialog::OnRefreshClicked(WORD, UINT, HWND, BOOL&)
 			itemData->flags = nodeFlags[i];
 			itemData->nodeName = nodeNames[i];
 			itemData->nodeFullPathName = (LPCTSTR)CombineNodePath(GetTreeNodeFullPath(selectedTreeNode), nodeNames[i].c_str());
-			auto treeNode = _tree.Internal_InsertItem(GenerateTreeNodeText(nodeNames[i].c_str(), itemData), selectedTreeNode);
+			auto treeNode = _tree.Internal_InsertItem(GenerateTreeNodeText(nodeNames[i].c_str(), itemData, count), selectedTreeNode);
 			_tree.Internal_SetItemData(treeNode, (DWORD_PTR)itemData);
 			itemData->nodeFullPathName = GetTreeNodeFullPath(treeNode);
 			SetTreeNodeAppearance(treeNode, itemData);
 			_tree.Internal_Expand(treeNode, STXATVE_COLLAPSE);
-			_tree.Internal_ModifyItemStyle(treeNode, STXTVIS_FORCE_SHOW_EXPANDER, 0);
+			
+			if(itemData->flags & 0x40000000)	//Not empty, children exist
+				_tree.Internal_ModifyItemStyle(treeNode, STXTVIS_FORCE_SHOW_EXPANDER, 0);
 		}
 	}
 
@@ -132,8 +137,12 @@ LRESULT CSTXServerDataDialog::OnSaveDataClicked(WORD, UINT, HWND, BOOL&)
 	case 6:
 	case 7:
 	case 8:		/*STXVariableTreeNodeType_DWord*/
+	case 15:		/*STXVariableTreeNodeType_IntFunction*/
+	case 16:		/*STXVariableTreeNodeType_WStringFunction*/
 		fullPath = nodeData->nodeFullPathName.c_str();
 		fullPath.Replace(_T("\\"), _T("\\\\"));
+		inputText.Replace(_T("\\"), _T("\\\\"));
+		inputText.Replace(_T("\r\n"), _T("\\n"));
 		scriptText.Format(_T("local ____sharedDataObj = SharedData()\r\nresult=____sharedDataObj:SetStringValue(\"%s\", \"%s\")"), (LPCTSTR)fullPath, (LPCTSTR)inputText);
 		RunServerScriptString((LPCTSTR)scriptText, scriptResult, error);
 		break;
@@ -143,6 +152,49 @@ LRESULT CSTXServerDataDialog::OnSaveDataClicked(WORD, UINT, HWND, BOOL&)
 	{
 		MessageBox(error, _T("Error"));
 	}
+
+	RefreshNodeText(selectedNode);
+
+	return 0;
+}
+
+LRESULT CSTXServerDataDialog::OnSortClicked(WORD, UINT, HWND, BOOL&)
+{
+	auto selectedNode = _tree.GetSelectedItem();
+
+	static int iFactor = 1;
+	_tree.Internal_SortChildrenByItem(selectedNode, [&](HSTXTREENODE hItem1, HSTXTREENODE hItem2, LPARAM lParamSort) {
+		TCHAR szBuf1[1024];
+		TCHAR szBuf2[1024];
+		_tree.Internal_GetItemText(hItem1, szBuf1, 1024);
+		_tree.Internal_GetItemText(hItem2, szBuf2, 1024);
+		return iFactor * _tcscmp(szBuf1, szBuf2);
+	}, 0);
+
+	iFactor = iFactor * (-1);
+
+	return 0;
+}
+
+LRESULT CSTXServerDataDialog::OnSortAsNumbersClicked(WORD, UINT, HWND, BOOL&)
+{
+	auto selectedNode = _tree.GetSelectedItem();
+
+	static int iFactor = 1;
+	_tree.Internal_SortChildrenByItem(selectedNode, [&](HSTXTREENODE hItem1, HSTXTREENODE hItem2, LPARAM lParamSort) {
+		TCHAR szBuf1[1024];
+		TCHAR szBuf2[1024];
+		_tree.Internal_GetItemText(hItem1, szBuf1, 1024);
+		_tree.Internal_GetItemText(hItem2, szBuf2, 1024);
+		int result = 0;
+		auto v1 = _tcstod(szBuf1, nullptr);
+		auto v2 = _tcstod(szBuf2, nullptr);
+		if (v1 < v2)	result = -1;
+		else if (v1 > v2)	result = 1;
+		return iFactor * result;
+	}, 0);
+
+	iFactor = iFactor * (-1);
 
 	return 0;
 }
@@ -193,11 +245,13 @@ LRESULT CSTXServerDataDialog::OnTreeItemExpanding(int idCtrl, LPNMHDR pnmh, BOOL
 			itemData->flags = nodeFlags[i];
 			itemData->nodeName = nodeNames[i];
 			itemData->nodeFullPathName = (LPCTSTR)CombineNodePath(GetTreeNodeFullPath(pNM->hNode), nodeNames[i].c_str());
-			auto treeNode = _tree.Internal_InsertItem(GenerateTreeNodeText(nodeNames[i].c_str(), itemData), pNM->hNode);
+			auto treeNode = _tree.Internal_InsertItem(GenerateTreeNodeText(nodeNames[i].c_str(), itemData, count), pNM->hNode);
 			_tree.Internal_SetItemData(treeNode, (DWORD_PTR)itemData);
 			SetTreeNodeAppearance(treeNode, itemData);
 			_tree.Internal_Expand(treeNode, STXATVE_COLLAPSE);
-			_tree.Internal_ModifyItemStyle(treeNode, STXTVIS_FORCE_SHOW_EXPANDER, 0);
+
+			if (itemData->flags & 0x40000000)	//Not empty, children exist
+				_tree.Internal_ModifyItemStyle(treeNode, STXTVIS_FORCE_SHOW_EXPANDER, 0);
 		}
 	}
 
@@ -223,6 +277,7 @@ LRESULT CSTXServerDataDialog::OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh
 	{
 		CreateDataEditor(pNM->hNode);
 	}
+	UpdateNodeFullPathIndicator(pNM->hNode);
 	return 0;
 }
 
@@ -239,6 +294,7 @@ LRESULT CSTXServerDataDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 
 	_anchor->AddItem(IDC_BUTTON_SAVE_DATA, STXANCHOR_RIGHT | STXANCHOR_TOP);
 	_anchor->AddItem(IDC_STATIC_DATA, STXANCHOR_ALL);
+	_anchor->AddItem(IDC_EDIT_FULL_PATH, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_BOTTOM);
 
 	return 1; // Let dialog manager set initial focus
 }
@@ -277,7 +333,7 @@ void CSTXServerDataDialog::CreateDataTree()
 
 	CSTXAnimatedTreeCtrlNS::RegisterAnimatedTreeCtrlClass();
 	_tree.Create(_T(""), WS_CHILD | WS_VISIBLE | WS_BORDER, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, m_hWnd, IDC_MASTER_TREE);
-	_tree.Internal_SetAnimationDuration(100);
+	_tree.Internal_SetAnimationDuration(200);
 	_anchor->AddItem(IDC_MASTER_TREE, STXANCHOR_LEFT | STXANCHOR_TOP | STXANCHOR_BOTTOM);
 }
 
@@ -301,6 +357,8 @@ void CSTXServerDataDialog::CreateDataEditor(HSTXTREENODE treeNode)
 	// 12: set<int64_t>
 	// 13: vector<double>
 	// 14: set<double>
+	// 15: IntFunction
+	// 16: WstringFunction
 	// 30000: Custom value
 
 	auto dataPlaceholder = GetDlgItem(IDC_STATIC_DATA);
@@ -319,6 +377,7 @@ void CSTXServerDataDialog::CreateDataEditor(HSTXTREENODE treeNode)
 	CString editorValue;
 	CString error;
 	GetSharedDataTreeNodeStringValue(GetSelectedItemFullPath(), editorValue, error);
+	editorValue.Replace(_T("\n"), _T("\r\n"));
 
 	DWORD wsExtra = 0;
 
@@ -332,11 +391,15 @@ void CSTXServerDataDialog::CreateDataEditor(HSTXTREENODE treeNode)
 	case 6:
 	case 7:
 	case 8:
+	case 15:
+	case 16:
 		if (existingItemData->flags & 0x00000001)		//Read-Only
 		{
 			wsExtra |= ES_READONLY;
 		}
-		hWndEditor = CreateWindow(_T("edit"), editorValue, WS_CHILD | WS_VISIBLE | WS_BORDER | wsExtra, rcData.left, rcData.top, rcData.right - rcData.left, rcData.bottom - rcData.top, m_hWnd, (HMENU)IDC_EDIT_DATA, NULL, 0);
+		hWndEditor = CreateWindow(_T("edit"), editorValue
+			, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL | ES_AUTOVSCROLL | WS_VSCROLL | WS_HSCROLL | wsExtra
+			, rcData.left, rcData.top, rcData.right - rcData.left, rcData.bottom - rcData.top, m_hWnd, (HMENU)IDC_EDIT_DATA, NULL, 0);
 		::SendMessage(hWndEditor, WM_SETFONT, SendMessage(WM_GETFONT), 0);
 		break;
 	case 9:
@@ -400,8 +463,11 @@ void CSTXServerDataDialog::SetTreeNodeAppearance(HSTXTREENODE treeNode, TreeNode
 	}
 }
 
-CString CSTXServerDataDialog::GenerateTreeNodeText(LPCTSTR lpszOriginalName, TreeNodeData *nodeData)
+CString CSTXServerDataDialog::GenerateTreeNodeText(LPCTSTR lpszOriginalName, TreeNodeData *nodeData, size_t siblingNodeCount)
 {
+	if (siblingNodeCount > 100)		//Avoid long-time waiting. if too many nodes, we don't retrieve the node data at this time
+		return lpszOriginalName;
+
 	CString nodeName = lpszOriginalName;
 	CString scriptResult;
 	CString error;
@@ -410,6 +476,7 @@ CString CSTXServerDataDialog::GenerateTreeNodeText(LPCTSTR lpszOriginalName, Tre
 	switch (nodeData->dataType)
 	{
 	case 3:		//wstring
+	case 16:		/*STXVariableTreeNodeType_WStringFunction*/
 		fullPath = nodeData->nodeFullPathName.c_str();
 		fullPath.Replace(_T("\\"), _T("\\\\"));
 		scriptText.Format(_T("local ____sharedDataObj = SharedData()\r\nresult=____sharedDataObj:GetStringValue(\"%s\")"), (LPCTSTR)fullPath);
@@ -433,6 +500,7 @@ CString CSTXServerDataDialog::GenerateTreeNodeText(LPCTSTR lpszOriginalName, Tre
 	case 4:
 	case 7:
 	case 8:		/*STXVariableTreeNodeType_DWord*/
+	case 15:		/*STXVariableTreeNodeType_IntFunction*/
 		fullPath = nodeData->nodeFullPathName.c_str();
 		fullPath.Replace(_T("\\"), _T("\\\\"));
 		scriptText.Format(_T("local ____sharedDataObj = SharedData()\r\nresult=____sharedDataObj:GetIntegerValue(\"%s\")"), (LPCTSTR)fullPath);
@@ -683,4 +751,24 @@ void CSTXServerDataDialog::RunServerScriptString(LPCTSTR lpszScript, CString &re
 			printf("Bind free failed\n");
 			exit(status);
 		}
+}
+
+void CSTXServerDataDialog::RefreshNodeText(HSTXTREENODE treeNode)
+{
+	if (treeNode != NULL && treeNode != STXTVI_ROOT)
+	{
+		TreeNodeData *itemData = (TreeNodeData*)_tree.Internal_GetItemData(treeNode);
+		_tree.Internal_SetItemText(treeNode, GenerateTreeNodeText(itemData->nodeName.c_str(), itemData, 0));
+	}
+}
+
+void CSTXServerDataDialog::UpdateNodeFullPathIndicator(HSTXTREENODE treeNode)
+{
+	if (treeNode == NULL)
+		SetDlgItemText(IDC_EDIT_FULL_PATH, _T(""));
+	else
+	{
+		TreeNodeData *nodeData = (TreeNodeData*)_tree.Internal_GetItemData(treeNode);
+		SetDlgItemText(IDC_EDIT_FULL_PATH, nodeData->nodeFullPathName.c_str());
+	}
 }

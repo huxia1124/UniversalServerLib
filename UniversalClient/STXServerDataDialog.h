@@ -34,6 +34,7 @@ struct TreeNodeData
 	unsigned flags = 0;
 	std::wstring nodeName;
 	std::wstring nodeFullPathName;
+	bool dirty = false;
 };
 
 class CSTXServerDataDialog : public CDialogImpl<CSTXServerDataDialog>
@@ -58,6 +59,8 @@ protected:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDC_BUTTON_REFRESH, OnRefreshClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_SAVE_DATA, OnSaveDataClicked)
+		COMMAND_ID_HANDLER(IDC_BUTTON_SORT, OnSortClicked)
+		COMMAND_ID_HANDLER(IDC_BUTTON_SORT_AS_NUMBER, OnSortAsNumbersClicked)
 		NOTIFY_CODE_HANDLER(STXATVN_ITEMEXPANDING, OnTreeItemExpanding)
 		NOTIFY_CODE_HANDLER(STXATVN_POSTDELETEITEM, OnTreeItemPostDelete)
 		NOTIFY_CODE_HANDLER(STXATVN_SELECTEDITEMCHANGED, OnTreeSelectedItemChanged)
@@ -75,6 +78,8 @@ protected:
 
 	LRESULT OnRefreshClicked(WORD, UINT, HWND, BOOL&);
 	LRESULT OnSaveDataClicked(WORD, UINT, HWND, BOOL&);
+	LRESULT OnSortClicked(WORD, UINT, HWND, BOOL&);
+	LRESULT OnSortAsNumbersClicked(WORD, UINT, HWND, BOOL&);
 
 	LRESULT OnTreeItemExpanding(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 	LRESULT OnTreeItemPostDelete(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
@@ -87,12 +92,15 @@ protected:
 	CString GetTreeNodeFullPath(HSTXTREENODE treeNode);
 	void DeleteAllChildNodes(HSTXTREENODE parentNode);
 	void SetTreeNodeAppearance(HSTXTREENODE treeNode, TreeNodeData *nodeData);
-	CString GenerateTreeNodeText(LPCTSTR lpszOriginalName, TreeNodeData *nodeData);
+	CString GenerateTreeNodeText(LPCTSTR lpszOriginalName, TreeNodeData *nodeData, size_t siblingNodeCount);
 	CString CombineNodePath(LPCTSTR pathLeft, LPCTSTR pathRight);
+	void UpdateNodeFullPathIndicator(HSTXTREENODE treeNode);
 
 protected:
 	void GetSharedDataTreeNodes(LPCTSTR lpszPath, std::vector<std::wstring>* pNodeNames, std::vector<int>* pNodeTypes, std::vector<unsigned long>* pNodeFlags, CString &err);
 	void GetSharedDataTreeNodeStringValue(LPCTSTR lpszPath, CString &value, CString &err);
 	void RunServerScriptString(LPCTSTR lpszScript, CString &result, CString &err);
+private:
+	void RefreshNodeText(HSTXTREENODE treeNode);
 };
 

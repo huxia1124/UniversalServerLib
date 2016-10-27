@@ -149,6 +149,7 @@ protected:
 	CRITICAL_SECTION m_csHttpParser;
 	CHTTPRequestParser m_reqParser;
 public:
+	ULONGLONG _connectedTick = 0;		//the time this client connected
 	TcpServerType _serverType;
 	__int64 _uid;
 	UniversalTcpClientRole _role = UniversalTcpClientRole_Default;
@@ -157,6 +158,10 @@ public:
 
 	//Used to cache a SharedData node for quick access. Performance consideration.
 	std::shared_ptr<CUniversalSharedDataTree> _clientSharedDataRootNode;
+
+	//Statistics
+	int64_t _totalReceivedPackageCount = 0;
+	int64_t _totalReceivedBytes = 0;
 
 protected:
 	//for HTTP
@@ -187,6 +192,9 @@ protected:
 public:
 	UniversalTcpClientRole SetRole(UniversalTcpClientRole newRole);
 	UniversalTcpClientRole GetRole();
+	ULONGLONG GetOnlineTime();
+	void AddTotalReceivedPackageCount(int32_t delta);
+	void AddTotalReceivedBytes(int64_t delta);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,7 +254,7 @@ protected:
 
 	CStatisticsBuffer<long long, 20> _statisticsSentBytes;
 	CStatisticsBuffer<long long, 20> _statisticsSentCount;
-	CStatisticsBuffer<long long, 20> _statisticsReceiveBytes;
+	CStatisticsBuffer<long long, 20> _statisticsReceivedBytes;
 	CStatisticsBuffer<long long, 20> _statisticsReceiveCount;
 
 protected:
@@ -279,6 +287,8 @@ protected:
 	virtual void OnTimer(DWORD dwInterval);
 	virtual void OnTimerInitialize();
 	virtual void OnTimerUninitialize();
+	virtual void OnTcpSubServerInitialized(CSTXIOCPTcpServerContext *pServerContext);
+	virtual void OnTcpSubServerDestroyed(CSTXIOCPTcpServerContext *pServerContext);
 
 	virtual LPCTSTR OnGetUserDefinedExceptionName(DWORD dwExceptionCode);
 	virtual DWORD OnParseUserDefinedExceptionArgument(DWORD dwExceptionCode, DWORD nArguments, ULONG_PTR *pArgumentArray, LPTSTR lpszBuffer, UINT cchBufferSize);
@@ -306,6 +316,8 @@ public:
 
 protected:
 	void InitializeServerDataForShareDataTree();
+	void InitializeTcpClientDataForSharedDataTree(CUniversalIOCPServerClientContext *pClientContext);
+	void UninitializeTcpClientdataForSharedDataTree(CUniversalIOCPServerClientContext *pClientContext);
 	int LoadScriptCache(lua_State *pLuaState, CUniversalStringCache &cache, LONGLONG *pScriptVersionInThread);
 	void UpdateLuaModuleReference(lua_State *pLuaState, CUniversalStringCache &cache);
 	void SetLuaCacheDirtyForModuleChange(LPCTSTR lpszScriptModule);

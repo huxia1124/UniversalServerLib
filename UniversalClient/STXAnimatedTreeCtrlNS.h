@@ -29,6 +29,7 @@
 
 #include <gdiplus.h>
 #include <atlcomcli.h>
+#include <functional>
 
 //////////////////////////////////////////////////////////////////////////
 class CSTXAnimatedTreeCtrlNS;
@@ -253,11 +254,8 @@ protected:
 	struct SORT_STRUCTURE
 	{
 		int nSortType;
-		union
-		{
-			STXAnimatedTreeSortFuncType pfnSort;
-			STXAnimatedTreeSortItemFuncType pfnSortItem;
-		};
+		std::function<int(LPARAM, LPARAM, LPARAM)> pfnSort;
+		std::function<int(HSTXTREENODE, HSTXTREENODE, LPARAM)> pfnSortItem;
 		LPARAM lParamSort;
 	};
 
@@ -483,8 +481,8 @@ public:
 	void SetItemSubImage(HSTXTREENODE hItem, LPCTSTR lpszImageFile);
 	BOOL Internal_DeleteItem(HSTXTREENODE hItem);
 	BOOL Internal_SetItemHeight(HSTXTREENODE hItem, int iHeight);
-	BOOL Internal_SortChildren(HSTXTREENODE hItem, STXAnimatedTreeSortFuncType pfnSortFunc, LPARAM lParamSort);
-	BOOL Internal_SortChildrenByItem(HSTXTREENODE hItem, STXAnimatedTreeSortItemFuncType pfnSortFunc, LPARAM lParamSort);
+	BOOL Internal_SortChildren(HSTXTREENODE hItem, std::function<int(LPARAM, LPARAM, LPARAM)> pfnSortFunc, LPARAM lParamSort);
+	BOOL Internal_SortChildrenByItem(HSTXTREENODE hItem, std::function<int(HSTXTREENODE, HSTXTREENODE, LPARAM)> pfnSortFunc, LPARAM lParamSort);
 	int Internal_GetItemText(HSTXTREENODE hItem, LPTSTR pszTextBuffer, int cchBufferLen);
 	DWORD_PTR Internal_GetItemData(HSTXTREENODE hItem);
 	HSTXTREENODE Internal_FindItem(HSTXTREENODE hItem, STXAnimatedTreeSearchCompareFuncType pfnSearchFunc, LPARAM lParamSearch);

@@ -720,6 +720,8 @@ protected:
 	virtual void OnUrlDownloadComplete(LPSTXIOCPSERVERHTTPCONTEXT pContext);
 	virtual void OnUrlDownloadCleanup(LPSTXIOCPSERVERHTTPCONTEXT pContext);
 	virtual DWORD OnQueryWorkerThreadCount();
+	virtual void OnTcpSubServerInitialized(CSTXIOCPTcpServerContext *pServerContext);
+	virtual void OnTcpSubServerDestroyed(CSTXIOCPTcpServerContext *pServerContext);
 
 	//判断一个客户端是否已经有足够的消息可读。如果有，应当返回一条消息的大小，否则返回 0
 	virtual DWORD IsClientDataReadable(CSTXIOCPServerClientContext *pClientContext);

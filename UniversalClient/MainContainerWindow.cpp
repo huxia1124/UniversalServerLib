@@ -114,7 +114,7 @@ void CMainContainerWindow::CreateMasterTree()
 	this->ScreenToClient(&rcTree);
 
 	CSTXAnimatedTreeCtrlNS::RegisterAnimatedTreeCtrlClass();
-	_tree.Create(_T(""), WS_CHILD | WS_VISIBLE | WS_BORDER, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, m_hWnd, IDC_MASTER_TREE);
+	_tree.Create(_T(""), WS_CHILD | WS_VISIBLE | WS_BORDER | STXTVS_NO_EXPANDER_FADE, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, m_hWnd, IDC_MASTER_TREE);
 	_tree.Internal_SetAnimationDuration(400);
 	_anchor->AddItem(IDC_MASTER_TREE, STXANCHOR_LEFT | STXANCHOR_TOP | STXANCHOR_BOTTOM);
 }
@@ -123,13 +123,19 @@ void CMainContainerWindow::InitializeTreeItems()
 {
 	auto nodeMessage = _tree.Internal_InsertItem(_T("Message"));
 	_nodeProtocolTest = _tree.Internal_InsertItem(_T("Protocol Test"), nodeMessage);
+	CComPtr<IStream> spMessageImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_MESSAGE_32), _T("PNG"));
+	_tree.SetItemImage(_nodeProtocolTest, spMessageImage, TRUE);
 
 	auto nodeScripts = _tree.Internal_InsertItem(_T("Scripts"));
-	_tree.Internal_InsertItem(_T("Server Scripts"), nodeScripts);
+	auto scriptChildNode = _tree.Internal_InsertItem(_T("Server Scripts"), nodeScripts);
 	_nodeServerScriptParent = nodeScripts;
+	CComPtr<IStream> spScriptImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_LUA_32), _T("PNG"));
+	_tree.SetItemImage(scriptChildNode, spScriptImage, TRUE);
 
 	auto nodeData = _tree.Internal_InsertItem(_T("Data"));
 	_nodeServerData = _tree.Internal_InsertItem(_T("Server data viewer"), nodeData);
+	CComPtr<IStream> spTreeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_TREE_32), _T("PNG"));
+	_tree.SetItemImage(_nodeServerData, spTreeImage, TRUE);
 }
 
 void CMainContainerWindow::CreateServerDataWindow()
@@ -252,7 +258,8 @@ void CMainContainerWindow::CreateScriptWindow(HSTXTREENODE currentNode)
 	if (targetWindowId > 0)
 	{
 		auto treeNode = _tree.Internal_InsertItem(itemText.c_str(), _nodeServerScriptParent);
-		_tree.Internal_SetItemData(treeNode, (DWORD_PTR)targetWindowId);
+		CComPtr<IStream> spScriptImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_LUA_32), _T("PNG"));
+		_tree.SetItemImage(treeNode, spScriptImage, TRUE);
 	}
 
 	_anchor->AddItem(dlg->m_hWnd, STXANCHOR_ALL);

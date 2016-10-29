@@ -332,7 +332,7 @@ void CSTXServerDataDialog::CreateDataTree()
 	this->ScreenToClient(&rcTree);
 
 	CSTXAnimatedTreeCtrlNS::RegisterAnimatedTreeCtrlClass();
-	_tree.Create(_T(""), WS_CHILD | WS_VISIBLE | WS_BORDER, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, m_hWnd, IDC_MASTER_TREE);
+	_tree.Create(_T(""), WS_CHILD | WS_VISIBLE | WS_BORDER | STXTVS_NO_EXPANDER_FADE, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, m_hWnd, IDC_MASTER_TREE);
 	_tree.Internal_SetAnimationDuration(200);
 	_anchor->AddItem(IDC_MASTER_TREE, STXANCHOR_LEFT | STXANCHOR_TOP | STXANCHOR_BOTTOM);
 }
@@ -461,10 +461,53 @@ void CSTXServerDataDialog::DeleteAllChildNodes(HSTXTREENODE parentNode)
 
 void CSTXServerDataDialog::SetTreeNodeAppearance(HSTXTREENODE treeNode, TreeNodeData *nodeData)
 {
+	// 1: int32
+	// 2: int64
+	// 3: wstring
+	// 4: int (c++ standard int)
+	// 5: float (c++ standard float)
+	// 6: double (c++ standard double)
+	// 7: WORD
+	// 8: DWORD
+	// 9: vector<wstring>
+	// 10: set<wstring>
+	// 11: vector<int64_t>
+	// 12: set<int64_t>
+	// 13: vector<double>
+	// 14: set<double>
+	// 15: IntFunction
+	// 16: WstringFunction
+	// 30000: Custom value
+
+	CComPtr<IStream> spNodeImage;
+
+	switch (nodeData->dataType)
+	{
+	case 3:
+	case 16:
+		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_STRING_32), _T("PNG")); break;
+	case 5:
+	case 6:
+		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_FLOAT_32), _T("PNG")); break;
+	case 1:
+	case 2:
+	case 4:
+	case 7:
+	case 8:
+	case 15:
+		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_INTEGER_32), _T("PNG")); break;
+	}
+
+	if (spNodeImage)
+	{
+		_tree.Internal_SetItemHeight(treeNode, 20);
+		_tree.SetItemImage(treeNode, spNodeImage, TRUE);
+	}
+
 	if (nodeData->flags & 0x00000001)		//Read-Only
 	{
-		CComPtr<IStream> spReadOnlyImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_READONLY_32), _T("PNG"));
-		_tree.SetItemImage(treeNode, spReadOnlyImage, TRUE);
+		CComPtr<IStream> spReadOnlyImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_READONLY_16), _T("PNG"));
+		_tree.SetItemSubImage(treeNode, spReadOnlyImage);
 	}
 }
 

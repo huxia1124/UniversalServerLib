@@ -245,7 +245,14 @@
     <ResourceCompile Include="UniversalClient.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\f_blue_32.png" />
+    <Image Include="res\i_blue_32.png" />
+    <Image Include="res\lua_32.png" />
+    <Image Include="res\message_32.png" />
+    <Image Include="res\readonly_16.png" />
     <Image Include="res\readonly_32.png" />
+    <Image Include="res\s_blue_32.png" />
+    <Image Include="res\tree_32.png" />
     <Image Include="small.ico" />
     <Image Include="UniversalClient.ico" />
   </ItemGroup>

@@ -568,6 +568,27 @@ std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerClientD
 	return result;
 }
 
+std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetUdpServerReceivedScript(CUniversalIOCPUdpServerContext *pServerContext)
+{
+	if (pServerContext->_udpServerReceivedScript)
+		return pServerContext->_udpServerReceivedScript;
+
+	std::shared_ptr<CUniversalStringCache> result;
+	auto port = pServerContext->GetUdpPort();
+	_mapUdpServerReceivedScripts.lock(port);
+	auto it = _mapUdpServerReceivedScripts.find(port);
+	if (it != _mapUdpServerReceivedScripts.end(port))
+	{
+		result = it->second;
+	}
+	_mapUdpServerReceivedScripts.unlock(port);
+
+	if (result)
+		pServerContext->_udpServerReceivedScript = result;
+
+	return result;
+}
+
 DWORD CUniversalIOCPServer::IsClientDataReadable(CSTXIOCPServerClientContext *pClientContext)
 {
 	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
@@ -1217,7 +1238,37 @@ void CUniversalIOCPServer::OnUdpServerReceived(CSTXIOCPUdpServerContext *pUdpSer
 	WSAAddressToString(pFromAddr, nAddrLen, NULL, szAddress, &dwAddressLen);
 
 	long nBufferLen = pBuffer->GetDataLength();
-	BYTE *pDadaBuffer = (BYTE*)pBuffer->GetBufferPtr();
+	BYTE *pDataBuffer = (BYTE*)pBuffer->GetBufferPtr();
+
+	//Lua script preparation. The following methods can be used in lua script:
+	// utils.GetServerParam()
+	// utils.GetMessageBase64()
+	// utils.GetServerPort()
+
+	lua_State *L = GetLuaStateForCurrentThread();
+	LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetServerParam", [&] {
+		USES_CONVERSION;
+		std::string serverParam = (LPCSTR)ATL::CW2A(pUdpServerContext->GetServerParamString().c_str());
+		return serverParam;
+	}).addFunction("GetServerPort", [&] {
+		return pUdpServerContext->GetUdpPort();
+	}).addFunction("GetMessageBase64", [&] {
+		std::string strMsg;
+		DWORD dwBase64Len = (nBufferLen / 3 + 1) * 4;
+		strMsg.resize(dwBase64Len);
+		CryptBinaryToStringA(pDataBuffer, nBufferLen, CRYPT_STRING_BASE64, (char*)strMsg.c_str(), &dwBase64Len);
+		return strMsg;
+	}).addFunction("GetClientIp", [&](LuaIntf::LuaRef luaObj, LuaIntf::LuaRef luaParam) {
+		USES_CONVERSION;
+		return std::string((LPCSTR)ATL::CW2A(szAddress));
+	}).endModule();
+
+	auto serverContext = pUdpServerContext;
+	auto scriptCache = GetUdpServerReceivedScript(dynamic_cast<CUniversalIOCPUdpServerContext*>(pUdpServerContext));
+	if (scriptCache)
+	{
+		RunScriptCache(*scriptCache.get());
+	}
 }
 
 void CUniversalIOCPServer::OnTcpReceived(CSTXIOCPTcpConnectionContext *pTcpConnCtx, CSTXIOCPBuffer *pBuffer)
@@ -2117,6 +2168,44 @@ size_t CUniversalIOCPServer::GetWorkerThreadScriptUsage()
 	return (size_t)CUniversalStringCache::GetScriptIndexBase();
 }
 
+void CUniversalIOCPServer::SetUdpServerReceivedScript(UINT nPort, LPCTSTR lpszScriptFile)
+{
+	std::shared_ptr<CUniversalStringCache> scriptCache;
+	std::wstring originalName;
+	_mapUdpServerReceivedScripts.lock(nPort);
+	auto it = _mapUdpServerReceivedScripts.find(nPort);
+	if (it == _mapUdpServerReceivedScripts.end(nPort))
+	{
+		scriptCache = std::make_shared<CUniversalStringCache>();
+		originalName = scriptCache->GetStringName();
+		scriptCache->SetNeedUpdate(true);
+		scriptCache->EnableTraceThreadVersion();
+		scriptCache->SetStringName(lpszScriptFile);
+		_mapUdpServerReceivedScripts[nPort] = scriptCache;
+	}
+	else
+	{
+		it->second->SetStringName(lpszScriptFile);
+		it->second->SetNeedUpdate(true);
+		scriptCache = it->second;
+	}
+	_mapUdpServerReceivedScripts.unlock(nPort);
+
+	LockServersMap();
+	auto itServer = m_mapUdpServers.find(nPort);
+	if (itServer != m_mapUdpServers.end())
+	{
+		CUniversalIOCPUdpServerContext *serverContext = dynamic_cast<CUniversalIOCPUdpServerContext*>((CSTXIOCPUdpServerContext*)itServer->second);
+		if (serverContext)
+		{
+			serverContext->_udpServerReceivedScript = scriptCache;
+		}
+	}
+	UnlockServersMap();
+
+	UpdateScriptTrackingInfo(originalName, lpszScriptFile, scriptCache);
+}
+
 void CUniversalIOCPServer::SetWorkerThreadInitializationScript(LPCTSTR lpszScriptFile)
 {
 	USES_CONVERSION;
@@ -2988,6 +3077,36 @@ void CUniversalIOCPServer::OnTcpSubServerDestroyed(CSTXIOCPTcpServerContext *pSe
 	std::wstring dataPath = _T("Server\\Runtime\\SubServer\\TCP\\");
 	TCHAR szTemp[16];
 	_stprintf_s(szTemp, _T("%d"), pServerContext->GetListeningPort());
+	dataPath += szTemp;
+
+	root->UnregisterVariable(dataPath.c_str());
+}
+
+void CUniversalIOCPServer::OnUdpSubServerInitialized(CSTXIOCPUdpServerContext *pServerContext)
+{
+	auto root = CUniversalSharedDataTree::GetRootNode();
+	std::wstring dataPathRoot = _T("Server\\Runtime\\SubServer\\UDP\\");
+	TCHAR szTemp[16];
+	_stprintf_s(szTemp, _T("%d"), pServerContext->GetUdpPort());
+	dataPathRoot += szTemp;
+	auto dataPathRunTime = dataPathRoot + _T("\\Information\\RunTime(sec)");
+	root->RegisterIntegerVariable(dataPathRunTime.c_str(), [=] {return pServerContext->GetRunTime() / 1000; });
+	auto dataPathServerParam = dataPathRoot + _T("\\Information\\ServerParameter");
+	root->RegisterStringVariable(dataPathServerParam.c_str(), [=] {return pServerContext->GetServerParamString(); });
+
+	auto dataPathDataReceivedScript = dataPathRoot + _T("\\Configuration\\DataReceivedScript");
+	root->RegisterStringVariable(dataPathDataReceivedScript.c_str(), [=] {
+		auto scriptCache = _mapUdpServerReceivedScripts.findValue(pServerContext->GetUdpPort(), nullptr);
+		return scriptCache ? scriptCache->GetStringName() : _T("");
+	}, [=](std::wstring value) {this->SetUdpServerReceivedScript(pServerContext->GetUdpPort(), value.c_str()); });
+}
+
+void CUniversalIOCPServer::OnUdpSubServerDestroyed(CSTXIOCPUdpServerContext *pServerContext)
+{
+	auto root = CUniversalSharedDataTree::GetRootNode();
+	std::wstring dataPath = _T("Server\\Runtime\\SubServer\\UDP\\");
+	TCHAR szTemp[16];
+	_stprintf_s(szTemp, _T("%d"), pServerContext->GetUdpPort());
 	dataPath += szTemp;
 
 	root->UnregisterVariable(dataPath.c_str());

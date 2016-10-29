@@ -126,9 +126,19 @@ void CServerController::BeginTcpServerV(int nPort, std::wstring userParam, int n
 	_server->BeginTcpServer(nPort, TcpServerTypeBinaryHeaderV, userParam.c_str(), nAcceptPost, nLimitClientCount);
 }
 
+void CServerController::BeginUdpServer(int nPort, std::wstring userParam)
+{
+	_server->BeginUdpServer(nPort, 0, userParam.c_str());
+}
+
 void CServerController::DestroyTcpServer(int nPort)
 {
 	_server->KillTcpServer(nPort);
+}
+
+void CServerController::DestroyUdpServer(int nPort)
+{
+	_server->KillUdpServer(nPort);
 }
 
 long CServerController::CreateTcpStreamConnection(std::wstring address, int nPort, std::wstring userParam)

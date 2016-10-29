@@ -50,7 +50,9 @@ public:
 	void BeginTcpServer2(int nPort, std::wstring userParam, int nAcceptPost, long long nLimitClientCount);
 	void BeginTcpServer4(int nPort, std::wstring userParam, int nAcceptPost, long long nLimitClientCount);
 	void BeginTcpServerV(int nPort, std::wstring userParam, int nAcceptPost, long long nLimitClientCount);
+	void BeginUdpServer(int nPort, std::wstring userParam);
 	void DestroyTcpServer(int nPort);
+	void DestroyUdpServer(int nPort);
 
 	long CreateTcpStreamConnection(std::wstring address, int nPort, std::wstring userParam);
 	long PendingTcpStreamConnection(std::wstring address, int nPort, std::wstring userParam);

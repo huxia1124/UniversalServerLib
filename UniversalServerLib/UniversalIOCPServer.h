@@ -113,6 +113,19 @@ protected:
 
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+class CUniversalIOCPUdpServerContext : public CSTXIOCPUdpServerContext
+{
+	friend class CUniversalIOCPServer;
+protected:
+
+	//Scripts configuration
+	//These members are copies from the content of CUniversalIOCPServer::_mapTcpServer***Scripts.
+	//just for quick access when script is set, for better performance
+	std::shared_ptr<CUniversalStringCache> _udpServerReceivedScript;
+
+};
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class CUniversalIOCPTcpConnectionContext : public CSTXIOCPTcpConnectionContext
@@ -233,6 +246,7 @@ protected:
 	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapTcpServerClientDisconnectedScripts;		//Port -> ScriptCache
 	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionRecvScripts;					//ConnectionID -> ScriptCache
 	CSTXHashMap<LONG, std::shared_ptr<CUniversalStringCache>> _mapTcpConnectionDisconnectedScripts;			//ConnectionID -> ScriptCache
+	CSTXHashMap<UINT, std::shared_ptr<CUniversalStringCache>> _mapUdpServerReceivedScripts;				//Port -> ScriptCache
 	std::shared_ptr<CUniversalStringCache> _timerScript;				//executed in OnTimer
 	std::shared_ptr<CUniversalStringCache> _fileChangedScript;				//executed when monitored files changed
 	std::string _workerThreadInitializationScript;
@@ -290,6 +304,8 @@ protected:
 	virtual void OnTimerUninitialize();
 	virtual void OnTcpSubServerInitialized(CSTXIOCPTcpServerContext *pServerContext);
 	virtual void OnTcpSubServerDestroyed(CSTXIOCPTcpServerContext *pServerContext);
+	virtual void OnUdpSubServerInitialized(CSTXIOCPUdpServerContext *pServerContext);
+	virtual void OnUdpSubServerDestroyed(CSTXIOCPUdpServerContext *pServerContext);
 
 	virtual LPCTSTR OnGetUserDefinedExceptionName(DWORD dwExceptionCode);
 	virtual DWORD OnParseUserDefinedExceptionArgument(DWORD dwExceptionCode, DWORD nArguments, ULONG_PTR *pArgumentArray, LPTSTR lpszBuffer, UINT cchBufferSize);
@@ -337,6 +353,7 @@ protected:
 	std::shared_ptr<CUniversalStringCache> GetTcpConnectionDisconnectedScript(CUniversalIOCPTcpConnectionContext *pConnectionContext);
 	std::shared_ptr<CUniversalStringCache> GetTcpServerConnectedScript(CUniversalIOCPTcpServerContext *pServerContext);
 	std::shared_ptr<CUniversalStringCache> GetTcpServerClientDisconnectedScript(CUniversalIOCPTcpServerContext *pServerContext);
+	std::shared_ptr<CUniversalStringCache> GetUdpServerReceivedScript(CUniversalIOCPUdpServerContext *pServerContext);
 
 	template<class T>
 	BOOL CheckLuaObject(lua_State *L, const char *name)
@@ -403,6 +420,7 @@ public:
 	void SetFileChangedScript(LPCTSTR lpszScriptFile);
 	size_t GetWorkerThreadScriptCapacity();
 	size_t GetWorkerThreadScriptUsage();
+	void SetUdpServerReceivedScript(UINT nPort, LPCTSTR lpszScriptFile);
 
 public:
 	//Statistics data. can be enabled/disabled through

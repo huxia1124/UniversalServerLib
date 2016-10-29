@@ -278,6 +278,12 @@ CSTXServerContextBase* CUniversalIOCPServer::OnCreateServerContext()
 	return new CUniversalIOCPTcpServerContext();
 }
 
+CSTXUdpServerContextBase* CUniversalIOCPServer::OnCreateUdpServerContext(DWORD_PTR dwServerParam)
+{
+	auto serverContext = new CUniversalIOCPUdpServerContext(dwServerParam);
+	return serverContext;
+}
+
 CSTXIOCPServerClientContext * CUniversalIOCPServer::OnCreateClientContext(tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext)
 {
 	CUniversalIOCPServerClientContext *pNewClient = new CUniversalIOCPServerClientContext();
@@ -1244,6 +1250,7 @@ void CUniversalIOCPServer::OnUdpServerReceived(CSTXIOCPUdpServerContext *pUdpSer
 	// utils.GetServerParam()
 	// utils.GetMessageBase64()
 	// utils.GetServerPort()
+	// utils.GetClientIp()
 
 	lua_State *L = GetLuaStateForCurrentThread();
 	LuaIntf::LuaBinding(L).beginModule("utils").addFunction("GetServerParam", [&] {

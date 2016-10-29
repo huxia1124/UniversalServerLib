@@ -118,6 +118,12 @@ protected:
 class CUniversalIOCPUdpServerContext : public CSTXIOCPUdpServerContext
 {
 	friend class CUniversalIOCPServer;
+public:
+	CUniversalIOCPUdpServerContext(DWORD_PTR dwServeParam) : CSTXIOCPUdpServerContext(dwServeParam)
+	{
+
+	}
+
 protected:
 
 	//Scripts configuration
@@ -274,6 +280,7 @@ protected:
 
 protected:
 	virtual CSTXServerContextBase* OnCreateServerContext();
+	virtual CSTXUdpServerContextBase* OnCreateUdpServerContext(DWORD_PTR dwServerParam);
 	virtual CSTXIOCPServerClientContext *OnCreateClientContext(tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext);
 	virtual CSTXIOCPTcpConnectionContext*OnCreateTcpConnectionContext();
 	virtual BOOL OnAccepted(CSTXIOCPServerClientContext *pClientContext);

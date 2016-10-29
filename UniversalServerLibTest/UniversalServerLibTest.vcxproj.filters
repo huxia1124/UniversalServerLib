@@ -274,5 +274,8 @@
     <None Include="file_changed.lua">
       <Filter>lua_script</Filter>
     </None>
+    <None Include="udp_recv_test.lua">
+      <Filter>lua_script</Filter>
+    </None>
   </ItemGroup>
 </Project>

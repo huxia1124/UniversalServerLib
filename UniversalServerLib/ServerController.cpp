@@ -161,6 +161,29 @@ void CServerController::SendStringToClient(__int64 nClientUID, std::string data)
 	_server->SendRawResponseData(nClientUID, (void*)data.c_str(), data.size());
 }
 
+void CServerController::SendStringToUdpClient(int nServerPort, std::string clientAddress, int nClientPort, std::string data)
+{
+	USES_CONVERSION;
+	std::wstring targetAddressW = (LPCTSTR)ATL::CA2W(clientAddress.c_str(), CP_UTF8);
+
+	_server->SendUdpData(nServerPort, (LPVOID)data.c_str(), data.size(), targetAddressW.c_str(), nClientPort);
+}
+
+void CServerController::SendStringToUdpClientEx(int nServerPort, std::string clientAddressEx, std::string data)
+{
+	USES_CONVERSION;
+	std::wstring targetAddressW = (LPCTSTR)ATL::CA2W(clientAddressEx.c_str(), CP_UTF8);
+
+	UINT nClientPort = 0;
+	TCHAR *ptrSplitter = (TCHAR*)_tcschr(targetAddressW.c_str(), _T(':'));
+	if (ptrSplitter)
+	{
+		*ptrSplitter = 0;
+		nClientPort = _ttoi(ptrSplitter + 1);
+		_server->SendUdpData(nServerPort, (LPVOID)data.c_str(), data.size(), targetAddressW.c_str(), nClientPort);
+	}
+}
+
 void CServerController::SendWebSocketStringToClient(__int64 nClientUID, std::string data)
 {
 	_server->SendWebSocketResponseData(nClientUID, (void*)data.c_str(), data.size());
@@ -265,6 +288,11 @@ void CServerController::SetTcpServerClientConnectedScript(int nPort, std::wstrin
 void CServerController::SetTcpServerClientDisconnectedScript(int nPort, std::wstring scriptFile)
 {
 	_server->SetTcpServerClientDisconnectedScript(nPort, scriptFile.c_str());
+}
+
+void CServerController::SetUdpServerReceivedScript(int nPort, std::wstring scriptFile)
+{
+	_server->SetUdpServerReceivedScript(nPort, scriptFile.c_str());
 }
 
 long CServerController::GetTcpClientCount(int port)

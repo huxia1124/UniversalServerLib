@@ -443,6 +443,7 @@
     <None Include="test_add2.lua" />
     <None Include="timer.lua" />
     <None Include="timer2.lua" />
+    <None Include="udp_recv_test.lua" />
     <None Include="worker_thread_initialization.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

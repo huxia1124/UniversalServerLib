@@ -59,6 +59,8 @@ public:
 	long PendingTcpConnectionV(std::wstring address, int nPort, std::wstring userParam);
 	void SendStringToConnection(long nConnectionID, std::string data);
 	void SendStringToClient(__int64 nClientUID, std::string data);
+	void SendStringToUdpClient(int nServerPort, std::string clientAddress, int nClientPort, std::string data);
+	void SendStringToUdpClientEx(int nServerPort, std::string clientAddressEx, std::string data);
 	void SendWebSocketStringToClient(__int64 nClientUID, std::string data);
 	void SendPackageToClient(__int64 nClientUID, std::shared_ptr<CSTXProtocolLua> spData);
 	void SendPackageToConnection(long nConnectionID, std::shared_ptr<CSTXProtocolLua> spData);
@@ -77,6 +79,7 @@ public:
 	void SetTcpConnectionDisconnectedScript(long nConnectionID, std::wstring scriptFile);
 	void SetTcpServerClientConnectedScript(int nPort, std::wstring scriptFile);
 	void SetTcpServerClientDisconnectedScript(int nPort, std::wstring scriptFile);
+	void SetUdpServerReceivedScript(int nPort, std::wstring scriptFile);
 	long GetTcpClientCount(int port);
 	long long GetSentBytesPerSecond();
 	long long GetSentCountPerSecond();

@@ -14,4 +14,5 @@ interface UniversalServerRPC // The interface is named UniversalServerRPC
 	void EnqueueWorkerThreadScriptString([in, string] const WCHAR* szScriptString);
 	void GetSharedDataTreeNodes([in, string] const WCHAR* szPath, [out] SAFEARRAY(BSTR) *nodeNames, [out] SAFEARRAY(long) *nodeTypes, [out] SAFEARRAY(unsigned long) *nodeFlags);
 	void GetSharedDataTreeNodeStringValue([in, string] const WCHAR* szPath, [out, retval] BSTR* pstrValue);
+	void GetSharedDataTreeNodeValues([in, string] const WCHAR* szPath, [out] SAFEARRAY(BSTR) *nodeValues);
 }

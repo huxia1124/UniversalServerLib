@@ -147,6 +147,9 @@
     <ClInclude Include="Common.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="STXCollectionEditorPanel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -194,6 +197,9 @@
     <ClCompile Include="STXServerDataDialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="STXCollectionEditorPanel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="UniversalClient.rc">
@@ -229,6 +235,15 @@
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="res\f_blue_32.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\f_collection_32.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\i_collection_32.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\s_collection_32.png">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

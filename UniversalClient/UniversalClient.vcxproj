@@ -178,6 +178,7 @@
     <ClInclude Include="STXAccessibleWrapperBase.h" />
     <ClInclude Include="STXAnchor.h" />
     <ClInclude Include="STXAnimatedTreeCtrlNS.h" />
+    <ClInclude Include="STXCollectionEditorPanel.h" />
     <ClInclude Include="STXProtocolDialog.h" />
     <ClInclude Include="STXProtocolHistory.h" />
     <ClInclude Include="STXScriptDialog.h" />
@@ -233,6 +234,7 @@
     <ClCompile Include="STXAccessibleWrapperBase.cpp" />
     <ClCompile Include="STXAnchor.cpp" />
     <ClCompile Include="STXAnimatedTreeCtrlNS.cpp" />
+    <ClCompile Include="STXCollectionEditorPanel.cpp" />
     <ClCompile Include="STXProtocolDialog.cpp" />
     <ClCompile Include="STXProtocolHistory.cpp" />
     <ClCompile Include="STXScriptDialog.cpp" />
@@ -246,12 +248,15 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\f_blue_32.png" />
+    <Image Include="res\f_collection_32.png" />
     <Image Include="res\i_blue_32.png" />
+    <Image Include="res\i_collection_32.png" />
     <Image Include="res\lua_32.png" />
     <Image Include="res\message_32.png" />
     <Image Include="res\readonly_16.png" />
     <Image Include="res\readonly_32.png" />
     <Image Include="res\s_blue_32.png" />
+    <Image Include="res\s_collection_32.png" />
     <Image Include="res\tree_32.png" />
     <Image Include="small.ico" />
     <Image Include="UniversalClient.ico" />

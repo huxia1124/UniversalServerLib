@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 8.00.0603 */
-/* at Sun Oct 09 21:53:13 2016
+/* at Sat Oct 29 17:09:10 2016
  */
 /* Compiler settings for UniversalServerRPC.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0603 
@@ -69,6 +69,23 @@ void EnqueueWorkerThreadScriptString(
     /* [in] */ handle_t IDL_handle,
     /* [string][in] */ const WCHAR *szScriptString);
 
+void GetSharedDataTreeNodes( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ const WCHAR *szPath,
+    /* [out] */ SAFEARRAY * *nodeNames,
+    /* [out] */ SAFEARRAY * *nodeTypes,
+    /* [out] */ SAFEARRAY * *nodeFlags);
+
+void GetSharedDataTreeNodeStringValue( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ const WCHAR *szPath,
+    /* [retval][out] */ BSTR *pstrValue);
+
+void GetSharedDataTreeNodeValues( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ const WCHAR *szPath,
+    /* [out] */ SAFEARRAY * *nodeValues);
+
 
 
 extern RPC_IF_HANDLE UniversalServerRPC_v1_0_c_ifspec;
@@ -81,6 +98,11 @@ unsigned long             __RPC_USER  BSTR_UserSize(     unsigned long *, unsign
 unsigned char * __RPC_USER  BSTR_UserMarshal(  unsigned long *, unsigned char *, BSTR * ); 
 unsigned char * __RPC_USER  BSTR_UserUnmarshal(unsigned long *, unsigned char *, BSTR * ); 
 void                      __RPC_USER  BSTR_UserFree(     unsigned long *, BSTR * ); 
+
+unsigned long             __RPC_USER  LPSAFEARRAY_UserSize(     unsigned long *, unsigned long            , LPSAFEARRAY * ); 
+unsigned char * __RPC_USER  LPSAFEARRAY_UserMarshal(  unsigned long *, unsigned char *, LPSAFEARRAY * ); 
+unsigned char * __RPC_USER  LPSAFEARRAY_UserUnmarshal(unsigned long *, unsigned char *, LPSAFEARRAY * ); 
+void                      __RPC_USER  LPSAFEARRAY_UserFree(     unsigned long *, LPSAFEARRAY * ); 
 
 /* end of Additional Prototypes */
 

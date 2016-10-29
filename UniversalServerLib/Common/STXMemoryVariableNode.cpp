@@ -786,12 +786,12 @@ void CSTXMemoryVariableNode::RemoveStringValue(void *ptr, int dataType, std::wst
 	case STXVariableTreeNodeType_WStringSet:		//set<wstring>
 		((std::set<std::wstring>*)ptr)->erase(strValue);
 		break;
-	//case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
-	//	(*((std::vector<int64_t>*)ptr)).push_back(_ttoi64(strValue.c_str()));
-	//	break;
-	//case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
-	//	(*((std::set<int64_t>*)ptr)).insert(_ttoi64(strValue.c_str()));
-	//	break;
+	case STXVariableTreeNodeType_IntegerVector:		//vector<int64_t>
+		((std::vector<int64_t>*)ptr)->erase(std::remove(((std::vector<int64_t>*)ptr)->begin(), ((std::vector<int64_t>*)ptr)->end(), _ttoi64(strValue.c_str())), ((std::vector<int64_t>*)ptr)->end());
+		break;
+	case STXVariableTreeNodeType_IntegerSet:		//set<int64_t>
+		(*((std::set<int64_t>*)ptr)).erase(_ttoi64(strValue.c_str()));
+		break;
 	//case STXVariableTreeNodeType_DoubleVector:		//vector<int64_t>
 	//	(*((std::vector<double>*)ptr)).push_back(_tcstod(strValue.c_str(), nullptr));
 	//	break;

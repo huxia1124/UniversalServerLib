@@ -128,6 +128,24 @@ LRESULT CSTXServerDataDialog::OnSaveDataClicked(WORD, UINT, HWND, BOOL&)
 
 	GetDlgItemText(IDC_EDIT_DATA, inputText);
 
+	// 1: int32
+	// 2: int64
+	// 3: wstring
+	// 4: int (c++ standard int)
+	// 5: float (c++ standard float)
+	// 6: double (c++ standard double)
+	// 7: WORD
+	// 8: DWORD
+	// 9: vector<wstring>
+	// 10: set<wstring>
+	// 11: vector<int64_t>
+	// 12: set<int64_t>
+	// 13: vector<double>
+	// 14: set<double>
+	// 15: IntFunction
+	// 16: WstringFunction
+	// 30000: Custom value
+
 	switch (nodeData->dataType)
 	{
 	case 1:
@@ -301,6 +319,34 @@ LRESULT CSTXServerDataDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 }
 
 
+LRESULT CSTXServerDataDialog::OnAddStringData(UINT, WPARAM wParam, LPARAM lParam, BOOL& handled)
+{
+	CString fullPath = GetSelectedItemFullPath();
+	fullPath.Replace(_T("\\"), _T("\\\\"));
+	CString scriptText;
+	CString scriptResult;
+	CString error;
+	scriptText.Format(_T("local ____sharedDataObj = SharedData()\r\nresult=____sharedDataObj:AddStringValue(\"%s\", \"%s\")"), (LPCTSTR)fullPath, (LPCTSTR)wParam);
+	RunServerScriptString((LPCTSTR)scriptText, scriptResult, error);
+
+	handled = TRUE;
+	return !error.IsEmpty();
+}
+
+LRESULT CSTXServerDataDialog::OnRemoveStringData(UINT, WPARAM wParam, LPARAM lParam, BOOL& handled)
+{
+	CString fullPath = GetSelectedItemFullPath();
+	fullPath.Replace(_T("\\"), _T("\\\\"));
+	CString scriptText;
+	CString scriptResult;
+	CString error;
+	scriptText.Format(_T("local ____sharedDataObj = SharedData()\r\nresult=____sharedDataObj:RemoveStringValue(\"%s\", \"%s\")"), (LPCTSTR)fullPath, (LPCTSTR)wParam);
+	RunServerScriptString((LPCTSTR)scriptText, scriptResult, error);
+
+	handled = TRUE;
+	return !error.IsEmpty();
+}
+
 void CSTXServerDataDialog::GetErrorText(RPC_STATUS NTStatusMessage, CString &err)
 {
 	LPVOID lpMessageBuffer;
@@ -344,7 +390,7 @@ void CSTXServerDataDialog::CreateDataEditor(HSTXTREENODE treeNode)
 	TreeNodeData *existingItemData = (TreeNodeData*)_tree.Internal_GetItemData(treeNode);
 	int dataType = existingItemData->dataType;
 
-	if (existingItemData->flags & 0x00000001)		//Read-Only
+	if (existingItemData->flags & 0x00000001 || IsCollectionType(dataType) || dataType < 0)		//Read-Only or CollectionType or InvalidType(no data)
 		::EnableWindow(GetDlgItem(IDC_BUTTON_SAVE_DATA), FALSE);
 	else
 		::EnableWindow(GetDlgItem(IDC_BUTTON_SAVE_DATA), TRUE);
@@ -414,6 +460,15 @@ void CSTXServerDataDialog::CreateDataEditor(HSTXTREENODE treeNode)
 	case 12:
 	case 13:
 	case 14:
+	{
+		_collectionEditorPanel.Create(m_hWnd);
+		_collectionEditorPanel.MoveWindow(&rcData);
+		_collectionEditorPanel.ShowWindow(SW_SHOW);
+		hWndEditor = _collectionEditorPanel.m_hWnd;
+		std::vector<std::wstring> collectionValues;
+		GetSharedDataTreeNodeValues(GetSelectedItemFullPath(), collectionValues, error);
+		_collectionEditorPanel.FillCollectionValues(collectionValues, dataType);
+	}
 		break;
 	}
 
@@ -497,6 +552,15 @@ void CSTXServerDataDialog::SetTreeNodeAppearance(HSTXTREENODE treeNode, TreeNode
 	case 8:
 	case 15:
 		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_INTEGER_32), _T("PNG")); break;
+	case 9:
+	case 10:
+		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_STRING_COLLECTION_32), _T("PNG")); break;
+	case 11:
+	case 12:
+		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_INTEGER_COLLECTION_32), _T("PNG")); break;
+	case 13:
+	case 14:
+		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_FLOAT_COLLECTION_32), _T("PNG")); break;
 	}
 
 	if (spNodeImage)
@@ -802,6 +866,60 @@ void CSTXServerDataDialog::RunServerScriptString(LPCTSTR lpszScript, CString &re
 		}
 }
 
+void CSTXServerDataDialog::GetSharedDataTreeNodeValues(LPCTSTR lpszPath, std::vector<std::wstring> &result, CString &err)
+{
+	RPC_STATUS status;
+	RPC_BINDING_HANDLE hwBinding;
+	WCHAR* szStringBinding = NULL;
+
+	status = RpcStringBindingCompose(
+		NULL,
+		(RPC_WSTR)(_T("ncacn_ip_tcp")),
+		(RPC_WSTR)(_host.c_str()),
+		(RPC_WSTR)(_port.c_str()),
+		NULL,
+		(RPC_WSTR*)&szStringBinding);
+
+	if (status)
+	{
+		printf("StringBinding failed\n");
+		exit(status);
+	}
+	printf("szString=%S\n", szStringBinding);
+
+	status = RpcBindingFromStringBinding(
+		(RPC_WSTR)szStringBinding,
+		&hwBinding);
+	if (status)
+	{
+		printf("Bind from String failed:%d\n", GetLastError());
+		exit(status);
+	}
+	RpcTryExcept
+	{
+		SAFEARRAY *psa = NULL;
+		::GetSharedDataTreeNodeValues(hwBinding, lpszPath, &psa);
+
+		ExtractSafeArrayBSTR(psa, &result);
+	}
+		RpcExcept(1)
+	{
+		err.Format(_T("Runtime reported exception: %d, except=%d\n"), GetLastError(), RpcExceptionCode());
+		GetErrorText(RpcExceptionCode(), err);
+		printf("Runtime reported exception: %d, except=%d\n", GetLastError(), RpcExceptionCode());
+	}
+	RpcEndExcept
+	{
+		status = RpcBindingFree(&hwBinding); // Frees the binding handle.
+	}
+
+		if (status)
+		{
+			printf("Bind free failed\n");
+			exit(status);
+		}
+}
+
 void CSTXServerDataDialog::RefreshNodeText(HSTXTREENODE treeNode)
 {
 	if (treeNode != NULL && treeNode != STXTVI_ROOT)
@@ -820,4 +938,9 @@ void CSTXServerDataDialog::UpdateNodeFullPathIndicator(HSTXTREENODE treeNode)
 		TreeNodeData *nodeData = (TreeNodeData*)_tree.Internal_GetItemData(treeNode);
 		SetDlgItemText(IDC_EDIT_FULL_PATH, nodeData->nodeFullPathName.c_str());
 	}
+}
+
+bool CSTXServerDataDialog::IsCollectionType(int dataType)
+{
+	return dataType >= 9 && dataType <= 14;
 }

@@ -26,6 +26,10 @@
 #include "Resource.h"
 #include "STXAnchor.h"
 #include "STXAnimatedTreeCtrlNS.h"
+#include "STXCollectionEditorPanel.h"
+
+#define WM_ADD_STRING_DATA		(WM_USER + 5)
+#define WM_REMOVE_STRING_DATA	(WM_USER + 6)
 
 struct TreeNodeData
 {
@@ -52,7 +56,9 @@ protected:
 	std::wstring _host;
 	std::wstring _port;
 	CSTXAnimatedTreeCtrlNS _tree;
+
 	HWND _hWndCurrentEditor = NULL;
+	CSTXCollectionEditorPanel _collectionEditorPanel;
 
 protected:
 	BEGIN_MSG_MAP(CSTXScriptDialog)
@@ -64,6 +70,8 @@ protected:
 		NOTIFY_CODE_HANDLER(STXATVN_ITEMEXPANDING, OnTreeItemExpanding)
 		NOTIFY_CODE_HANDLER(STXATVN_POSTDELETEITEM, OnTreeItemPostDelete)
 		NOTIFY_CODE_HANDLER(STXATVN_SELECTEDITEMCHANGED, OnTreeSelectedItemChanged)
+		MESSAGE_HANDLER(WM_ADD_STRING_DATA, OnAddStringData)
+		MESSAGE_HANDLER(WM_REMOVE_STRING_DATA, OnRemoveStringData)
 
 	END_MSG_MAP()
 
@@ -74,6 +82,8 @@ protected:
 	void InitializeRPCHostCombobox();
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
 
+	LRESULT OnAddStringData(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnRemoveStringData(UINT, WPARAM, LPARAM, BOOL&);
 
 
 	LRESULT OnRefreshClicked(WORD, UINT, HWND, BOOL&);
@@ -95,11 +105,13 @@ protected:
 	CString GenerateTreeNodeText(LPCTSTR lpszOriginalName, TreeNodeData *nodeData, size_t siblingNodeCount);
 	CString CombineNodePath(LPCTSTR pathLeft, LPCTSTR pathRight);
 	void UpdateNodeFullPathIndicator(HSTXTREENODE treeNode);
+	bool IsCollectionType(int dataType);
 
 protected:
 	void GetSharedDataTreeNodes(LPCTSTR lpszPath, std::vector<std::wstring>* pNodeNames, std::vector<int>* pNodeTypes, std::vector<unsigned long>* pNodeFlags, CString &err);
 	void GetSharedDataTreeNodeStringValue(LPCTSTR lpszPath, CString &value, CString &err);
 	void RunServerScriptString(LPCTSTR lpszScript, CString &result, CString &err);
+	void GetSharedDataTreeNodeValues(LPCTSTR lpszPath, std::vector<std::wstring> &result, CString &err);
 private:
 	void RefreshNodeText(HSTXTREENODE treeNode);
 };

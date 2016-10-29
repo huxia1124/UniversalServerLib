@@ -1612,6 +1612,41 @@ extern "C"
 
 		*pstrValue = SysAllocString(CComBSTR(targetNode->GetThisStringValue().c_str()));
 	}
+	void GetSharedDataTreeNodeValues(handle_t IDL_handle, const WCHAR* szPath, SAFEARRAY **nodeValues)
+	{
+		auto rootNode = CUniversalSharedDataTree::GetRootNode();
+		std::shared_ptr<CSTXMemoryVariableNode> targetNode = rootNode;
+		if (szPath == NULL || szPath[0] == 0)
+		{
+
+		}
+		else
+		{
+			targetNode = rootNode->GetVariableNode(szPath);
+		}
+		if (targetNode == nullptr)
+		{
+			return;
+		}
+
+		std::vector<std::wstring> values;
+		targetNode->GetThisValues(&values);
+		*nodeValues = SafeArrayCreateVector(VT_BSTR, 0, values.size());
+
+		ATL::CComSafeArray<BSTR> sa;
+		sa.Attach(*nodeValues);
+
+		LONG i = 0;
+		for (auto val : values)
+		{
+			BSTR pStr = SysAllocString(CComBSTR(val.c_str()));
+			sa.SetAt(i, pStr);
+			i++;
+		}
+
+		sa.Detach();
+	}
+
 	void* /*__RPC_FAR**/ __RPC_USER midl_user_allocate(size_t len)
 	{
 		return(malloc(len));

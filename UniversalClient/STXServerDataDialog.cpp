@@ -67,6 +67,7 @@ LRESULT CSTXServerDataDialog::OnRefreshClicked(WORD, UINT, HWND, BOOL&)
 	else
 	{
 		RefreshNodeText(selectedTreeNode);
+		CreateDataEditor(selectedTreeNode);
 	}
 
 	//_tree.Internal_DeleteItem(selectedTreeNode);

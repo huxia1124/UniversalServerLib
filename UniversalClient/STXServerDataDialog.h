@@ -61,7 +61,7 @@ protected:
 	CSTXCollectionEditorPanel _collectionEditorPanel;
 
 protected:
-	BEGIN_MSG_MAP(CSTXScriptDialog)
+	BEGIN_MSG_MAP(CSTXServerDataDialog)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDC_BUTTON_REFRESH, OnRefreshClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_SAVE_DATA, OnSaveDataClicked)

@@ -20,6 +20,7 @@ LRESULT CSTXCollectionEditorPanel::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDC_BUTTON_ADD, STXANCHOR_RIGHT | STXANCHOR_TOP);
 	_anchor->AddItem(IDC_EDIT_ADD, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
 	_anchor->AddItem(IDC_LIST_DATA, STXANCHOR_ALL);
+	_anchor->AddItem(IDC_EDIT_DATA_TYPE, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_BOTTOM);
 
 	return 1; // Let dialog manager set initial focus
 }
@@ -123,6 +124,22 @@ LRESULT CSTXCollectionEditorPanel::OnRemoveClicked(WORD, UINT, HWND, BOOL&)
 	return 0;
 }
 
+LRESULT CSTXCollectionEditorPanel::OnListBoxDblClick(WORD, UINT, HWND, BOOL&)
+{
+	auto listBox = GetDlgItem(IDC_LIST_DATA);
+	int sel = (int)listBox.SendMessage(LB_GETCURSEL);
+	if (sel >= 0)
+	{
+		int len = (int)listBox.SendMessage(LB_GETTEXTLEN, (WPARAM)sel);
+		CString itemText;
+		listBox.SendMessage(LB_GETTEXT, (WPARAM)sel, (LPARAM)itemText.GetBufferSetLength(len + 1));
+
+		SetDlgItemText(IDC_EDIT_ADD, itemText);
+	}
+
+	return 0;
+}
+
 void CSTXCollectionEditorPanel::ReloadListData()
 {
 	auto listBox = GetDlgItem(IDC_LIST_DATA);
@@ -175,6 +192,27 @@ void CSTXCollectionEditorPanel::ReloadListData()
 
 }
 
+void CSTXCollectionEditorPanel::UpdateDataTypeIndicator()
+{
+	switch (_dataType)
+	{
+	case 9:
+		SetDlgItemText(IDC_EDIT_DATA_TYPE, _T("String Vector")); break;
+	case 10:
+		SetDlgItemText(IDC_EDIT_DATA_TYPE, _T("String Set")); break;
+	case 11:
+		SetDlgItemText(IDC_EDIT_DATA_TYPE, _T("Integer Vector")); break;
+	case 12:
+		SetDlgItemText(IDC_EDIT_DATA_TYPE, _T("Integer Set")); break;
+	case 13:
+		SetDlgItemText(IDC_EDIT_DATA_TYPE, _T("Double/Float Vector")); break;
+	case 14:
+		SetDlgItemText(IDC_EDIT_DATA_TYPE, _T("Double/Float Set")); break;
+	default:
+		break;
+	}
+}
+
 void CSTXCollectionEditorPanel::FillCollectionValues(std::vector<std::wstring> &values, int dataType)
 {
 	_wstrVector.clear();
@@ -222,4 +260,6 @@ void CSTXCollectionEditorPanel::FillCollectionValues(std::vector<std::wstring> &
 	}
 
 	ReloadListData();
+
+	UpdateDataTypeIndicator();
 }

@@ -216,6 +216,7 @@ LRESULT CSTXServerDataDialog::OnSortClicked(WORD, UINT, HWND, BOOL&)
 	auto selectedNode = _tree.GetSelectedItem();
 
 	static int iFactor = 1;
+	_tree.Internal_SetAnimationDuration(400);
 	_tree.Internal_SortChildrenByItem(selectedNode, [&](HSTXTREENODE hItem1, HSTXTREENODE hItem2, LPARAM lParamSort) {
 		TCHAR szBuf1[1024];
 		TCHAR szBuf2[1024];
@@ -223,6 +224,7 @@ LRESULT CSTXServerDataDialog::OnSortClicked(WORD, UINT, HWND, BOOL&)
 		_tree.Internal_GetItemText(hItem2, szBuf2, 1024);
 		return iFactor * _tcscmp(szBuf1, szBuf2);
 	}, 0);
+	_tree.Internal_SetAnimationDuration(200);
 
 	iFactor = iFactor * (-1);
 
@@ -234,6 +236,7 @@ LRESULT CSTXServerDataDialog::OnSortAsNumbersClicked(WORD, UINT, HWND, BOOL&)
 	auto selectedNode = _tree.GetSelectedItem();
 
 	static int iFactor = 1;
+	_tree.Internal_SetAnimationDuration(400);
 	_tree.Internal_SortChildrenByItem(selectedNode, [&](HSTXTREENODE hItem1, HSTXTREENODE hItem2, LPARAM lParamSort) {
 		TCHAR szBuf1[1024];
 		TCHAR szBuf2[1024];
@@ -246,6 +249,7 @@ LRESULT CSTXServerDataDialog::OnSortAsNumbersClicked(WORD, UINT, HWND, BOOL&)
 		else if (v1 > v2)	result = 1;
 		return iFactor * result;
 	}, 0);
+	_tree.Internal_SetAnimationDuration(200);
 
 	iFactor = iFactor * (-1);
 

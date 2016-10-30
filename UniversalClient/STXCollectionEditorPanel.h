@@ -31,11 +31,12 @@ protected:
 	int _dataType = -1;
 
 protected:
-	BEGIN_MSG_MAP(CSTXScriptDialog)
+	BEGIN_MSG_MAP(CSTXCollectionEditorPanel)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		COMMAND_ID_HANDLER(IDC_BUTTON_ADD, OnAddClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_REMOVE, OnRemoveClicked)
+		COMMAND_HANDLER(IDC_LIST_DATA, LBN_DBLCLK, OnListBoxDblClick)
 
 	END_MSG_MAP()
 
@@ -45,8 +46,11 @@ protected:
 	LRESULT OnAddClicked(WORD, UINT, HWND, BOOL&);
 	LRESULT OnRemoveClicked(WORD, UINT, HWND, BOOL&);
 
+	LRESULT OnListBoxDblClick(WORD, UINT, HWND, BOOL&);
+
 protected:
 	void ReloadListData();
+	void UpdateDataTypeIndicator();
 
 public:
 	void FillCollectionValues(std::vector<std::wstring> &values, int dataType);

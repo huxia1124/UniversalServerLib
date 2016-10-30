@@ -87,7 +87,7 @@ LRESULT CSTXServerDataDialog::OnRefreshClicked(WORD, UINT, HWND, BOOL&)
 	else
 	{
 		size_t count = nodeNames.size();
-		for (int i = 0; i < count; i++)
+		for (size_t i = 0; i < count; i++)
 		{
 			TreeNodeData *itemData = new TreeNodeData();
 			itemData->dataType = nodeTypes[i];
@@ -208,6 +208,7 @@ LRESULT CSTXServerDataDialog::OnUnregisterClicked(WORD, UINT, HWND, BOOL&)
 	{
 		_tree.Internal_DeleteItem(selectedNode);
 	}
+	return 0;
 }
 
 LRESULT CSTXServerDataDialog::OnSortClicked(WORD, UINT, HWND, BOOL&)
@@ -290,7 +291,7 @@ LRESULT CSTXServerDataDialog::OnTreeItemExpanding(int idCtrl, LPNMHDR pnmh, BOOL
 	else
 	{
 		size_t count = nodeNames.size();
-		for (int i = 0; i < count; i++)
+		for (size_t i = 0; i < count; i++)
 		{
 			TreeNodeData *itemData = new TreeNodeData();
 			itemData->dataType = nodeTypes[i];

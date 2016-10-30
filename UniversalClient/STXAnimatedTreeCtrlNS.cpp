@@ -4042,3 +4042,15 @@ void CSTXAnimatedTreeCtrlNS::SetWatermarkOpacity(double fOpacity)
 		InvalidateRect(m_hwndControl, NULL, TRUE);
 }
 
+BOOL CSTXAnimatedTreeCtrlNS::Internal_SelectItem(HSTXTREENODE hItem)
+{
+	if (hItem == m_hSelectedNode)
+		return FALSE;
+
+	if (hItem == NULL || hItem == STXTVI_FIRST || hItem == STXTVI_LAST || hItem == STXTVI_ROOT || hItem == STXTVI_SORT)
+		return FALSE;
+
+	SelectNode(hItem);
+	return TRUE;
+}
+

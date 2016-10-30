@@ -514,4 +514,5 @@ public:
 	Gdiplus::Font* GetDefaultSubTextFont();
 	BOOL SetWatermarkLocation(UINT nLocation);		//see STXTV_WATERMARK_ macros
 	void SetWatermarkOpacity(double fOpacity);		//0.0f (transparent) to 1.0f (opacity)
+	BOOL Internal_SelectItem(HSTXTREENODE hItem);
 };

@@ -85,7 +85,8 @@ protected:
 
 	void CreateProtocolTestWindow();
 	void CreateServerDataWindow();
-	void CreateScriptWindow(HSTXTREENODE currentNode);
+	void ShowScriptWindow(HSTXTREENODE currentNode);
+	void CreateScriptWindow(HSTXTREENODE currentNode, int windowId = -1);
 
 };
 

@@ -85,7 +85,7 @@ LRESULT CMainContainerWindow::OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh
 	}
 	else if (_tree.Internal_GetParentItem(pNM->hNode) == _nodeServerScriptParent)
 	{
-		CreateScriptWindow(pNM->hNode);
+		ShowScriptWindow(pNM->hNode);
 	}
 	else if (pNM->hNode == _nodeServerData)
 	{
@@ -100,7 +100,7 @@ LRESULT CMainContainerWindow::OnTreeItemDblClick(int idCtrl, LPNMHDR pnmh, BOOL&
 
 	if (_tree.Internal_GetParentItem(pNM->hNode) == _nodeServerScriptParent)
 	{
-		CreateScriptWindow(nullptr);
+		CreateScriptWindow(pNM->hNode);
 	}
 
 	return 0;
@@ -171,6 +171,47 @@ void CMainContainerWindow::CreateServerDataWindow()
 
 	_anchor->AddItem(dlg->m_hWnd, STXANCHOR_ALL);
 }
+
+void CMainContainerWindow::ShowScriptWindow(HSTXTREENODE currentNode)
+{
+	int targetWindowId = 0;
+	if (currentNode)
+	{
+		targetWindowId = (int)_tree.Internal_GetItemData(currentNode);
+	}
+	else
+	{
+		return;
+	}
+
+	if (_currentMasterDialog)
+	{
+		_currentMasterDialog->ShowWindow(SW_HIDE);
+	}
+
+	std::wstring windowKey = _T("_ScriptWindow");
+	TCHAR szNumber[16];
+	_stprintf_s(szNumber, _T("_%d"), targetWindowId);
+	windowKey += szNumber;
+
+	auto contentPlaceholder = GetDlgItem(IDC_STATIC_CONTENT);
+	RECT rcContent;
+	contentPlaceholder.GetWindowRect(&rcContent);
+	this->ScreenToClient(&rcContent);
+
+	auto it = _masterDialogs.find(windowKey);
+	if (it != _masterDialogs.end())
+	{
+		_currentMasterDialog = it->second;
+		_currentMasterDialog->ShowWindow(SW_SHOW);
+		return;
+	}
+	else
+	{
+		CreateScriptWindow(currentNode, targetWindowId);
+	}
+}
+
 void CMainContainerWindow::CreateProtocolTestWindow()
 {
 	if (_currentMasterDialog)
@@ -205,20 +246,13 @@ void CMainContainerWindow::CreateProtocolTestWindow()
 	_anchor->AddItem(dlg->m_hWnd, STXANCHOR_ALL);
 }
 
-void CMainContainerWindow::CreateScriptWindow(HSTXTREENODE currentNode)
+void CMainContainerWindow::CreateScriptWindow(HSTXTREENODE currentNode, int windowId)
 {
-	static int windowId = 0;
+	static int windowIdBase = 0;
 
-	int targetWindowId = 0;
-
-	if (currentNode)
-	{
-		targetWindowId = (int)_tree.Internal_GetItemData(currentNode);
-	}
-	else
-	{
-		targetWindowId = ++windowId;
-	}
+	int targetWindowId = windowId;
+	if (windowId < 0)
+		targetWindowId = ++windowIdBase;
 
 	if (_currentMasterDialog)
 	{
@@ -235,14 +269,6 @@ void CMainContainerWindow::CreateScriptWindow(HSTXTREENODE currentNode)
 	contentPlaceholder.GetWindowRect(&rcContent);
 	this->ScreenToClient(&rcContent);
 
-	auto it = _masterDialogs.find(windowKey);
-	if (it != _masterDialogs.end())
-	{
-		_currentMasterDialog = it->second;
-		_currentMasterDialog->ShowWindow(SW_SHOW);
-		return;
-	}
-
 	auto dlg = std::make_shared<CSTXScriptDialog>();
 	_currentMasterDialog = dlg;
 
@@ -252,14 +278,23 @@ void CMainContainerWindow::CreateScriptWindow(HSTXTREENODE currentNode)
 
 	_masterDialogs[windowKey] = dlg;
 
-	std::wstring itemText = _T("Server Scripts");
-	itemText += szNumber;
-
 	if (targetWindowId > 0)
 	{
-		auto treeNode = _tree.Internal_InsertItem(itemText.c_str(), _nodeServerScriptParent);
-		CComPtr<IStream> spScriptImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_LUA_32), _T("PNG"));
-		_tree.SetItemImage(treeNode, spScriptImage, TRUE);
+		std::wstring itemText = _T("Server Scripts");
+		itemText += szNumber;
+
+		if (windowId < 0)
+		{
+			auto treeNode = _tree.Internal_InsertItem(itemText.c_str(), _nodeServerScriptParent);
+			CComPtr<IStream> spScriptImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_LUA_32), _T("PNG"));
+			_tree.SetItemImage(treeNode, spScriptImage, TRUE);
+			_tree.Internal_SetItemData(treeNode, targetWindowId);
+			_tree.Internal_SelectItem(treeNode);
+		}
+		else
+		{
+			_tree.Internal_SetItemData(currentNode, targetWindowId);
+		}
 	}
 
 	_anchor->AddItem(dlg->m_hWnd, STXANCHOR_ALL);

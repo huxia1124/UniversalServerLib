@@ -256,6 +256,7 @@ LRESULT CSTXScriptDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDCANCEL, STXANCHOR_BOTTOM | STXANCHOR_RIGHT);
 	_anchor->AddItem(IDC_BUTTON_LOAD_FILE, STXANCHOR_BOTTOM | STXANCHOR_LEFT);
 	_anchor->AddItem(IDC_BUTTON_ENQUEUE_WORKER_THREAD_SCRIPT, STXANCHOR_BOTTOM | STXANCHOR_RIGHT);
+	_anchor->AddItem(IDC_STATIC_TITLE, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
 
 	// Copy the string from the data member
 	// to the child control (DDX)
@@ -274,71 +275,59 @@ LRESULT CSTXScriptDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	return 1; // Let dialog manager set initial focus
 }
 
-	/*
-
 LRESULT CSTXScriptDialog::OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
 {
+	RECT rcClient;
+	GetClientRect(&rcClient);
+
 	PAINTSTRUCT ps;
 	BeginPaint(&ps);
+
+	TRIVERTEX        vert[2];
+	GRADIENT_RECT    gRect;
 
 	CDCHandle dc;
 	dc.Attach(ps.hdc);
 
-	const int HEIGHT = 120;
-
-	TRIVERTEX        vert[2];
-	GRADIENT_RECT    gRect;
-	RECT rcClient;
-	GetClientRect(&rcClient);
-
-	BOOL bConnected = ::IsWindowEnabled(GetDlgItem(IDC_BUTTON_SEND));
-	BOOL bConnecting = !::IsWindowEnabled(GetDlgItem(IDC_BUTTON_CONNECT));
+	RECT rcTitleBar;
+	GetDlgItem(IDC_STATIC_TITLE).GetWindowRect(&rcTitleBar);
+	ScreenToClient(&rcTitleBar);
+	rcTitleBar.right = rcClient.right;			//Fix the minimize/restore drawing problem
+	CString titleStr;
+	GetWindowText(titleStr);
 
 	COLORREF colorBK = GetSysColor(COLOR_BTNFACE);
 
-	vert[0].x = rcClient.left;
-	vert[0].y = rcClient.bottom - HEIGHT;
-	vert[0].Red = MAKEWORD(0, GetRValue(colorBK));
-	vert[0].Green = MAKEWORD(0, GetGValue(colorBK));
-	vert[0].Blue = MAKEWORD(0, GetBValue(colorBK));
+	vert[0].x = rcTitleBar.left;
+	vert[0].y = rcTitleBar.top;
+	vert[0].Red = MAKEWORD(0, 64);
+	vert[0].Green = MAKEWORD(0, 64);
+	vert[0].Blue = MAKEWORD(0, 64);
 	vert[0].Alpha = 0;
 
-	vert[1].x = rcClient.right;
-	vert[1].y = rcClient.bottom;
-
-	if (bConnected)
-	{
-		vert[1].Red = MAKEWORD(0, 192);
-		vert[1].Green = MAKEWORD(0, 255);
-		vert[1].Blue = MAKEWORD(0, 192);
-	}
-	else
-	{
-		if (bConnecting)
-		{
-			vert[1].Red = MAKEWORD(0, 248);
-			vert[1].Green = MAKEWORD(0, 248);
-			vert[1].Blue = MAKEWORD(0, 168);
-		}
-		else
-		{
-			vert[1].Red = MAKEWORD(0, 255);
-			vert[1].Green = MAKEWORD(0, 192);
-			vert[1].Blue = MAKEWORD(0, 192);
-		}
-	}
-
+	vert[1].x = rcTitleBar.right;
+	vert[1].y = rcTitleBar.bottom;
+	vert[1].Red = MAKEWORD(0, GetRValue(colorBK));
+	vert[1].Green = MAKEWORD(0, GetGValue(colorBK));
+	vert[1].Blue = MAKEWORD(0, GetBValue(colorBK));
 	vert[1].Alpha = 0;
 
 	gRect.UpperLeft = 0;
 	gRect.LowerRight = 1;
 
-	GradientFill(ps.hdc, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_V);
+	GradientFill(ps.hdc, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_H);
+
+	dc.SetBkMode(TRANSPARENT);
+	dc.SetTextColor(RGB(255, 255, 255));
+	//dc.SelectBrush((HBRUSH)GetStockObject(HOLLOW_BRUSH));
+	//dc.SelectPen((HPEN)GetStockObject(WHITE_PEN));
+
+	rcTitleBar.left += 4;
+	dc.DrawText(titleStr, -1, &rcTitleBar, DT_SINGLELINE | DT_LEFT | DT_VCENTER);
 
 	EndPaint(&ps);
 	return 0;
 }
-	*/
 
 void CSTXScriptDialog::SaveHistory()
 {

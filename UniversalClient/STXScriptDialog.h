@@ -51,7 +51,7 @@ protected:
 protected:
 	BEGIN_MSG_MAP(CSTXScriptDialog)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		//MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		//MESSAGE_HANDLER(WM_CLOSE, OnClose)
 
 
@@ -72,7 +72,7 @@ protected:
 
 	void InitializeRPCHostCombobox();
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
-	//LRESULT OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
+	LRESULT OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
 	LRESULT OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
 
 

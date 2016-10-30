@@ -63,6 +63,7 @@ protected:
 protected:
 	BEGIN_MSG_MAP(CSTXServerDataDialog)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		COMMAND_ID_HANDLER(IDC_BUTTON_REFRESH, OnRefreshClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_SAVE_DATA, OnSaveDataClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_UNREGISTER, OnUnregisterClicked)
@@ -82,6 +83,7 @@ protected:
 
 	void InitializeRPCHostCombobox();
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
 
 	LRESULT OnAddStringData(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnRemoveStringData(UINT, WPARAM, LPARAM, BOOL&);

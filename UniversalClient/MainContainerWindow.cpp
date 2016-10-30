@@ -133,7 +133,7 @@ void CMainContainerWindow::InitializeTreeItems()
 	_tree.SetItemImage(scriptChildNode, spScriptImage, TRUE);
 
 	auto nodeData = _tree.Internal_InsertItem(_T("Data"));
-	_nodeServerData = _tree.Internal_InsertItem(_T("Server data viewer"), nodeData);
+	_nodeServerData = _tree.Internal_InsertItem(_T("Server Data Viewer"), nodeData);
 	CComPtr<IStream> spTreeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_TREE_32), _T("PNG"));
 	_tree.SetItemImage(_nodeServerData, spTreeImage, TRUE);
 }
@@ -164,6 +164,7 @@ void CMainContainerWindow::CreateServerDataWindow()
 	_currentMasterDialog = dlg;
 
 	dlg->Create(m_hWnd, rcContent);
+	dlg->SetWindowText(_T("Server Data Viewer"));
 	dlg->MoveWindow(&rcContent);
 	dlg->ShowWindow(SW_SHOW);
 
@@ -189,9 +190,9 @@ void CMainContainerWindow::ShowScriptWindow(HSTXTREENODE currentNode)
 		_currentMasterDialog->ShowWindow(SW_HIDE);
 	}
 
-	std::wstring windowKey = _T("_ScriptWindow");
+	std::wstring windowKey = _T("Server Script Window ");
 	TCHAR szNumber[16];
-	_stprintf_s(szNumber, _T("_%d"), targetWindowId);
+	_stprintf_s(szNumber, _T(" %d"), targetWindowId);
 	windowKey += szNumber;
 
 	auto contentPlaceholder = GetDlgItem(IDC_STATIC_CONTENT);
@@ -238,6 +239,7 @@ void CMainContainerWindow::CreateProtocolTestWindow()
 	_currentMasterDialog = dlg;
 
 	dlg->Create(m_hWnd, rcContent);
+	dlg->SetWindowText(_T("Protocol Test"));
 	dlg->MoveWindow(&rcContent);
 	dlg->ShowWindow(SW_SHOW);
 
@@ -259,9 +261,9 @@ void CMainContainerWindow::CreateScriptWindow(HSTXTREENODE currentNode, int wind
 		_currentMasterDialog->ShowWindow(SW_HIDE);
 	}
 
-	std::wstring windowKey = _T("_ScriptWindow");
+	std::wstring windowKey = _T("Server Script Window ");
 	TCHAR szNumber[16];
-	_stprintf_s(szNumber, _T("_%d"), targetWindowId);
+	_stprintf_s(szNumber, _T(" %d"), targetWindowId);
 	windowKey += szNumber;
 
 	auto contentPlaceholder = GetDlgItem(IDC_STATIC_CONTENT);
@@ -273,6 +275,7 @@ void CMainContainerWindow::CreateScriptWindow(HSTXTREENODE currentNode, int wind
 	_currentMasterDialog = dlg;
 
 	dlg->Create(m_hWnd, rcContent);
+	dlg->SetWindowText(windowKey.c_str());
 	dlg->MoveWindow(&rcContent);
 	dlg->ShowWindow(SW_SHOW);
 

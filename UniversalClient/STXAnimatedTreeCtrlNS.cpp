@@ -2828,6 +2828,8 @@ BOOL CSTXAnimatedTreeCtrlNS::Internal_DeleteItem(HSTXTREENODE hItem)
 	STXTREENODELIST *pListToDeleteFrom = &m_arrRootNodes;
 	std::queue<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > *pDeleteQueue = &m_queDeletedNodes;
 
+	HSTXTREENODE originalSelectedNode = m_hSelectedNode;
+
 	if(hItem == STXTVI_ROOT)
 	{
 		//Trigger PreDelete Event
@@ -2937,10 +2939,12 @@ BOOL CSTXAnimatedTreeCtrlNS::Internal_DeleteItem(HSTXTREENODE hItem)
 		ResetScrollBars();
 		InvalidateRect(m_hwndControl, NULL, TRUE);
 
-		return TRUE;
 	}
 
-	return FALSE;
+	if(originalSelectedNode != m_hSelectedNode)
+		SendCommonNotifyMessage(STXATVN_SELECTEDITEMCHANGED, m_hSelectedNode, 0);
+
+	return TRUE;
 }
 
 void CSTXAnimatedTreeCtrlNS::ApplySmoothStopTransition(IUIAnimationVariable *pVar, UI_ANIMATION_SECONDS duration, DOUBLE fTargetValue, IUIAnimationStoryboard *pStoryboard, BOOL bResetVelocity)

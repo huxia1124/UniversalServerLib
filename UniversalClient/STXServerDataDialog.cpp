@@ -177,6 +177,39 @@ LRESULT CSTXServerDataDialog::OnSaveDataClicked(WORD, UINT, HWND, BOOL&)
 	return 0;
 }
 
+LRESULT CSTXServerDataDialog::OnUnregisterClicked(WORD, UINT, HWND, BOOL&)
+{
+	auto selectedNode = _tree.GetSelectedItem();
+	if (selectedNode == NULL)
+		return 0;
+
+	TreeNodeData *nodeData = (TreeNodeData*)_tree.Internal_GetItemData(selectedNode);
+	CString fullPath = nodeData->nodeFullPathName.c_str();
+
+	if (MessageBox(_T("Warning: Once a node is unregistered, all of its children will also be deleted!\n\nYou are going to unregister the following node:\n") + fullPath
+		, _T("Warning"), MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON3) != IDYES)
+	{
+		return 0;
+	}
+
+	fullPath.Replace(_T("\\"), _T("\\\\"));
+
+	CString scriptText;
+	CString scriptResult;
+	CString error;
+	scriptText.Format(_T("local ____sharedDataObj = SharedData()\r\nresult=____sharedDataObj:UnregisterVariable(\"%s\")"), (LPCTSTR)fullPath);
+	RunServerScriptString((LPCTSTR)scriptText, scriptResult, error);
+
+	if (!error.IsEmpty())
+	{
+		MessageBox(error, _T("Error"));
+	}
+	else
+	{
+		_tree.Internal_DeleteItem(selectedNode);
+	}
+}
+
 LRESULT CSTXServerDataDialog::OnSortClicked(WORD, UINT, HWND, BOOL&)
 {
 	auto selectedNode = _tree.GetSelectedItem();
@@ -292,6 +325,14 @@ LRESULT CSTXServerDataDialog::OnTreeItemPostDelete(int idCtrl, LPNMHDR pnmh, BOO
 LRESULT CSTXServerDataDialog::OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 {
 	LPSTXATVNITEM pNM = reinterpret_cast<LPSTXATVNITEM>(pnmh);
+
+	if (_hWndCurrentEditor)
+	{
+		_anchor->DeleteItem(_hWndCurrentEditor);
+		::DestroyWindow(_hWndCurrentEditor);
+		_hWndCurrentEditor = NULL;
+	}
+
 	if (pNM->hNode)
 	{
 		CreateDataEditor(pNM->hNode);
@@ -314,6 +355,7 @@ LRESULT CSTXServerDataDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDC_BUTTON_SAVE_DATA, STXANCHOR_RIGHT | STXANCHOR_TOP);
 	_anchor->AddItem(IDC_STATIC_DATA, STXANCHOR_ALL);
 	_anchor->AddItem(IDC_EDIT_FULL_PATH, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_BOTTOM);
+	_anchor->AddItem(IDC_BUTTON_UNREGISTER, STXANCHOR_LEFT | STXANCHOR_TOP);
 
 	return 1; // Let dialog manager set initial focus
 }

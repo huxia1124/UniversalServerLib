@@ -25,6 +25,7 @@
 #include <set>
 #include <map>
 #include <memory>
+#include "Common.h"
 
 class CMainContainerWindow : public CDialogImpl<CMainContainerWindow>
 {

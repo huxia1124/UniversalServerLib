@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "STXProtocolDialog.h"
 #include <regex>
+#include "Common.h"
 
 
 CSTXProtocolDialog::CSTXProtocolDialog()
@@ -641,7 +642,6 @@ LRESULT CSTXProtocolDialog::OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL
 	GradientFill(ps.hdc, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_V);
 
 	//Draw title
-
 	RECT rcTitleBar;
 	GetDlgItem(IDC_STATIC_TITLE).GetWindowRect(&rcTitleBar);
 	ScreenToClient(&rcTitleBar);
@@ -649,33 +649,7 @@ LRESULT CSTXProtocolDialog::OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL
 	CString titleStr;
 	GetWindowText(titleStr);
 
-	vert[0].x = rcTitleBar.left;
-	vert[0].y = rcTitleBar.top;
-	vert[0].Red = MAKEWORD(0, 64);
-	vert[0].Green = MAKEWORD(0, 64);
-	vert[0].Blue = MAKEWORD(0, 64);
-	vert[0].Alpha = 0;
-
-	vert[1].x = rcTitleBar.right;
-	vert[1].y = rcTitleBar.bottom;
-	vert[1].Red = MAKEWORD(0, GetRValue(colorBK));
-	vert[1].Green = MAKEWORD(0, GetGValue(colorBK));
-	vert[1].Blue = MAKEWORD(0, GetBValue(colorBK));
-	vert[1].Alpha = 0;
-
-	gRect.UpperLeft = 0;
-	gRect.LowerRight = 1;
-
-	GradientFill(ps.hdc, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_H);
-
-	dc.SetBkMode(TRANSPARENT);
-	dc.SetTextColor(RGB(255, 255, 255));
-	//dc.SelectBrush((HBRUSH)GetStockObject(HOLLOW_BRUSH));
-	//dc.SelectPen((HPEN)GetStockObject(WHITE_PEN));
-
-	rcTitleBar.left += 4;
-	dc.DrawText(titleStr, -1, &rcTitleBar, DT_SINGLELINE | DT_LEFT | DT_VCENTER);
-
+	DrawTitleBar(ps.hdc, titleStr, rcTitleBar);
 	EndPaint(&ps);
 	return 0;
 }

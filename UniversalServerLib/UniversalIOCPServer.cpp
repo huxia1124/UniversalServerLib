@@ -201,8 +201,6 @@ void CUniversalIOCPServer::OnWorkerThreadPreOperationProcess(LPVOID pStoragePtr)
 	}
 }
 
-UINT g_maxTcpPackageLength = 1024 * 2048;
-
 inline const char* stristr(const char* s, const char* p, int maxlen)
 {
 	while (maxlen != 0 && *s != '\0') {
@@ -598,7 +596,7 @@ std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetUdpServerReceive
 DWORD CUniversalIOCPServer::IsClientDataReadable(CSTXIOCPServerClientContext *pClientContext)
 {
 	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
-	if (pClient->GetBufferedMessageLength() > g_maxTcpPackageLength)
+	if (pClient->GetBufferedMessageLength() > _maxSinglePackageLength)
 	{
 		STXTRACELOGE(_T("TCP Client [%s] message package is too large! Disconnect it!"), pClientContext->GetClientIP());
 		DisconnectClient(pClientContext);
@@ -674,7 +672,7 @@ DWORD CUniversalIOCPServer::IsClientDataReadable(CSTXIOCPServerClientContext *pC
 
 		DWORD dwSize = *((DWORD*)pClientContext->GetMessageBasePtr());
 
-		if (dwSize > g_maxTcpPackageLength)
+		if (dwSize > _maxSinglePackageLength)
 		{
 			STXTRACELOGE(_T("TCP Client [%s] message package is too large! Disconnect it!"), pClientContext->GetClientIP());
 			DisconnectClient(pClientContext);
@@ -697,7 +695,7 @@ DWORD CUniversalIOCPServer::IsClientDataReadable(CSTXIOCPServerClientContext *pC
 		if (nLength < 0)
 			return 0;
 
-		if ((UINT)nLength > g_maxTcpPackageLength)
+		if ((UINT)nLength > _maxSinglePackageLength)
 		{
 			STXTRACELOGE(_T("TCP Client [%s] message package is too large! Disconnect it!"), pClientContext->GetClientIP());
 			DisconnectClient(pClientContext);
@@ -2479,12 +2477,12 @@ void CUniversalIOCPServer::InitializeServerDataForShareDataTree()
 	});
 
 
+	root->RegisterIntegerVariable(_T("Server\\Runtime\\Configuration\\MaxLengthOfSinglePackage"), [&] {return (int64_t)_maxSinglePackageLength; }, [&](int64_t value) {_maxSinglePackageLength = (UINT)value; });
 	root->RegisterIntegerVariable(_T("Server\\Runtime\\Configuration\\TimerInterval"), [&] {return (int64_t)m_BaseServerInfo.dwTimerInterval; }, [&](int64_t value) {this->ChangeTimerInterval((DWORD)value); });
 	root->RegisterIntegerVariable(_T("Server\\Runtime\\Configuration\\StatisticsLevel"), [&] {return (int64_t)_statisticsEnabled; }, [&](int64_t value) {_statisticsEnabled = (UINT)value; });
 	root->RegisterIntegerVariable(_T("Server\\Runtime\\Configuration\\LogLevel"), [&] {return (int64_t)g_LogGlobal.GetLogLevel(); }, [&](int64_t value) {SetLogLevel((int)value); });
 	root->RegisterStringVariable(_T("Server\\Runtime\\Configuration\\Scripts\\TimerScript"), [&] {return _timerScript->GetStringName(); }, [&](std::wstring value) {SetTimerScript(value.c_str()); });
 	root->RegisterStringVariable(_T("Server\\Runtime\\Configuration\\Scripts\\FileChangedScript"), [&] {return _fileChangedScript->GetStringName(); }, [&](std::wstring value) {SetFileChangedScript(value.c_str()); });
-
 
 
 }

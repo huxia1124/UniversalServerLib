@@ -278,6 +278,8 @@ protected:
 	CStatisticsBuffer<long long, 20> _statisticsReceivedBytes;
 	CStatisticsBuffer<long long, 20> _statisticsReceiveCount;
 
+	UINT _maxSinglePackageLength = 1024 * 1024;		//in bytes
+
 protected:
 	virtual CSTXServerContextBase* OnCreateServerContext();
 	virtual CSTXUdpServerContextBase* OnCreateUdpServerContext(DWORD_PTR dwServerParam);

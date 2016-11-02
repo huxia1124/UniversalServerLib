@@ -22,6 +22,8 @@ LRESULT CSTXCollectionEditorPanel::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDC_LIST_DATA, STXANCHOR_ALL);
 	_anchor->AddItem(IDC_EDIT_DATA_TYPE, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_BOTTOM);
 
+	_listBoxData.Attach(::GetDlgItem(m_hWnd, IDC_LIST_DATA));
+
 	return 1; // Let dialog manager set initial focus
 }
 
@@ -32,6 +34,8 @@ LRESULT CSTXCollectionEditorPanel::OnDestroy(UINT msg, WPARAM wParam, LPARAM lPa
 		delete _anchor;
 		_anchor = NULL;
 	}
+
+	_listBoxData.DestroyWindow();
 
 	return 0;
 }
@@ -71,9 +75,6 @@ LRESULT CSTXCollectionEditorPanel::OnAddClicked(WORD, UINT, HWND, BOOL&)
 		default:
 			break;
 		}
-
-		//auto listBox = GetDlgItem(IDC_LIST_DATA);
-		//::SendMessage(listBox.m_hWnd, LB_ADDSTRING, 0, (LPARAM)(LPCTSTR)inputText);
 
 		ReloadListData();
 	}
@@ -116,9 +117,6 @@ LRESULT CSTXCollectionEditorPanel::OnRemoveClicked(WORD, UINT, HWND, BOOL&)
 			break;
 		}
 
-		//auto listBox = GetDlgItem(IDC_LIST_DATA);
-		//::SendMessage(listBox.m_hWnd, LB_ADDSTRING, 0, (LPARAM)(LPCTSTR)inputText);
-
 		ReloadListData();
 	}
 	return 0;
@@ -126,14 +124,11 @@ LRESULT CSTXCollectionEditorPanel::OnRemoveClicked(WORD, UINT, HWND, BOOL&)
 
 LRESULT CSTXCollectionEditorPanel::OnListBoxDblClick(WORD, UINT, HWND, BOOL&)
 {
-	auto listBox = GetDlgItem(IDC_LIST_DATA);
-	int sel = (int)listBox.SendMessage(LB_GETCURSEL);
+	int sel = _listBoxData.GetCurSel();	
 	if (sel >= 0)
 	{
-		int len = (int)listBox.SendMessage(LB_GETTEXTLEN, (WPARAM)sel);
 		CString itemText;
-		listBox.SendMessage(LB_GETTEXT, (WPARAM)sel, (LPARAM)itemText.GetBufferSetLength(len + 1));
-
+		_listBoxData.GetText(sel, itemText);
 		SetDlgItemText(IDC_EDIT_ADD, itemText);
 	}
 
@@ -142,47 +137,46 @@ LRESULT CSTXCollectionEditorPanel::OnListBoxDblClick(WORD, UINT, HWND, BOOL&)
 
 void CSTXCollectionEditorPanel::ReloadListData()
 {
-	auto listBox = GetDlgItem(IDC_LIST_DATA);
-	::SendMessage(listBox.m_hWnd, LB_RESETCONTENT, 0, 0);
+	_listBoxData.ResetContent();
 
 	switch (_dataType)
 	{
 	case 9:
 		std::for_each(_wstrVector.begin(), _wstrVector.end(), [&](auto item) {
-			::SendMessage(listBox.m_hWnd, LB_ADDSTRING, 0, (LPARAM)item.c_str());
+			_listBoxData.AddString(item.c_str());
 		});
 		break;
 	case 10:
 		std::for_each(_wstrSet.begin(), _wstrSet.end(), [&](auto item) {
-			::SendMessage(listBox.m_hWnd, LB_ADDSTRING, 0, (LPARAM)item.c_str());
+			_listBoxData.AddString(item.c_str());
 		});
 		break;
 	case 11:
 		std::for_each(_intVector.begin(), _intVector.end(), [&](auto item) {
 			CString str;
 			str.Format(_T("%I64d"), item);
-			::SendMessage(listBox.m_hWnd, LB_ADDSTRING, 0, (LPARAM)(LPCTSTR)str);
+			_listBoxData.AddString(str);
 		});
 		break;
 	case 12:
 		std::for_each(_intSet.begin(), _intSet.end(), [&](auto item) {
 			CString str;
 			str.Format(_T("%I64d"), item);
-			::SendMessage(listBox.m_hWnd, LB_ADDSTRING, 0, (LPARAM)(LPCTSTR)str);
+			_listBoxData.AddString(str);
 		});
 		break;
 	case 13:
 		std::for_each(_doubleVector.begin(), _doubleVector.end(), [&](auto item) {
 			CString str;
 			str.Format(_T("%lf"), item);
-			::SendMessage(listBox.m_hWnd, LB_ADDSTRING, 0, (LPARAM)(LPCTSTR)str);
+			_listBoxData.AddString(str);
 		});
 		break;
 	case 14:
 		std::for_each(_doubleSet.begin(), _doubleSet.end(), [&](auto item) {
 			CString str;
 			str.Format(_T("%lf"), item);
-			::SendMessage(listBox.m_hWnd, LB_ADDSTRING, 0, (LPARAM)(LPCTSTR)str);
+			_listBoxData.AddString(str);
 		});
 		break;
 	default:

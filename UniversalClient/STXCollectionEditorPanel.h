@@ -6,6 +6,7 @@
 #include "Resource.h"
 #include "STXAnchor.h"
 #include <set>
+#include "wtl/atlctrls.h"
 
 
 class CSTXCollectionEditorPanel : public CDialogImpl<CSTXCollectionEditorPanel>
@@ -29,6 +30,7 @@ protected:
 	std::set<double> _doubleSet;
 
 	int _dataType = -1;
+	WTL::CListBox _listBoxData;
 
 protected:
 	BEGIN_MSG_MAP(CSTXCollectionEditorPanel)

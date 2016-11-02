@@ -498,6 +498,11 @@ void CSTXServerDataDialog::CreateDataEditor(HSTXTREENODE treeNode)
 	CString editorValue;
 	CString error;
 	GetSharedDataTreeNodeStringValue(GetSelectedItemFullPath(), editorValue, error);
+	if (!error.IsEmpty())
+	{
+		MessageBox(error, _T("Error"), MB_OK | MB_ICONERROR);
+		return;
+	}
 	editorValue.Replace(_T("\n"), _T("\r\n"));
 
 	DWORD wsExtra = 0;

@@ -111,6 +111,11 @@ protected:
 	std::shared_ptr<CUniversalStringCache> _tcpServerConnectedScript;
 	std::shared_ptr<CUniversalStringCache> _tcpServerClientDisconnectedScript;
 
+
+	//Statistics
+	std::atomic<long long> _totalReceivedBytes = 0;
+	std::atomic<long long> _totalReceivedCount = 0;
+
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -127,7 +132,7 @@ public:
 protected:
 
 	//Scripts configuration
-	//These members are copies from the content of CUniversalIOCPServer::_mapTcpServer***Scripts.
+	//These members are copies from the content of CUniversalIOCPServer::_mapUdpServer***Scripts.
 	//just for quick access when script is set, for better performance
 	std::shared_ptr<CUniversalStringCache> _udpServerReceivedScript;
 

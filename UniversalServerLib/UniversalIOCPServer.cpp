@@ -32,6 +32,7 @@
 
 #include "UniversalServerRPC_h.h"
 #include <atlcomcli.h>
+#include <memory>
 #pragma comment(lib, "Rpcrt4.lib")
 
 #pragma comment(lib, "Crypt32.lib")
@@ -1124,6 +1125,7 @@ BOOL CUniversalIOCPServer::OnWebSocketClientReceived(CUniversalIOCPServerClientC
 BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClientContext, CSTXIOCPBuffer *pBuffer)
 {
 	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
+	auto pServerContext = std::dynamic_pointer_cast<CUniversalIOCPTcpServerContext>(pClient->GetServerContext());
 	if (_statisticsEnabled)
 	{
 		_totalReceivedCount++;
@@ -1134,6 +1136,9 @@ BOOL CUniversalIOCPServer::OnClientReceived(CSTXIOCPServerClientContext *pClient
 
 		pClient->AddTotalReceivedPackageCount(1);
 		pClient->AddTotalReceivedBytes(pBuffer->GetDataLength());
+
+		pServerContext->_totalReceivedCount++;
+		pServerContext->_totalReceivedBytes += pBuffer->GetDataLength();
 	}
 
 	if (pClient)
@@ -3121,6 +3126,12 @@ void CUniversalIOCPServer::OnTcpSubServerInitialized(CSTXIOCPTcpServerContext *p
 
 	auto dataPathCurrentClientCount = dataPathRoot + _T("\\Information\\CurrentClientCount");
 	root->RegisterIntegerVariable(dataPathCurrentClientCount.c_str(), [=] {return pServer->_currentClientCount; });
+
+	auto dataPathTotalReceivedBytes = dataPathRoot + _T("\\Statistics\\TotalReceivedBytes");
+	root->RegisterIntegerVariable(dataPathTotalReceivedBytes.c_str(), [=] {return (int64_t)pServer->_totalReceivedBytes; });
+	auto dataPathTotalReceivedCount = dataPathRoot + _T("\\Statistics\\TotalReceivedCount");
+	root->RegisterIntegerVariable(dataPathTotalReceivedCount.c_str(), [=] {return (int64_t)pServer->_totalReceivedCount; });
+
 }
 
 void CUniversalIOCPServer::OnTcpSubServerDestroyed(CSTXIOCPTcpServerContext *pServerContext)

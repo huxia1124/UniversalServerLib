@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "STXScriptDialog.h"
+#include "MainContainerWindow.h"
 #include <atldlgs.h>
 
 #include "../UniversalServerLib/UniversalServerRPC_h.h"
@@ -99,6 +100,12 @@ LRESULT CSTXScriptDialog::OnRunScriptClicked(WORD, UINT, HWND, BOOL&)
 	}
 
 
+	return 0;
+}
+
+LRESULT CSTXScriptDialog::OnNewScriptClicked(WORD, UINT, HWND, BOOL&)
+{
+	GetParent().SendMessage(WM_NEW_SCRIPT_WINDOW);
 	return 0;
 }
 
@@ -258,6 +265,7 @@ LRESULT CSTXScriptDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDC_BUTTON_LOAD_FILE, STXANCHOR_BOTTOM | STXANCHOR_LEFT);
 	_anchor->AddItem(IDC_BUTTON_ENQUEUE_WORKER_THREAD_SCRIPT, STXANCHOR_BOTTOM | STXANCHOR_RIGHT);
 	_anchor->AddItem(IDC_STATIC_TITLE, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
+	_anchor->AddItem(IDC_BUTTON_NEW_SCRIPT, STXANCHOR_RIGHT | STXANCHOR_TOP);
 
 	// Copy the string from the data member
 	// to the child control (DDX)

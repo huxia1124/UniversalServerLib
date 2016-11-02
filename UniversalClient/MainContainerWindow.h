@@ -27,6 +27,9 @@
 #include <memory>
 #include "Common.h"
 
+#define WM_NEW_SCRIPT_WINDOW		(WM_USER + 101)
+
+
 class CMainContainerWindow : public CDialogImpl<CMainContainerWindow>
 {
 public:
@@ -42,8 +45,10 @@ protected:
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 
+		MESSAGE_HANDLER(WM_NEW_SCRIPT_WINDOW, OnNewScriptWindow)
 		NOTIFY_CODE_HANDLER(STXATVN_SELECTEDITEMCHANGED, OnTreeSelectedItemChanged)
 		NOTIFY_CODE_HANDLER(STXATVN_ITEMDBLCLICK, OnTreeItemDblClick)
+		NOTIFY_CODE_HANDLER(STXATVN_ITEMCLICK, OnTreeItemClick)
 	END_MSG_MAP()
 
 
@@ -60,7 +65,9 @@ protected:
 
 protected:
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnNewScriptWindow(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
+	LRESULT OnTreeItemClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 	LRESULT OnTreeItemDblClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 	LRESULT OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
 	{

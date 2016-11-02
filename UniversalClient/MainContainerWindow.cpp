@@ -117,6 +117,12 @@ LRESULT CMainContainerWindow::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	return 0;
 }
 
+LRESULT CMainContainerWindow::OnNewScriptWindow(UINT, WPARAM, LPARAM, BOOL&)
+{
+	CreateScriptWindow(_tree.GetSelectedItem());
+	return 0;
+}
+
 LRESULT CMainContainerWindow::OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 {
 	LPSTXATVNITEM pNM = reinterpret_cast<LPSTXATVNITEM>(pnmh);
@@ -133,6 +139,33 @@ LRESULT CMainContainerWindow::OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh
 	{
 		CreateServerDataWindow();
 	}
+	return 0;
+}
+
+LRESULT CMainContainerWindow::OnTreeItemClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
+{
+	LPSTXATVNITEM pNM = reinterpret_cast<LPSTXATVNITEM>(pnmh);
+
+	if (GetKeyState(VK_CONTROL) & 0xFF00)
+	{
+		if (_tree.Internal_GetParentItem(pNM->hNode) == _nodeServerScriptParent)
+		{
+			std::wstring windowKey = _T("Server Script Window ");
+			TCHAR szNumber[16];
+			_stprintf_s(szNumber, _T(" %d"), pNM->dwItemData);
+			windowKey += szNumber;
+
+			auto it = _masterDialogs.find(windowKey);
+			if (it != _masterDialogs.end())
+			{
+				it->second->DestroyWindow();
+				_masterDialogs.erase(it);
+			}
+
+			_tree.Internal_DeleteItem(pNM->hNode);
+		}
+	}
+
 	return 0;
 }
 
@@ -182,7 +215,7 @@ void CMainContainerWindow::InitializeTreeItems()
 
 void CMainContainerWindow::CreateServerDataWindow()
 {
-	if (_currentMasterDialog)
+	if (_currentMasterDialog && _currentMasterDialog->IsWindow())
 	{
 		_currentMasterDialog->ShowWindow(SW_HIDE);
 	}
@@ -227,7 +260,7 @@ void CMainContainerWindow::ShowScriptWindow(HSTXTREENODE currentNode)
 		return;
 	}
 
-	if (_currentMasterDialog)
+	if (_currentMasterDialog && _currentMasterDialog->IsWindow())
 	{
 		_currentMasterDialog->ShowWindow(SW_HIDE);
 	}
@@ -257,7 +290,7 @@ void CMainContainerWindow::ShowScriptWindow(HSTXTREENODE currentNode)
 
 void CMainContainerWindow::CreateProtocolTestWindow()
 {
-	if (_currentMasterDialog)
+	if (_currentMasterDialog && _currentMasterDialog->IsWindow())
 	{
 		_currentMasterDialog->ShowWindow(SW_HIDE);
 	}
@@ -298,7 +331,7 @@ void CMainContainerWindow::CreateScriptWindow(HSTXTREENODE currentNode, int wind
 	if (windowId < 0)
 		targetWindowId = ++windowIdBase;
 
-	if (_currentMasterDialog)
+	if (_currentMasterDialog && _currentMasterDialog->IsWindow())
 	{
 		_currentMasterDialog->ShowWindow(SW_HIDE);
 	}

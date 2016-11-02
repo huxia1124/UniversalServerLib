@@ -2431,6 +2431,7 @@ void CUniversalIOCPServer::InitializeServerDataForShareDataTree()
 	RegisterReadOnlyDWordValue(_T("Server\\Initial\\Information\\LogFlags"), m_BaseServerInfo.dwLogFlags);
 	RegisterReadOnlyStringValue(_T("Server\\Initial\\Information\\IniFilePathName"), m_szIniFilePath);
 	RegisterReadOnlyStringValue(_T("Server\\Initial\\Information\\XmlFilePathName"), m_szXmlFilePath);
+	RegisterReadOnlyStringValue(_T("Server\\Initial\\Information\\LogFilePathName"), m_BaseServerInfo.pszLogFilePath);
 
 	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\TotalTcpClientCount"), [&] {return m_mapClientContext.size(); });
 	root->RegisterIntegerVariable(_T("Server\\Runtime\\ServerStatistics\\TotalSentPackageCount"), [&] {return (long long)_totalSentCount; });
@@ -3109,6 +3110,17 @@ void CUniversalIOCPServer::OnTcpSubServerInitialized(CSTXIOCPTcpServerContext *p
 		auto scriptCache = _mapTcpServerClientDisconnectedScripts.findValue(pServerContext->GetListeningPort(), nullptr);
 		return scriptCache ? scriptCache->GetStringName() : _T("");
 	}, [=](std::wstring value) {this->SetTcpServerClientDisconnectedScript(pServerContext->GetListeningPort(), value.c_str()); });
+
+	auto pServer = dynamic_cast<CUniversalIOCPTcpServerContext*>(pServerContext);
+	auto dataPathMaximumClientCount = dataPathRoot + _T("\\Configuration\\MaximumClientCount");
+	root->RegisterIntegerVariable(dataPathMaximumClientCount.c_str(), [=] {
+		return pServer->_maximumClientCount;
+	}, [=](int64_t value) {
+		pServer->_maximumClientCount = max(0, value); 
+	});
+
+	auto dataPathCurrentClientCount = dataPathRoot + _T("\\Information\\CurrentClientCount");
+	root->RegisterIntegerVariable(dataPathCurrentClientCount.c_str(), [=] {return pServer->_currentClientCount; });
 }
 
 void CUniversalIOCPServer::OnTcpSubServerDestroyed(CSTXIOCPTcpServerContext *pServerContext)

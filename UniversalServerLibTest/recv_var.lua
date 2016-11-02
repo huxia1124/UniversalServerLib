@@ -5,7 +5,9 @@
 		 local msg = utils.GetMessage()
 		 local firstString = msg:GetNextString()
 		 print(firstString)
-		 server:Log(firstString)  
+		 server:Log(firstString)
+		 local uid = utils.GetClientUid()
+		 server:SendPackageToClient(uid, msg)
 	end, debug.traceback)
 	
 	if (ret) then

@@ -181,6 +181,7 @@
     <ClInclude Include="STXCollectionEditorPanel.h" />
     <ClInclude Include="STXProtocolDialog.h" />
     <ClInclude Include="STXProtocolHistory.h" />
+    <ClInclude Include="STXReceivedMessageDialog.h" />
     <ClInclude Include="STXScriptDialog.h" />
     <ClInclude Include="STXServerDataDialog.h" />
     <ClInclude Include="STXSocket.h" />
@@ -237,6 +238,7 @@
     <ClCompile Include="STXCollectionEditorPanel.cpp" />
     <ClCompile Include="STXProtocolDialog.cpp" />
     <ClCompile Include="STXProtocolHistory.cpp" />
+    <ClCompile Include="STXReceivedMessageDialog.cpp" />
     <ClCompile Include="STXScriptDialog.cpp" />
     <ClCompile Include="STXServerDataDialog.cpp" />
     <ClCompile Include="STXSocket.cpp" />
@@ -253,6 +255,7 @@
     <Image Include="res\i_collection_32.png" />
     <Image Include="res\lua_32.png" />
     <Image Include="res\message_32.png" />
+    <Image Include="res\message_recv_32.png" />
     <Image Include="res\readonly_16.png" />
     <Image Include="res\readonly_32.png" />
     <Image Include="res\s_blue_32.png" />

@@ -150,6 +150,9 @@
     <ClInclude Include="STXCollectionEditorPanel.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="STXReceivedMessageDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -200,6 +203,9 @@
     <ClCompile Include="STXCollectionEditorPanel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="STXReceivedMessageDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="UniversalClient.rc">
@@ -244,6 +250,9 @@
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="res\s_collection_32.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\message_recv_32.png">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

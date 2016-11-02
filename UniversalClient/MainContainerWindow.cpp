@@ -18,6 +18,8 @@
 #include "stdafx.h"
 #include "MainContainerWindow.h"
 #include "STXServerDataDialog.h"
+#include "STXReceivedMessageDialog.h"
+#include <cassert>
 
 IStream* LoadImageFromResource(HMODULE hModule, LPCWSTR lpName, LPCWSTR lpType)
 {
@@ -123,6 +125,37 @@ LRESULT CMainContainerWindow::OnNewScriptWindow(UINT, WPARAM, LPARAM, BOOL&)
 	return 0;
 }
 
+LRESULT CMainContainerWindow::OnAppendReceivedMessage(UINT, WPARAM wParam, LPARAM, BOOL&)
+{
+	auto dlgBase = _masterDialogs.find(_T("_MessageReceiveWindow"));
+	assert(dlgBase != _masterDialogs.end());
+	
+	auto dlg = (CSTXReceivedMessageDialog*)(dlgBase->second.get());
+	assert(dlg != nullptr);
+
+	dlg->AppendReceivedMessage((LPCTSTR)wParam);
+
+	return 0;
+}
+
+LRESULT CMainContainerWindow::OnUpdateReceivedMessageCount(UINT, WPARAM wParam, LPARAM, BOOL&)
+{
+	CString text;
+	if (wParam == 0)
+		text = _T("Received Message");
+	else
+		text.Format(_T("Received Message [%d]"), wParam);
+
+	_tree.Internal_SetItemText(_nodeMessageReceive, text);
+	return 0;
+}
+
+LRESULT CMainContainerWindow::OnSwitchToProtocolTest(UINT, WPARAM, LPARAM, BOOL&)
+{
+	_tree.Internal_SelectItem(_nodeProtocolTest);
+	return 0;
+}
+
 LRESULT CMainContainerWindow::OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 {
 	LPSTXATVNITEM pNM = reinterpret_cast<LPSTXATVNITEM>(pnmh);
@@ -130,6 +163,10 @@ LRESULT CMainContainerWindow::OnTreeSelectedItemChanged(int idCtrl, LPNMHDR pnmh
 	if (pNM->hNode == _nodeProtocolTest)
 	{
 		CreateProtocolTestWindow();
+	}
+	else if (pNM->hNode == _nodeMessageReceive)
+	{
+		CreateMessageReceiveWindow(TRUE);
 	}
 	else if (_tree.Internal_GetParentItem(pNM->hNode) == _nodeServerScriptParent)
 	{
@@ -200,6 +237,9 @@ void CMainContainerWindow::InitializeTreeItems()
 	_nodeProtocolTest = _tree.Internal_InsertItem(_T("Protocol Test"), nodeMessage);
 	CComPtr<IStream> spMessageImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_MESSAGE_32), _T("PNG"));
 	_tree.SetItemImage(_nodeProtocolTest, spMessageImage, TRUE);
+	_nodeMessageReceive = _tree.Internal_InsertItem(_T("Message Received"), nodeMessage);
+	CComPtr<IStream> spReceivedMessageImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_MESSAGE_RECV_32), _T("PNG"));
+	_tree.SetItemImage(_nodeMessageReceive, spReceivedMessageImage, TRUE);
 
 	auto nodeScripts = _tree.Internal_InsertItem(_T("Scripts"));
 	auto scriptChildNode = _tree.Internal_InsertItem(_T("Server Scripts"), nodeScripts);
@@ -321,6 +361,24 @@ void CMainContainerWindow::CreateProtocolTestWindow()
 	_masterDialogs[windowKey] = dlg;
 
 	_anchor->AddItem(dlg->m_hWnd, STXANCHOR_ALL);
+
+	CreateMessageReceiveWindow(FALSE);
+}
+
+void CMainContainerWindow::CreateMessageReceiveWindow(BOOL activate)
+{
+	CreateStandardContainedWindow<CSTXReceivedMessageDialog>(_T("_MessageReceiveWindow"), _T("Received Message"), activate);
+	if (activate)
+	{
+		auto dlgBase = _masterDialogs.find(_T("_MessageReceiveWindow"));
+		assert(dlgBase != _masterDialogs.end());
+
+		auto dlg = (CSTXReceivedMessageDialog*)(dlgBase->second.get());
+		assert(dlg != nullptr);
+
+		dlg->ClearMessageCount();
+		dlg->UpdateNodeText();
+	}
 }
 
 void CMainContainerWindow::CreateScriptWindow(HSTXTREENODE currentNode, int windowId)

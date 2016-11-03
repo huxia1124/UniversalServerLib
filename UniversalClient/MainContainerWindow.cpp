@@ -255,37 +255,7 @@ void CMainContainerWindow::InitializeTreeItems()
 
 void CMainContainerWindow::CreateServerDataWindow()
 {
-	if (_currentMasterDialog && _currentMasterDialog->IsWindow())
-	{
-		_currentMasterDialog->ShowWindow(SW_HIDE);
-	}
-
-	LPCTSTR windowKey = _T("_ServerDataWindow");
-
-	auto contentPlaceholder = GetDlgItem(IDC_STATIC_CONTENT);
-	RECT rcContent;
-	contentPlaceholder.GetWindowRect(&rcContent);
-	this->ScreenToClient(&rcContent);
-
-	auto it = _masterDialogs.find(windowKey);
-	if (it != _masterDialogs.end())
-	{
-		_currentMasterDialog = it->second;
-		_currentMasterDialog->ShowWindow(SW_SHOW);
-		return;
-	}
-
-	auto dlg = std::make_shared<CSTXServerDataDialog>();
-	_currentMasterDialog = dlg;
-
-	dlg->Create(m_hWnd, rcContent);
-	dlg->SetWindowText(_T("Server Data Viewer"));
-	dlg->MoveWindow(&rcContent);
-	dlg->ShowWindow(SW_SHOW);
-
-	_masterDialogs[windowKey] = dlg;
-
-	_anchor->AddItem(dlg->m_hWnd, STXANCHOR_ALL);
+	CreateStandardContainedWindow<CSTXServerDataDialog>(_T("_ServerDataWindow"), _T("Server Data Viewer"), TRUE);
 }
 
 void CMainContainerWindow::ShowScriptWindow(HSTXTREENODE currentNode)
@@ -330,38 +300,7 @@ void CMainContainerWindow::ShowScriptWindow(HSTXTREENODE currentNode)
 
 void CMainContainerWindow::CreateProtocolTestWindow()
 {
-	if (_currentMasterDialog && _currentMasterDialog->IsWindow())
-	{
-		_currentMasterDialog->ShowWindow(SW_HIDE);
-	}
-
-	LPCTSTR windowKey = _T("_ProtocolTestWindow");
-
-	auto contentPlaceholder = GetDlgItem(IDC_STATIC_CONTENT);
-	RECT rcContent;
-	contentPlaceholder.GetWindowRect(&rcContent);
-	this->ScreenToClient(&rcContent);
-
-	auto it = _masterDialogs.find(windowKey);
-	if (it != _masterDialogs.end())
-	{
-		_currentMasterDialog = it->second;
-		_currentMasterDialog->ShowWindow(SW_SHOW);
-		return;
-	}
-
-	auto dlg = std::make_shared<CSTXProtocolDialog>();
-	_currentMasterDialog = dlg;
-
-	dlg->Create(m_hWnd, rcContent);
-	dlg->SetWindowText(_T("Protocol Test"));
-	dlg->MoveWindow(&rcContent);
-	dlg->ShowWindow(SW_SHOW);
-
-	_masterDialogs[windowKey] = dlg;
-
-	_anchor->AddItem(dlg->m_hWnd, STXANCHOR_ALL);
-
+	CreateStandardContainedWindow<CSTXProtocolDialog>(_T("_ProtocolTestWindow"), _T("Protocol Test"), TRUE);
 	CreateMessageReceiveWindow(FALSE);
 }
 

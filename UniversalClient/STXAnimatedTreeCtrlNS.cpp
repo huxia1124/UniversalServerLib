@@ -47,7 +47,7 @@
 
 #define STXTC_TIMER_INTERVAL_ITEM_FLOAT_CHECK		1000
 
-#define STXAT_FONT_NAME						"ËÎÌו"
+#define STXAT_FONT_NAME						"Consolas"
 #define STXAT_FONT_SIZE						13
 #define STXAT_MEASURE_STRING_WIDTH_FIX		10240
 

@@ -89,7 +89,6 @@ void DrawTitleBar(HDC hDC, LPCTSTR pszTitle, RECT &rcArea)
 	dc.SetTextColor(oldTextColor);
 }
 
-
 CMainContainerWindow::CMainContainerWindow()
 {
 	_anchor = NULL;
@@ -142,9 +141,17 @@ LRESULT CMainContainerWindow::OnUpdateReceivedMessageCount(UINT, WPARAM wParam, 
 {
 	CString text;
 	if (wParam == 0)
+	{
 		text = _T("Received Message");
+		_tree.Internal_SetItemSubText(_nodeMessageReceive, _T(""));
+	}
 	else
+	{
+		CString numberText;
 		text.Format(_T("Received Message [%d]"), wParam);
+		numberText.Format(_T("%d"), wParam);
+		_tree.Internal_SetItemSubText(_nodeMessageReceive, numberText);
+	}
 
 	_tree.Internal_SetItemText(_nodeMessageReceive, text);
 	return 0;

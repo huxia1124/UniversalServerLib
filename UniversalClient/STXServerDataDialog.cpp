@@ -399,7 +399,7 @@ LRESULT CSTXServerDataDialog::OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BO
 	CString titleStr;
 	GetWindowText(titleStr);
 
-	DrawTitleBar(ps.hdc, titleStr, rcTitleBar);
+	CSTXCommon::DrawTitleBar(ps.hdc, titleStr, rcTitleBar);
 
 	EndPaint(&ps);
 	return 0;
@@ -632,26 +632,26 @@ void CSTXServerDataDialog::SetTreeNodeAppearance(HSTXTREENODE treeNode, TreeNode
 	{
 	case 3:
 	case 16:
-		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_STRING_32), _T("PNG")); break;
+		spNodeImage = CSTXCommon::LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_STRING_32), _T("PNG")); break;
 	case 5:
 	case 6:
-		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_FLOAT_32), _T("PNG")); break;
+		spNodeImage = CSTXCommon::LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_FLOAT_32), _T("PNG")); break;
 	case 1:
 	case 2:
 	case 4:
 	case 7:
 	case 8:
 	case 15:
-		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_INTEGER_32), _T("PNG")); break;
+		spNodeImage = CSTXCommon::LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_INTEGER_32), _T("PNG")); break;
 	case 9:
 	case 10:
-		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_STRING_COLLECTION_32), _T("PNG")); break;
+		spNodeImage = CSTXCommon::LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_STRING_COLLECTION_32), _T("PNG")); break;
 	case 11:
 	case 12:
-		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_INTEGER_COLLECTION_32), _T("PNG")); break;
+		spNodeImage = CSTXCommon::LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_INTEGER_COLLECTION_32), _T("PNG")); break;
 	case 13:
 	case 14:
-		spNodeImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_FLOAT_COLLECTION_32), _T("PNG")); break;
+		spNodeImage = CSTXCommon::LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_FLOAT_COLLECTION_32), _T("PNG")); break;
 	}
 
 	if (spNodeImage)
@@ -662,7 +662,7 @@ void CSTXServerDataDialog::SetTreeNodeAppearance(HSTXTREENODE treeNode, TreeNode
 
 	if (nodeData->flags & 0x00000001)		//Read-Only
 	{
-		CComPtr<IStream> spReadOnlyImage = LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_READONLY_16), _T("PNG"));
+		CComPtr<IStream> spReadOnlyImage = CSTXCommon::LoadImageFromResource(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG_READONLY_16), _T("PNG"));
 		_tree.SetItemSubImage(treeNode, spReadOnlyImage);
 	}
 }

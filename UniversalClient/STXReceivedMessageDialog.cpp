@@ -50,7 +50,7 @@ LRESULT CSTXReceivedMessageDialog::OnPaint(UINT msg, WPARAM wParam, LPARAM lPara
 	CString titleStr;
 	GetWindowText(titleStr);
 
-	DrawTitleBar(ps.hdc, titleStr, rcTitleBar);
+	CSTXCommon::DrawTitleBar(ps.hdc, titleStr, rcTitleBar);
 
 	EndPaint(&ps);
 	return 0;

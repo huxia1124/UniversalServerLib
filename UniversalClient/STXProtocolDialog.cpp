@@ -666,7 +666,7 @@ LRESULT CSTXProtocolDialog::OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL
 	CString titleStr;
 	GetWindowText(titleStr);
 
-	DrawTitleBar(ps.hdc, titleStr, rcTitleBar);
+	CSTXCommon::DrawTitleBar(ps.hdc, titleStr, rcTitleBar);
 	EndPaint(&ps);
 	return 0;
 }

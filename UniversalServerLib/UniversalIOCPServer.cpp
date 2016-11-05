@@ -778,6 +778,7 @@ void CUniversalIOCPServer::OnHttpRequest(CSTXIOCPServerClientContext *pClientCon
 {
 	CUniversalIOCPServerClientContext *pClient = dynamic_cast<CUniversalIOCPServerClientContext*>(pClientContext);
 
+	SendHttpResponseData(pClientContext, 200, "text/plain", "Welcome", 7);
 	STXTRACE(3, _T("Http request on server [port=%d]: %S"), pClient->GetServerContext()->GetListeningPort(), mapRequest["*page"].c_str());
 }
 

@@ -47,11 +47,11 @@ class CSTXAnchorItem;
 
 typedef struct tagSTXANCHORITEMINFO
 {
-	BYTE iItemType;
-	DWORD dwAnchor;
-	BOOL bInitialized;
-	RECT rcItem;	//client rect in parent window
-	DWORD_PTR dwAnchorTool;	//CWnd* or UINT
+	BYTE iItemType;			//Type of the tracking item. See STXANCHOR_ITEM_* macros
+	DWORD dwAnchor;			//Anchors to be applied to this item. See STXANCHOR_* macros
+	BOOL bInitialized;		//Indicate whether the rcItem field is initialized
+	RECT rcItem;			//client rect in parent window. indicates the location and the size of the item
+	DWORD_PTR dwAnchorTool;			//HWND of the window or ID of the child control (GetDlgItem). depends on the iItemType value
 }STXANCHORITEMINFO,*LPSTXANCHORITEMINFO;
 
 class CSTXAnchorItem
@@ -68,7 +68,7 @@ public:
 
 protected:
 	STXANCHORITEMINFO m_AnchorItemInfo;
-	CSTXAnchor *m_pParentAnchor;
+	CSTXAnchor *m_pParentAnchor;			//The anchor object that manages this item
 
 };
 
@@ -97,9 +97,9 @@ public:
 	HWND GetTraceWindow();
 
 protected:
-	HWND m_hSizeTraceWnd;
+	HWND m_hSizeTraceWnd;		//The container window in which child windows will be adjusted according to the anchor settings
 	WNDPROC m_pfnOldProc;
-	SIZE m_sizeTrace;
+	SIZE m_sizeTrace;			//The initial size of the container window.
 	std::vector<CSTXAnchorItem*> m_arrpItems;
 	int m_iAnchorID;
 

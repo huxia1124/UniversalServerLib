@@ -284,6 +284,8 @@ LRESULT CSTXScriptDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDC_STATIC_TITLE, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
 	_anchor->AddItem(IDC_BUTTON_NEW_SCRIPT, STXANCHOR_RIGHT | STXANCHOR_TOP);
 
+	CreateTitleBar();
+
 	// Copy the string from the data member
 	// to the child control (DDX)
 	//SetDlgItemText(IDC_STRING, m_sz);
@@ -299,27 +301,6 @@ LRESULT CSTXScriptDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	CenterWindow(::GetParent(m_hWnd));
 
 	return 1; // Let dialog manager set initial focus
-}
-
-LRESULT CSTXScriptDialog::OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
-{
-	RECT rcClient;
-	GetClientRect(&rcClient);
-
-	PAINTSTRUCT ps;
-	BeginPaint(&ps);
-
-	RECT rcTitleBar;
-	GetDlgItem(IDC_STATIC_TITLE).GetWindowRect(&rcTitleBar);
-	ScreenToClient(&rcTitleBar);
-	rcTitleBar.right = rcClient.right;			//Fix the minimize/restore drawing problem
-	CString titleStr;
-	GetWindowText(titleStr);
-
-	CSTXCommon::DrawTitleBar(ps.hdc, titleStr, rcTitleBar);
-
-	EndPaint(&ps);
-	return 0;
 }
 
 void CSTXScriptDialog::SaveHistory()
@@ -498,6 +479,17 @@ void CSTXScriptDialog::GetErrorText(RPC_STATUS NTStatusMessage, CString &err)
 	err = (LPCTSTR)lpMessageBuffer;
 	LocalFree(lpMessageBuffer);
 	FreeLibrary(Hand);
+}
+
+void CSTXScriptDialog::CreateTitleBar()
+{
+	RECT rcTitleBar;
+	GetDlgItem(IDC_STATIC_TITLE).GetWindowRect(&rcTitleBar);
+	ScreenToClient(&rcTitleBar);
+	CString titleStr;
+	GetWindowText(titleStr);
+	_titleBar.Create(m_hWnd, rcTitleBar, titleStr, WS_CHILD | WS_VISIBLE, 0, 901);
+	_anchor->AddItem(901, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
 }
 
 void CSTXScriptDialog::RunServerScriptString(LPCTSTR lpszScript, CString &result, CString &err)

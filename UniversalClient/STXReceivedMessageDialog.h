@@ -25,7 +25,7 @@
 
 #include "Resource.h"
 #include "STXAnchor.h"
-//#include "STXProtocolHistory.h"
+#include "TitleBar.h"
 
 class CSTXReceivedMessageDialog : public CDialogImpl<CSTXReceivedMessageDialog>
 {
@@ -41,6 +41,7 @@ protected:
 
 	WTL::CEdit _edtMessage;
 	int _messageCount = 0;
+	CTitleBar _titleBar;
 
 protected:
 	BEGIN_MSG_MAP(CSTXReceivedMessageDialog)
@@ -62,6 +63,7 @@ protected:
 	LRESULT OnBackClicked(WORD, UINT, HWND, BOOL&);
 	LRESULT OnClearClicked(WORD, UINT, HWND, BOOL&);
 
+	void CreateTitleBar();
 
 public:
 	void ClearMessageCount();

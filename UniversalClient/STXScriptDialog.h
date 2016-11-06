@@ -25,7 +25,7 @@
 
 #include "Resource.h"
 #include "STXAnchor.h"
-//#include "STXProtocolHistory.h"
+#include "TitleBar.h"
 
 class CSTXScriptDialog : public CDialogImpl<CSTXScriptDialog>
 {
@@ -46,12 +46,11 @@ protected:
 	std::wstring _scriptToRun;
 	std::wstring _originalDefaultScript;
 
-	//std::vector<CSTXProtocolHistory> _histories;
+	CTitleBar _titleBar;
 
 protected:
 	BEGIN_MSG_MAP(CSTXScriptDialog)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		//MESSAGE_HANDLER(WM_CLOSE, OnClose)
 
 
@@ -63,7 +62,6 @@ protected:
 
 		//COMMAND_HANDLER(IDC_COMBO_TYPE, CBN_SELCHANGE, OnCbHostSelChange)
 
-
 	END_MSG_MAP()
 
 
@@ -73,7 +71,6 @@ protected:
 
 	void InitializeRPCHostCombobox();
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
-	LRESULT OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
 	LRESULT OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
 
 
@@ -94,6 +91,8 @@ protected:
 
 	BOOL WriteToFile(LPCTSTR lpszFile, LPCTSTR lpszText);
 	void GetErrorText(RPC_STATUS NTStatusMessage, CString &err);
+	void CreateTitleBar();
+
 protected:
 	void RunServerScriptFile(LPCTSTR lpszScriptFile);
 	void RunServerScriptString(LPCTSTR lpszScript, CString &result, CString &err);

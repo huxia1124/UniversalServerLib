@@ -27,6 +27,7 @@
 #include "STXAnchor.h"
 #include "STXAnimatedTreeCtrlNS.h"
 #include "STXCollectionEditorPanel.h"
+#include "TitleBar.h"
 
 #define WM_ADD_STRING_DATA		(WM_USER + 5)
 #define WM_REMOVE_STRING_DATA	(WM_USER + 6)
@@ -59,11 +60,11 @@ protected:
 
 	HWND _hWndCurrentEditor = NULL;
 	CSTXCollectionEditorPanel _collectionEditorPanel;
+	CTitleBar _titleBar;
 
 protected:
 	BEGIN_MSG_MAP(CSTXServerDataDialog)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		COMMAND_ID_HANDLER(IDC_BUTTON_REFRESH, OnRefreshClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_SAVE_DATA, OnSaveDataClicked)
 		COMMAND_ID_HANDLER(IDC_BUTTON_UNREGISTER, OnUnregisterClicked)
@@ -83,7 +84,6 @@ protected:
 
 	void InitializeRPCHostCombobox();
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
-	LRESULT OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled);
 
 	LRESULT OnAddStringData(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnRemoveStringData(UINT, WPARAM, LPARAM, BOOL&);
@@ -110,6 +110,7 @@ protected:
 	CString CombineNodePath(LPCTSTR pathLeft, LPCTSTR pathRight);
 	void UpdateNodeFullPathIndicator(HSTXTREENODE treeNode);
 	bool IsCollectionType(int dataType);
+	void CreateTitleBar();
 
 protected:
 	void GetSharedDataTreeNodes(LPCTSTR lpszPath, std::vector<std::wstring>* pNodeNames, std::vector<int>* pNodeTypes, std::vector<unsigned long>* pNodeFlags, CString &err);

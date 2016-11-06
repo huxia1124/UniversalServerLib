@@ -373,6 +373,7 @@ LRESULT CSTXServerDataDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	InitializeRPCHostCombobox();
 
 	CreateDataTree();
+	CreateTitleBar();
 
 	_anchor->AddItem(IDC_BUTTON_SAVE_DATA, STXANCHOR_RIGHT | STXANCHOR_TOP);
 	_anchor->AddItem(IDC_STATIC_DATA, STXANCHOR_ALL);
@@ -381,28 +382,6 @@ LRESULT CSTXServerDataDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDC_STATIC_TITLE, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
 
 	return 1; // Let dialog manager set initial focus
-}
-
-
-LRESULT CSTXServerDataDialog::OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
-{
-	RECT rcClient;
-	GetClientRect(&rcClient);
-
-	PAINTSTRUCT ps;
-	BeginPaint(&ps);
-
-	RECT rcTitleBar;
-	GetDlgItem(IDC_STATIC_TITLE).GetWindowRect(&rcTitleBar);
-	ScreenToClient(&rcTitleBar);
-	rcTitleBar.right = rcClient.right;			//Fix the minimize/restore drawing problem
-	CString titleStr;
-	GetWindowText(titleStr);
-
-	CSTXCommon::DrawTitleBar(ps.hdc, titleStr, rcTitleBar);
-
-	EndPaint(&ps);
-	return 0;
 }
 
 LRESULT CSTXServerDataDialog::OnAddStringData(UINT, WPARAM wParam, LPARAM lParam, BOOL& handled)
@@ -1034,4 +1013,15 @@ void CSTXServerDataDialog::UpdateNodeFullPathIndicator(HSTXTREENODE treeNode)
 bool CSTXServerDataDialog::IsCollectionType(int dataType)
 {
 	return dataType >= 9 && dataType <= 14;
+}
+
+void CSTXServerDataDialog::CreateTitleBar()
+{
+	RECT rcTitleBar;
+	GetDlgItem(IDC_STATIC_TITLE).GetWindowRect(&rcTitleBar);
+	ScreenToClient(&rcTitleBar);
+	CString titleStr;
+	GetWindowText(titleStr);
+	_titleBar.Create(m_hWnd, rcTitleBar, titleStr, WS_CHILD | WS_VISIBLE, 0, 901);
+	_anchor->AddItem(901, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
 }

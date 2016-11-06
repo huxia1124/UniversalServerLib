@@ -153,6 +153,9 @@
     <ClInclude Include="STXReceivedMessageDialog.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="TitleBar.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -207,6 +210,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Common.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleBar.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

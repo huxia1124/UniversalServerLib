@@ -30,7 +30,7 @@ LRESULT CSTXReceivedMessageDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDC_BUTTON_CLEAR, STXANCHOR_RIGHT | STXANCHOR_TOP);
 	_anchor->AddItem(IDC_STATIC_TITLE, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
 
-	CenterWindow(::GetParent(m_hWnd));
+	CreateTitleBar();
 
 	return 1; // Let dialog manager set initial focus
 }
@@ -66,6 +66,17 @@ LRESULT CSTXReceivedMessageDialog::OnClearClicked(WORD, UINT, HWND, BOOL&)
 {
 	_edtMessage.SetWindowText(_T(""));
 	return 0;
+}
+
+void CSTXReceivedMessageDialog::CreateTitleBar()
+{
+	RECT rcTitleBar;
+	GetDlgItem(IDC_STATIC_TITLE).GetWindowRect(&rcTitleBar);
+	ScreenToClient(&rcTitleBar);
+	CString titleStr;
+	GetWindowText(titleStr);
+	_titleBar.Create(m_hWnd, rcTitleBar, titleStr, WS_CHILD | WS_VISIBLE, 0, 901);
+	_anchor->AddItem(901, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
 }
 
 void CSTXReceivedMessageDialog::UpdateNodeText()

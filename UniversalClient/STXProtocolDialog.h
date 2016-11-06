@@ -29,6 +29,7 @@
 #include "STXAnchor.h"
 #include "STXProtocolHistory.h"
 #include "STXScriptDialog.h"
+#include "TitleBar.h"
 
 #define WM_SOCKET_CONNECT_NOTIFY		(WM_USER + 10)
 #define WM_SOCKET_DISCONNECT_NOTIFY		(WM_USER + 11)
@@ -60,6 +61,7 @@ protected:
 	BOOL _dirty;
 	std::vector<CSTXProtocolHistory> _histories;
 	std::vector<std::shared_ptr<CSTXScriptDialog>> _scriptDialogs;
+	CTitleBar _titleBar;
 
 protected:
 	BEGIN_MSG_MAP(CSTXProtocolDialog)
@@ -124,6 +126,7 @@ protected:
 
 	void AddContentToList(LPCTSTR lpszValue);
 	LPVOID GetDataFromHexString(LPCTSTR lpszHexValue, DWORD* pdwLen);
+	void CreateTitleBar();
 
 	void AddToHistoryCache();
 	void SaveHistory();

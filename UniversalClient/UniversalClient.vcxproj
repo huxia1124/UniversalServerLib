@@ -186,6 +186,7 @@
     <ClInclude Include="STXServerDataDialog.h" />
     <ClInclude Include="STXSocket.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TitleBar.h" />
     <ClInclude Include="UniversalClient.h" />
     <ClInclude Include="UniversalClientSocket.h" />
     <ClInclude Include="wtl\atlapp.h" />
@@ -243,6 +244,7 @@
     <ClCompile Include="STXScriptDialog.cpp" />
     <ClCompile Include="STXServerDataDialog.cpp" />
     <ClCompile Include="STXSocket.cpp" />
+    <ClCompile Include="TitleBar.cpp" />
     <ClCompile Include="UniversalClient.cpp" />
     <ClCompile Include="UniversalClientSocket.cpp" />
   </ItemGroup>

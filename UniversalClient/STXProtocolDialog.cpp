@@ -293,6 +293,17 @@ LPVOID CSTXProtocolDialog::GetDataFromHexString(LPCTSTR lpszHexValue, DWORD* pdw
 
 }
 
+void CSTXProtocolDialog::CreateTitleBar()
+{
+	RECT rcTitleBar;
+	GetDlgItem(IDC_STATIC_TITLE).GetWindowRect(&rcTitleBar);
+	ScreenToClient(&rcTitleBar);
+	CString titleStr;
+	GetWindowText(titleStr);
+	_titleBar.Create(m_hWnd, rcTitleBar, titleStr, WS_CHILD | WS_VISIBLE, 0, 901);
+	_anchor->AddItem(901, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
+}
+
 void CSTXProtocolDialog::AddPackageDataRAW(CSTXProtocol &p, ATL::CString value)
 {
 	DWORD dwLen = 0;
@@ -588,6 +599,8 @@ LRESULT CSTXProtocolDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	_anchor->AddItem(IDC_BUTTON_SCRIPT_DIALOG, STXANCHOR_BOTTOM | STXANCHOR_LEFT);
 	_anchor->AddItem(IDC_STATIC_TITLE, STXANCHOR_LEFT | STXANCHOR_RIGHT | STXANCHOR_TOP);
 
+	CreateTitleBar();
+
 	UpdateAddButtonEnabled();
 	UpdateEnterFields();
 	// Copy the string from the data member
@@ -658,15 +671,6 @@ LRESULT CSTXProtocolDialog::OnPaint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL
 
 	GradientFill(ps.hdc, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_V);
 
-	//Draw title
-	RECT rcTitleBar;
-	GetDlgItem(IDC_STATIC_TITLE).GetWindowRect(&rcTitleBar);
-	ScreenToClient(&rcTitleBar);
-	rcTitleBar.right = rcClient.right;			//Fix the minimize/restore drawing problem
-	CString titleStr;
-	GetWindowText(titleStr);
-
-	CSTXCommon::DrawTitleBar(ps.hdc, titleStr, rcTitleBar);
 	EndPaint(&ps);
 	return 0;
 }

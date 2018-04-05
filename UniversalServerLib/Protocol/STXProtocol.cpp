@@ -265,7 +265,7 @@ size_t CSTXProtocolUtility::ConvertToHexString(unsigned char* lpData, size_t cbD
 
 std::string CSTXProtocolUtility::UTF16ToUTF8(std::u16string utf16_string)
 {
-#if _MSC_VER == 1900
+#if _MSC_VER >= 1900
 	std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
 	auto p = reinterpret_cast<const int16_t *>(utf16_string.data());
 	return convert.to_bytes(p, p + utf16_string.size());
@@ -278,7 +278,7 @@ std::string CSTXProtocolUtility::UTF16ToUTF8(std::u16string utf16_string)
 
 std::string CSTXProtocolUtility::UTF16ToUTF8(const char16_t *begin, const char16_t *end)
 {
-#if _MSC_VER == 1900
+#if _MSC_VER >= 1900
 	std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
 	auto pb = reinterpret_cast<const int16_t *>(begin);
 	auto pe = reinterpret_cast<const int16_t *>(end);
@@ -292,7 +292,7 @@ std::string CSTXProtocolUtility::UTF16ToUTF8(const char16_t *begin, const char16
 
 std::u16string CSTXProtocolUtility::UTF8ToUTF16(std::string utf8_string)
 {
-#if _MSC_VER == 1900
+#if _MSC_VER >= 1900
 	std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
 	auto p = convert.from_bytes(utf8_string.data());
 	std::u16string s;
@@ -309,7 +309,7 @@ std::u16string CSTXProtocolUtility::UTF8ToUTF16(std::string utf8_string)
 
 std::u16string CSTXProtocolUtility::UTF8ToUTF16(const char *begin, const char *end)
 {
-#if _MSC_VER == 1900
+#if _MSC_VER >= 1900
 	std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
 	auto p = convert.from_bytes(begin, end);
 	std::u16string s;

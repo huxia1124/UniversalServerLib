@@ -176,12 +176,12 @@ protected:
 
 
 protected:
-	std::list<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > m_arrChildNodes;
-	std::queue<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > m_queDeletedNodes;
-	std::list<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> >::iterator m_itPositionInParent;
+	std::list<std::shared_ptr<CSTXAnimatedTreeNodeNS> > m_arrChildNodes;
+	std::queue<std::shared_ptr<CSTXAnimatedTreeNodeNS> > m_queDeletedNodes;
+	std::list<std::shared_ptr<CSTXAnimatedTreeNodeNS> >::iterator m_itPositionInParent;
 	CSTXAnimatedTreeNodeNS *m_pParentNode;
-	std::tr1::shared_ptr<Gdiplus::Image> m_pImgImage;		//Node Image
-	std::tr1::shared_ptr<Gdiplus::Image> m_pImgSubImage;	//Node SubImage (small image at the right-bottom of the main image)
+	std::shared_ptr<Gdiplus::Image> m_pImgImage;		//Node Image
+	std::shared_ptr<Gdiplus::Image> m_pImgSubImage;	//Node SubImage (small image at the right-bottom of the main image)
 	CSTXAnimatedTreeCtrlNS *m_pParentControl;
 
 protected:
@@ -225,7 +225,7 @@ protected:
 	void DrawSelection(Gdiplus::Graphics * pGraphics, Gdiplus::RectF *rectItem, Gdiplus::RectF* rectItemFinal, Gdiplus::REAL fHorzOffset, DOUBLE fNodeOpacity, int iImageOccupie);
 	void DrawDropHighlight( Gdiplus::Graphics * pGraphics, Gdiplus::RectF *rectItem, Gdiplus::RectF* rectItemFinal, DOUBLE fNodeOpacity);
 	int DrawItemImage(Gdiplus::Graphics * pGraphics, Gdiplus::RectF *rectItem, Gdiplus::RectF* rectItemFinal, Gdiplus::REAL fHorzOffset, DOUBLE fNodeOpacity, LPSTXTVITEMDRAW lpItemDraw);
-	std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> HitTestInternal(POINT pt, int iControlWidth, int iOffsetPatch, UINT *pFlags);
+	std::shared_ptr<CSTXAnimatedTreeNodeNS> HitTestInternal(POINT pt, int iControlWidth, int iOffsetPatch, UINT *pFlags);
 	HSTXTREENODE HitTest(POINT pt, int iControlWidth, int iOffsetPatch, UINT *pFlags);
 	void TriggerItemPreDeleteEvent();
 	void TriggerItemPostDeleteEvent();
@@ -283,20 +283,20 @@ protected:
 	CComPtr<IUIAnimationVariable> m_pAVExpanderOpacity;
 
 protected:
-	std::tr1::shared_ptr<Gdiplus::Image> m_pImgBackground;		//Control Background Image
-	std::tr1::shared_ptr<Gdiplus::CachedBitmap> m_pImgBackgroundCached;
-	std::tr1::shared_ptr<Gdiplus::Image> m_pImgWatermark;
-	std::tr1::shared_ptr<Gdiplus::CachedBitmap> m_pImgWatermarkCached;
+	std::shared_ptr<Gdiplus::Image> m_pImgBackground;		//Control Background Image
+	std::shared_ptr<Gdiplus::CachedBitmap> m_pImgBackgroundCached;
+	std::shared_ptr<Gdiplus::Image> m_pImgWatermark;
+	std::shared_ptr<Gdiplus::CachedBitmap> m_pImgWatermarkCached;
 	UINT m_nWatermarkLocation;
 	double m_fWatermarkOpacity;
 
-	std::tr1::shared_ptr<Gdiplus::Image> m_pImgExpanderExpanded;
-	std::tr1::shared_ptr<Gdiplus::Image> m_pImgExpanderCollapsed;
+	std::shared_ptr<Gdiplus::Image> m_pImgExpanderExpanded;
+	std::shared_ptr<Gdiplus::Image> m_pImgExpanderCollapsed;
 
 
 protected:
-	std::list<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > m_arrRootNodes;
-	std::queue<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > m_queDeletedNodes;
+	std::list<std::shared_ptr<CSTXAnimatedTreeNodeNS> > m_arrRootNodes;
+	std::queue<std::shared_ptr<CSTXAnimatedTreeNodeNS> > m_queDeletedNodes;
 	std::set<CSTXAnimatedTreeNodeNS*> m_setValidItemPtr;
 	HSTXTREENODE m_hSelectedNode;
 	HSTXTREENODE m_hDragOverNode;
@@ -330,7 +330,7 @@ protected:
 protected:
 	static LPCTSTR s_lpszAnimatedTreeCtrlClassName;
 	static LRESULT CALLBACK STXAnimatedTreeWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	static bool STXAnimatedTreeDefaultSortFuncWrapper(std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pNode1, std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pNode2);
+	static bool STXAnimatedTreeDefaultSortFuncWrapper(std::shared_ptr<CSTXAnimatedTreeNodeNS> pNode1, std::shared_ptr<CSTXAnimatedTreeNodeNS> pNode2);
 
 protected:
 	void OnTimer(UINT nIDEvent);
@@ -364,10 +364,10 @@ protected:
 	void DrawLine(Gdiplus::Graphics *pGraphics, Gdiplus::Rect *rectThis);
 
 protected:
-	static std::tr1::shared_ptr<Gdiplus::Image> GetResizedImage(IStream *pStream, int nWidthHeight);
-	static std::tr1::shared_ptr<Gdiplus::Image> GetResizedImage(HBITMAP hBitmap, int nWidthHeight);
-	static std::tr1::shared_ptr<Gdiplus::Image> GetResizedImage(LPCTSTR lpszFile, int nWidthHeight);
-	static std::tr1::shared_ptr<Gdiplus::Image> GetResizedImage(std::tr1::shared_ptr<Gdiplus::Image> pImage, int nWidthHeight);
+	static std::shared_ptr<Gdiplus::Image> GetResizedImage(IStream *pStream, int nWidthHeight);
+	static std::shared_ptr<Gdiplus::Image> GetResizedImage(HBITMAP hBitmap, int nWidthHeight);
+	static std::shared_ptr<Gdiplus::Image> GetResizedImage(LPCTSTR lpszFile, int nWidthHeight);
+	static std::shared_ptr<Gdiplus::Image> GetResizedImage(std::shared_ptr<Gdiplus::Image> pImage, int nWidthHeight);
 
 protected:
 	STDMETHOD(OnManagerStatusChanged)(UI_ANIMATION_MANAGER_STATUS newStatus, UI_ANIMATION_MANAGER_STATUS previousStatus);
@@ -393,9 +393,9 @@ protected:
 	IFACEMETHODIMP Next(ULONG celt, __out_ecount_part(celt, *pceltFetched) VARIANT* rgvar, __out_opt ULONG * pceltFetched);
 
 protected:
-	DOUBLE GetCurrentTotalHeightBefore(std::list<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > *pList, HSTXTREENODE hNodeBefore);
-	DOUBLE GetFinalTotalHeightBefore(std::list<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > *pList, HSTXTREENODE hNodeBefore);
-	void ApplyOffsetAfter(std::list<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > *pList, HSTXTREENODE hNodeAfter, DOUBLE fOffset, HSTXTREENODE hNodeBaseline, BOOL bParentApply);
+	DOUBLE GetCurrentTotalHeightBefore(std::list<std::shared_ptr<CSTXAnimatedTreeNodeNS> > *pList, HSTXTREENODE hNodeBefore);
+	DOUBLE GetFinalTotalHeightBefore(std::list<std::shared_ptr<CSTXAnimatedTreeNodeNS> > *pList, HSTXTREENODE hNodeBefore);
+	void ApplyOffsetAfter(std::list<std::shared_ptr<CSTXAnimatedTreeNodeNS> > *pList, HSTXTREENODE hNodeAfter, DOUBLE fOffset, HSTXTREENODE hNodeBaseline, BOOL bParentApply);
 	void UpdateAnimationManager();
 	UI_ANIMATION_SECONDS GetCurrentTime();
 	
@@ -422,11 +422,11 @@ protected:
 	void OnBeginDrag();
 	BOOL IsMouseInButtomSpace(int x, int y);
 	void OnDrop(HSTXTREENODE hNodeDropTo);
-	HSTXTREENODE Internal_InsertItem(std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pNewNode, HSTXTREENODE hParent = STXTVI_ROOT, HSTXTREENODE hInsertBefore = STXTVI_LAST, int iItemHeight = -1);
+	HSTXTREENODE Internal_InsertItem(std::shared_ptr<CSTXAnimatedTreeNodeNS> pNewNode, HSTXTREENODE hParent = STXTVI_ROOT, HSTXTREENODE hInsertBefore = STXTVI_LAST, int iItemHeight = -1);
 	int GetAllVisibleItem(HSTXTREENODE hSearchRoot = STXTVI_ROOT, std::vector<HSTXTREENODE> *pArrItems = NULL);
 	int GetAllItem(HSTXTREENODE hSearchRoot = STXTVI_ROOT, std::vector<HSTXTREENODE> *pArrItems = NULL);
 	int GetItemCount(HSTXTREENODE hSearchRoot = STXTVI_ROOT);
-	void RecalculateItemOffset( std::list<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > * pList );
+	void RecalculateItemOffset( std::list<std::shared_ptr<CSTXAnimatedTreeNodeNS> > * pList );
 	void OnInternalItemPreDelete( CSTXAnimatedTreeNodeNS* pItem );
 	void OnInternalItemPostDelete( CSTXAnimatedTreeNodeNS* pItem );
 	int GetDescendantItems(HSTXTREENODE hItem, std::vector<HSTXTREENODE> *pArrItems);
@@ -442,7 +442,7 @@ protected:
 protected:
 	virtual void OnEndEdit();
 	virtual BOOL PreSendNotifyMessage(UINT nCode, LPNMHDR pNMHDR);
-	virtual std::tr1::shared_ptr<Gdiplus::Image> OnItemImageCallback(HSTXTREENODE hItem);
+	virtual std::shared_ptr<Gdiplus::Image> OnItemImageCallback(HSTXTREENODE hItem);
 
 public:
 	// "Internal" methods are thread-unsafe. they are designed to be called by Windows message dispatching

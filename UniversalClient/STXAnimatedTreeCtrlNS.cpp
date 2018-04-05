@@ -53,7 +53,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-typedef std::list<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> >  STXTREENODELIST;
+typedef std::list<std::shared_ptr<CSTXAnimatedTreeNodeNS> >  STXTREENODELIST;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -136,7 +136,7 @@ DOUBLE CSTXAnimatedTreeNodeNS::GetCurrentHeightWithoutLastChildExpand()
 	if(m_arrChildNodes.size() > 0)
 	{
 		//Get last sibling item's height first
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pLastItem = *m_arrChildNodes.rbegin();
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pLastItem = *m_arrChildNodes.rbegin();
 		pLastItem->m_pAVItemHeight->GetValue(&fHeight);
 	}
 
@@ -263,13 +263,13 @@ void CSTXAnimatedTreeNodeNS::DrawItem(Gdiplus::Graphics *pGraphics, Gdiplus::Rec
 	//if(!m_bExpanded)
 	//	return;
 
-	std::queue<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > m_queueAllToDraw;
+	std::queue<std::shared_ptr<CSTXAnimatedTreeNodeNS> > m_queueAllToDraw;
 
 	//Draw Deleted items
 	size_t nDrawDelete = m_queDeletedNodes.size();
 	for(size_t i=0;i<nDrawDelete;i++)
 	{
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pItem = m_queDeletedNodes.front();
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pItem = m_queDeletedNodes.front();
 		m_queDeletedNodes.pop();
 
 		DOUBLE fItemOpacity = 0;
@@ -293,7 +293,7 @@ void CSTXAnimatedTreeNodeNS::DrawItem(Gdiplus::Graphics *pGraphics, Gdiplus::Rec
 	size_t nItemToDraw = m_queueAllToDraw.size();
 	for(size_t i=0;i<nItemToDraw;i++)
 	{
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pItem = m_queueAllToDraw.front();
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pItem = m_queueAllToDraw.front();
 		m_queueAllToDraw.pop();
 
 		DOUBLE fTopOffset = 0;
@@ -343,7 +343,7 @@ void CSTXAnimatedTreeNodeNS::DrawExpandMark(Gdiplus::Graphics * pGraphics, Gdipl
 
 	DOUBLE fExpanderOpacity = fNodeOpacity * fGlobalExpanderOpacity;
 
-	std::tr1::shared_ptr<Gdiplus::Image> pImgUsing = m_pParentControl->m_pImgExpanderExpanded;
+	std::shared_ptr<Gdiplus::Image> pImgUsing = m_pParentControl->m_pImgExpanderExpanded;
 	if(!m_bExpanded)
 		pImgUsing = m_pParentControl->m_pImgExpanderCollapsed;
 	if(pImgUsing)
@@ -394,8 +394,8 @@ void CSTXAnimatedTreeNodeNS::DrawLines(Gdiplus::Graphics * pGraphics, Gdiplus::R
 
 	if(m_bExpanded && m_arrChildNodes.size() > 0)
 	{
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pFirstItem = *m_arrChildNodes.begin();
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pLastItem = *m_arrChildNodes.rbegin();
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pFirstItem = *m_arrChildNodes.begin();
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pLastItem = *m_arrChildNodes.rbegin();
 
 		DOUBLE fItemHeightFinal = 0.0;
 		m_pAVItemHeight->GetFinalValue(&fItemHeightFinal);
@@ -471,7 +471,7 @@ int CSTXAnimatedTreeNodeNS::DrawItemImage(Gdiplus::Graphics * pGraphics, Gdiplus
 	if(m_pImgImage == NULL && (m_dwItemStyle & STXTVIS_IMAGE_CALLBACK) == 0)
 		return iResult;
 
-	std::tr1::shared_ptr<Gdiplus::Image> imgUse = m_pImgImage;
+	std::shared_ptr<Gdiplus::Image> imgUse = m_pImgImage;
 	if(m_dwItemStyle & STXTVIS_IMAGE_CALLBACK)
 		imgUse = m_pParentControl->OnItemImageCallback(this);
 
@@ -825,14 +825,14 @@ CSTXAnimatedTreeCtrlNS::~CSTXAnimatedTreeCtrlNS(void)
 
 HSTXTREENODE CSTXAnimatedTreeCtrlNS::Internal_InsertItem( LPCTSTR lpszText, HSTXTREENODE hParent /*= STXTVI_ROOT*/, HSTXTREENODE hInsertBefore /*= STXTVI_LAST*/, DWORD_PTR dwItemData /*= 0*/, int iItemHeight /*= -1*/ )
 {
-	std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pNewNode(new CSTXAnimatedTreeNodeNS(this));
+	std::shared_ptr<CSTXAnimatedTreeNodeNS> pNewNode(new CSTXAnimatedTreeNodeNS(this));
 	m_setValidItemPtr.insert(pNewNode.get());
 	pNewNode->m_strText = lpszText;
 	pNewNode->m_dwNodeData = dwItemData;
 	return Internal_InsertItem(pNewNode, hParent, hInsertBefore, iItemHeight);
 }
 
-HSTXTREENODE CSTXAnimatedTreeCtrlNS::Internal_InsertItem( std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pNewNode, HSTXTREENODE hParent /*= STXTVI_ROOT*/, HSTXTREENODE hInsertBefore /*= STXTVI_LAST*/, int iItemHeight /*= -1*/ )
+HSTXTREENODE CSTXAnimatedTreeCtrlNS::Internal_InsertItem( std::shared_ptr<CSTXAnimatedTreeNodeNS> pNewNode, HSTXTREENODE hParent /*= STXTVI_ROOT*/, HSTXTREENODE hInsertBefore /*= STXTVI_LAST*/, int iItemHeight /*= -1*/ )
 {
  	DOUBLE fLeftOffset = STXATC_EXPANDER_WIDTH;
 
@@ -1158,7 +1158,7 @@ void CSTXAnimatedTreeCtrlNS::DrawWatermark(Gdiplus::Graphics *pGraphics, Gdiplus
 
 
 			Gdiplus::Bitmap *pBitmapSrc = pBitmap;
-			std::tr1::shared_ptr<Gdiplus::CachedBitmap> imgCached(new Gdiplus::CachedBitmap(pBitmapSrc, &graphics));
+			std::shared_ptr<Gdiplus::CachedBitmap> imgCached(new Gdiplus::CachedBitmap(pBitmapSrc, &graphics));
 			m_pImgWatermarkCached = imgCached;
 
 			delete pBitmap;
@@ -1199,7 +1199,7 @@ void CSTXAnimatedTreeCtrlNS::DrawBackground(Gdiplus::Graphics *pGraphics, Gdiplu
 			graphics.DrawImage(m_pImgBackground.get(), 0, 0, rectThis->Width, rectThis->Height);
 
 			Gdiplus::Bitmap *pBitmapSrc = pBitmap;
-			std::tr1::shared_ptr<Gdiplus::CachedBitmap> imgCached(new Gdiplus::CachedBitmap(pBitmapSrc, pGraphics));
+			std::shared_ptr<Gdiplus::CachedBitmap> imgCached(new Gdiplus::CachedBitmap(pBitmapSrc, pGraphics));
 			m_pImgBackgroundCached = imgCached;
 
 			delete pBitmap;
@@ -1226,13 +1226,13 @@ void CSTXAnimatedTreeCtrlNS::DrawContent(Gdiplus::Graphics *pGraphics, Gdiplus::
 	RECT rcClient;
 	GetClientRect(m_hwndControl, &rcClient);
 
-	std::queue<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > m_queueAllToDraw;
+	std::queue<std::shared_ptr<CSTXAnimatedTreeNodeNS> > m_queueAllToDraw;
 
 	//Draw Deleted items
 	size_t nDrawDelete = m_queDeletedNodes.size();
 	for(size_t i=0;i<nDrawDelete;i++)
 	{
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pItem = m_queDeletedNodes.front();
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pItem = m_queDeletedNodes.front();
 		m_queDeletedNodes.pop();
 
 		DOUBLE fItemOpacity = 0;
@@ -1254,7 +1254,7 @@ void CSTXAnimatedTreeCtrlNS::DrawContent(Gdiplus::Graphics *pGraphics, Gdiplus::
 	size_t nItemToDraw = m_queueAllToDraw.size();
 	for(size_t i=0;i<nItemToDraw;i++)
 	{
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pItem = m_queueAllToDraw.front();
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pItem = m_queueAllToDraw.front();
 		m_queueAllToDraw.pop();
 
 		DOUBLE fTopOffset = 0;
@@ -1322,8 +1322,8 @@ void CSTXAnimatedTreeCtrlNS::DrawLine(Gdiplus::Graphics *pGraphics, Gdiplus::Rec
 
 	if(m_arrRootNodes.size() > 0)
 	{
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pFirstItem = *m_arrRootNodes.begin();
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pLastItem = *m_arrRootNodes.rbegin();
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pFirstItem = *m_arrRootNodes.begin();
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pLastItem = *m_arrRootNodes.rbegin();
 		DOUBLE fItemHeightFirst = 0;
 		pFirstItem->m_pAVItemHeight->GetValue(&fItemHeightFirst);
 		DOUBLE fItemHeightLast = 0;
@@ -1449,7 +1449,7 @@ DOUBLE CSTXAnimatedTreeCtrlNS::GetCurrentHeightWithoutLastChildExpand()
 	if(m_arrRootNodes.size() > 0)
 	{
 		//Get last sibling item's height first
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pLastItem = *m_arrRootNodes.rbegin();
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pLastItem = *m_arrRootNodes.rbegin();
 		pLastItem->m_pAVItemHeight->GetValue(&fHeight);
 	}
 
@@ -2603,25 +2603,25 @@ HSTXTREENODE CSTXAnimatedTreeCtrlNS::GetFurthestVisibleItem( HSTXTREENODE hItem 
 }
 
 
-std::tr1::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::GetResizedImage( IStream *pStream, int nWidthHeight )
+std::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::GetResizedImage( IStream *pStream, int nWidthHeight )
 {
-	std::tr1::shared_ptr<Gdiplus::Image> img(new Gdiplus::Bitmap(pStream));
+	std::shared_ptr<Gdiplus::Image> img(new Gdiplus::Bitmap(pStream));
 	return GetResizedImage(img, nWidthHeight);
 }
 
-std::tr1::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::GetResizedImage( HBITMAP hBitmap, int nWidthHeight )
+std::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::GetResizedImage( HBITMAP hBitmap, int nWidthHeight )
 {
-	std::tr1::shared_ptr<Gdiplus::Image> img(new Gdiplus::Bitmap(hBitmap, NULL));
+	std::shared_ptr<Gdiplus::Image> img(new Gdiplus::Bitmap(hBitmap, NULL));
 	return GetResizedImage(img, nWidthHeight);
 }
 
-std::tr1::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::GetResizedImage( LPCTSTR lpszFile, int nWidthHeight )
+std::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::GetResizedImage( LPCTSTR lpszFile, int nWidthHeight )
 {
-	std::tr1::shared_ptr<Gdiplus::Image> img(new Gdiplus::Image(lpszFile));
+	std::shared_ptr<Gdiplus::Image> img(new Gdiplus::Image(lpszFile));
 	return GetResizedImage(img, nWidthHeight);
 }
 
-std::tr1::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::GetResizedImage( std::tr1::shared_ptr<Gdiplus::Image> pImage, int nWidthHeight )
+std::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::GetResizedImage( std::shared_ptr<Gdiplus::Image> pImage, int nWidthHeight )
 {
 	UINT o_height = pImage->GetHeight();
 	UINT o_width = pImage->GetWidth();
@@ -2641,7 +2641,7 @@ std::tr1::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::GetResizedImage( st
 			n_width = static_cast<UINT>(n_height * ratio);
 		}
 
-		std::tr1::shared_ptr<Gdiplus::Image> imgThumbnail(pImage->GetThumbnailImage(n_width, n_height));
+		std::shared_ptr<Gdiplus::Image> imgThumbnail(pImage->GetThumbnailImage(n_width, n_height));
 		return imgThumbnail;
 	}
 	else
@@ -2662,7 +2662,7 @@ BOOL CSTXAnimatedTreeCtrlNS::SetItemImage(HSTXTREENODE hItem, IStream *pStream, 
 	{
 		nResizeImageWidth = static_cast<int>(fItemHeightFinal);
 	}
-	std::tr1::shared_ptr<Gdiplus::Image> pImg = GetResizedImage(pStream, nResizeImageWidth);
+	std::shared_ptr<Gdiplus::Image> pImg = GetResizedImage(pStream, nResizeImageWidth);
 	if(pImg && pImg->GetWidth() == 0)
 		pImg.reset();
 
@@ -2710,7 +2710,7 @@ BOOL CSTXAnimatedTreeCtrlNS::SetItemImage(HSTXTREENODE hItem, IStream *pStream, 
 		pStory->AddTransition(hItem->m_pAVImageOccupy, pTransImageSize);
 
 		pStory->Schedule(GetCurrentTime(), NULL);
-		hItem->m_pImgImage = std::tr1::shared_ptr<Gdiplus::Image>();		//NULL
+		hItem->m_pImgImage = std::shared_ptr<Gdiplus::Image>();		//NULL
 	}
 
 	hItem->m_nBoundsMaxX = -1;
@@ -2778,8 +2778,8 @@ BOOL CSTXAnimatedTreeCtrlNS::SetItemSubImage( HSTXTREENODE hItem, IStream *pStre
 
 	//DOUBLE fItemHeightFinal = 0.0;
 	//hItem->m_pAVItemHeight->GetFinalValue(&fItemHeightFinal);
-	//std::tr1::shared_ptr<Gdiplus::Image> pImg = GetResizedImage(pStream, fItemHeightFinal);
-	std::tr1::shared_ptr<Gdiplus::Image> pImg = GetResizedImage(pStream, -1);		//Use original image
+	//std::shared_ptr<Gdiplus::Image> pImg = GetResizedImage(pStream, fItemHeightFinal);
+	std::shared_ptr<Gdiplus::Image> pImg = GetResizedImage(pStream, -1);		//Use original image
 	if(pImg && pImg->GetWidth() == 0)
 		pImg.reset();
 
@@ -2826,7 +2826,7 @@ BOOL CSTXAnimatedTreeCtrlNS::Internal_DeleteItem(HSTXTREENODE hItem)
 		return FALSE;
 
 	STXTREENODELIST *pListToDeleteFrom = &m_arrRootNodes;
-	std::queue<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > *pDeleteQueue = &m_queDeletedNodes;
+	std::queue<std::shared_ptr<CSTXAnimatedTreeNodeNS> > *pDeleteQueue = &m_queDeletedNodes;
 
 	HSTXTREENODE originalSelectedNode = m_hSelectedNode;
 
@@ -2846,7 +2846,7 @@ BOOL CSTXAnimatedTreeCtrlNS::Internal_DeleteItem(HSTXTREENODE hItem)
 		STXTREENODELIST::iterator it = m_arrRootNodes.begin();
 		for(;it!=m_arrRootNodes.end();it++)
 		{
-			std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> spItemToDelete = (*it);
+			std::shared_ptr<CSTXAnimatedTreeNodeNS> spItemToDelete = (*it);
 
 			//Opacity
 			ApplySmoothStopTransition(spItemToDelete->m_pAVOpacity, m_nDefaultAnimationDuration / 2, 0.0, pStory);
@@ -2910,7 +2910,7 @@ BOOL CSTXAnimatedTreeCtrlNS::Internal_DeleteItem(HSTXTREENODE hItem)
 
 		ApplyOffsetAfter(pListToDeleteFrom, hItem, -fItemHeight, hItem, TRUE);
 
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> spItemToDelete = (*hItem->m_itPositionInParent);
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> spItemToDelete = (*hItem->m_itPositionInParent);
 
 		CComPtr<IUIAnimationStoryboard> pStory;
 		m_AnimationManager->CreateStoryboard(&pStory);
@@ -3003,7 +3003,7 @@ void CSTXAnimatedTreeCtrlNS::CheckDrag(int x, int y)
 			//Check whether the mouse is at the bottom
 			if(bInBottomSpace)
 			{
-				std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pLastRootNode = m_arrRootNodes.back();
+				std::shared_ptr<CSTXAnimatedTreeNodeNS> pLastRootNode = m_arrRootNodes.back();
 				HSTXTREENODE hNodeBottomNode = GetFurthestVisibleItem(pLastRootNode.get());
 
 				if(m_hDragOverNode && m_hDragOverNode->m_iDropHighlight != 2)
@@ -3049,7 +3049,7 @@ BOOL CSTXAnimatedTreeCtrlNS::IsMouseInButtomSpace(int x, int y)
 	if(y > 20000)		// < 0
 		return FALSE;
 
-	std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pLastRootNode = m_arrRootNodes.back();
+	std::shared_ptr<CSTXAnimatedTreeNodeNS> pLastRootNode = m_arrRootNodes.back();
 	DOUBLE fLastNodeTop = 0;
 	pLastRootNode->m_pAVTopOffset->GetValue(&fLastNodeTop);
 
@@ -3061,7 +3061,7 @@ BOOL CSTXAnimatedTreeCtrlNS::IsMouseInButtomSpace(int x, int y)
 
 void CSTXAnimatedTreeCtrlNS::OnDrop(HSTXTREENODE hNodeDropTo)
 {
-	//std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pItemToMove = *m_hSelectedNode->m_itPositionInParent;
+	//std::shared_ptr<CSTXAnimatedTreeNodeNS> pItemToMove = *m_hSelectedNode->m_itPositionInParent;
 
 	//if(hNodeDropTo->m_iDropHighlight == 1)
 	//{
@@ -3089,7 +3089,7 @@ int CSTXAnimatedTreeCtrlNS::GetAllVisibleItem( HSTXTREENODE hSearchRoot /*= STXT
 		STXTREENODELIST::iterator it = m_arrRootNodes.begin();
 		for(;it!=m_arrRootNodes.end();it++)
 		{
-			std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
+			std::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
 			GetAllVisibleItem(spItem.get(), pArrItems);
 		}
 	}
@@ -3101,7 +3101,7 @@ int CSTXAnimatedTreeCtrlNS::GetAllVisibleItem( HSTXTREENODE hSearchRoot /*= STXT
 			STXTREENODELIST::iterator it = hSearchRoot->m_arrChildNodes.begin();
 			for(;it!=hSearchRoot->m_arrChildNodes.end();it++)
 			{
-				std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
+				std::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
 				GetAllVisibleItem(spItem.get(), pArrItems);
 			}
 		}
@@ -3120,7 +3120,7 @@ int CSTXAnimatedTreeCtrlNS::GetAllItem( HSTXTREENODE hSearchRoot /*= STXTVI_ROOT
 		STXTREENODELIST::iterator it = m_arrRootNodes.begin();
 		for(;it!=m_arrRootNodes.end();it++)
 		{
-			std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
+			std::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
 			GetAllItem(spItem.get(), pArrItems);
 		}
 	}
@@ -3130,7 +3130,7 @@ int CSTXAnimatedTreeCtrlNS::GetAllItem( HSTXTREENODE hSearchRoot /*= STXTVI_ROOT
 		STXTREENODELIST::iterator it = hSearchRoot->m_arrChildNodes.begin();
 		for(;it!=hSearchRoot->m_arrChildNodes.end();it++)
 		{
-			std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
+			std::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
 			GetAllItem(spItem.get(), pArrItems);
 		}
 	}
@@ -3146,7 +3146,7 @@ int CSTXAnimatedTreeCtrlNS::GetItemCount( HSTXTREENODE hSearchRoot /*= STXTVI_RO
 		STXTREENODELIST::iterator it = m_arrRootNodes.begin();
 		for(;it!=m_arrRootNodes.end();it++)
 		{
-			std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
+			std::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
 			nCount++;
 			nCount += GetItemCount(spItem.get());
 		}
@@ -3156,7 +3156,7 @@ int CSTXAnimatedTreeCtrlNS::GetItemCount( HSTXTREENODE hSearchRoot /*= STXTVI_RO
 		STXTREENODELIST::iterator it = hSearchRoot->m_arrChildNodes.begin();
 		for(;it!=hSearchRoot->m_arrChildNodes.end();it++)
 		{
-			std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
+			std::shared_ptr<CSTXAnimatedTreeNodeNS> spItem = (*it);
 			nCount++;
 			nCount += GetItemCount(spItem.get());
 		}
@@ -3193,7 +3193,7 @@ BOOL CSTXAnimatedTreeCtrlNS::Internal_SetItemHeight( HSTXTREENODE hItem, int iHe
 	return TRUE;
 }
 
-bool CSTXAnimatedTreeCtrlNS::STXAnimatedTreeDefaultSortFuncWrapper(std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pNode1, std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pNode2)
+bool CSTXAnimatedTreeCtrlNS::STXAnimatedTreeDefaultSortFuncWrapper(std::shared_ptr<CSTXAnimatedTreeNodeNS> pNode1, std::shared_ptr<CSTXAnimatedTreeNodeNS> pNode2)
 {
 	if(s_sortStructure.nSortType == 1)
 		return s_sortStructure.pfnSort(pNode1->m_dwNodeData, pNode2->m_dwNodeData, s_sortStructure.lParamSort) < 0;
@@ -3272,7 +3272,7 @@ DWORD_PTR CSTXAnimatedTreeCtrlNS::Internal_GetItemData( HSTXTREENODE hItem )
 	return hItem->m_dwNodeData;
 }
 
-void CSTXAnimatedTreeCtrlNS::RecalculateItemOffset( std::list<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> > * pList )
+void CSTXAnimatedTreeCtrlNS::RecalculateItemOffset( std::list<std::shared_ptr<CSTXAnimatedTreeNodeNS> > * pList )
 {
 	STXTREENODELIST::iterator it = pList->begin();
 	INT_PTR iIndexBase = 0;
@@ -3282,7 +3282,7 @@ void CSTXAnimatedTreeCtrlNS::RecalculateItemOffset( std::list<std::tr1::shared_p
 
 	for(;it!=pList->end();it++)
 	{
-		std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> pItem = (*it);
+		std::shared_ptr<CSTXAnimatedTreeNodeNS> pItem = (*it);
 		ApplySmoothStopTransition(pItem->m_pAVTopOffset, m_nDefaultAnimationDuration / 2.0, iOffset, pStory);
 		iOffset += static_cast<int>(pItem->GetFinalHeight());
 	}
@@ -3400,7 +3400,7 @@ int CSTXAnimatedTreeCtrlNS::GetDescendantItems( HSTXTREENODE hItem, std::vector<
 	if(pListToAddIn->size() == 0)
 		return 0;
 
-	std::list<std::tr1::shared_ptr<CSTXAnimatedTreeNodeNS> >::iterator it = pListToAddIn->begin();
+	std::list<std::shared_ptr<CSTXAnimatedTreeNodeNS> >::iterator it = pListToAddIn->begin();
 	for(;it!=pListToAddIn->end();it++)
 	{
 		pArrItems->push_back((*it).get());
@@ -3420,8 +3420,8 @@ BOOL CSTXAnimatedTreeCtrlNS::IsValidItem( HSTXTREENODE hItem )
 
 BOOL CSTXAnimatedTreeCtrlNS::Internal_SetBackgroundImage( IStream *pImgStream )
 {
-	m_pImgBackgroundCached = std::tr1::shared_ptr<Gdiplus::CachedBitmap>(); //Clear cache;
-	std::tr1::shared_ptr<Gdiplus::Image> img(new Gdiplus::Image(pImgStream));
+	m_pImgBackgroundCached = std::shared_ptr<Gdiplus::CachedBitmap>(); //Clear cache;
+	std::shared_ptr<Gdiplus::Image> img(new Gdiplus::Image(pImgStream));
 	m_pImgBackground = img;
 	if(GetSafeHwnd())
 		InvalidateRect(m_hwndControl, NULL, TRUE);
@@ -3431,8 +3431,8 @@ BOOL CSTXAnimatedTreeCtrlNS::Internal_SetBackgroundImage( IStream *pImgStream )
 
 BOOL CSTXAnimatedTreeCtrlNS::Internal_SetWatermarkImage( IStream *pImgStream )
 {
-	m_pImgWatermarkCached = std::tr1::shared_ptr<Gdiplus::CachedBitmap>(); //Clear cache;
-	std::tr1::shared_ptr<Gdiplus::Image> img(new Gdiplus::Image(pImgStream));
+	m_pImgWatermarkCached = std::shared_ptr<Gdiplus::CachedBitmap>(); //Clear cache;
+	std::shared_ptr<Gdiplus::Image> img(new Gdiplus::Image(pImgStream));
 	m_pImgWatermark = img;
 	if(GetSafeHwnd())
 		InvalidateRect(m_hwndControl, NULL, TRUE);
@@ -3454,10 +3454,10 @@ DWORD CSTXAnimatedTreeCtrlNS::GetStyle()
 
 BOOL CSTXAnimatedTreeCtrlNS::Internal_SetExpanderImage( IStream *pImgStreamExpanded, IStream *pImgStreamCollapsed )
 {
-	std::tr1::shared_ptr<Gdiplus::Image> imgExpanded(new Gdiplus::Image(pImgStreamExpanded));
+	std::shared_ptr<Gdiplus::Image> imgExpanded(new Gdiplus::Image(pImgStreamExpanded));
 	m_pImgExpanderExpanded = imgExpanded;
 
-	std::tr1::shared_ptr<Gdiplus::Image> imgCollapsed(new Gdiplus::Image(pImgStreamCollapsed));
+	std::shared_ptr<Gdiplus::Image> imgCollapsed(new Gdiplus::Image(pImgStreamCollapsed));
 	m_pImgExpanderCollapsed = imgCollapsed;
 
 	if(GetSafeHwnd())
@@ -3833,7 +3833,7 @@ BOOL CSTXAnimatedTreeCtrlNS::PreSendNotifyMessage( UINT nCode, LPNMHDR pNMHDR )
 	return TRUE;
 }
 
-std::tr1::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::OnItemImageCallback(HSTXTREENODE hItem)
+std::shared_ptr<Gdiplus::Image> CSTXAnimatedTreeCtrlNS::OnItemImageCallback(HSTXTREENODE hItem)
 {
 	return NULL;
 }
@@ -3961,7 +3961,7 @@ int CSTXAnimatedTreeCtrlNS::GetItemMaxBoundsX(HSTXTREENODE hItem)
 		if (hItem->m_pImgImage == NULL && (hItem->m_dwItemStyle & STXTVIS_IMAGE_CALLBACK) == 0)
 			break;
 
-		std::tr1::shared_ptr<Gdiplus::Image> imgUse = hItem->m_pImgImage;
+		std::shared_ptr<Gdiplus::Image> imgUse = hItem->m_pImgImage;
 		if (hItem->m_dwItemStyle & STXTVIS_IMAGE_CALLBACK)
 			imgUse = OnItemImageCallback(hItem);
 

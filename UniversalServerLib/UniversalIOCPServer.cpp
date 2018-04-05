@@ -404,7 +404,7 @@ DWORD CUniversalIOCPServer::IsClientDataReadableWebSocket(CSTXIOCPServerClientCo
 
 	BYTE *pMaskingKeyPtr = pData + 2;
 
-	DWORD_PTR dwPackageLen = 2;
+	uint64_t dwPackageLen = 2;
 
 	if (nPayloadLen <= 125)
 	{
@@ -465,7 +465,6 @@ DWORD CUniversalIOCPServer::IsClientDataReadableWebSocket(CSTXIOCPServerClientCo
 	}
 
 	return dwPackageLen;
-
 }
 
 std::shared_ptr<CUniversalStringCache> CUniversalIOCPServer::GetTcpServerReceiveScript(CUniversalIOCPTcpServerContext *pServerContext)
@@ -2345,8 +2344,8 @@ void CUniversalIOCPServer::DisconnectTcpClient(__int64 nClientUID)
 
 void CUniversalIOCPServer::EnqueueWorkerThreadScript(LPCTSTR lpszScriptString)
 {
-	auto n = _workerThreadActionScripts.size();
-	for (int i = 0; i < n; i++)
+	size_t n = _workerThreadActionScripts.size();
+	for (size_t i = 0; i < n; i++)
 	{
 		_workerThreadActionScripts[i].push(std::make_shared<std::wstring>(lpszScriptString));
 	}
@@ -2458,7 +2457,7 @@ void CUniversalIOCPServer::InitializeServerDataForShareDataTree()
 		innerRoot->RemoveAllChildren(_T("Server\\Runtime\\Information\\MonitoringFolder"));
 		TCHAR szTemp[128];
 		m_mapMonitoredDir.foreach([&](std::pair<HANDLE, LPSTXIOCPCONTEXTKEY> item) {
-			_stprintf_s(szTemp, _T("Server\\Runtime\\Information\\MonitoringFolder\\0x%X"), item.first);
+			_stprintf_s(szTemp, _T("Server\\Runtime\\Information\\MonitoringFolder\\0x%p"), item.first);
 			innerRoot->RegisterStringVariable(szTemp, item.second->szMonitoredFolder);
 			innerRoot->SetVariableReadOnly(szTemp, true);
 		});

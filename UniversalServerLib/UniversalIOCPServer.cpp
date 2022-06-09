@@ -283,7 +283,7 @@ CSTXUdpServerContextBase* CUniversalIOCPServer::OnCreateUdpServerContext(DWORD_P
 	return serverContext;
 }
 
-CSTXIOCPServerClientContext * CUniversalIOCPServer::OnCreateClientContext(tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext)
+CSTXIOCPServerClientContext * CUniversalIOCPServer::OnCreateClientContext(shared_ptr<CSTXIOCPTcpServerContext> pServerContext)
 {
 	CUniversalIOCPServerClientContext *pNewClient = new CUniversalIOCPServerClientContext();
 	if (pNewClient == NULL)

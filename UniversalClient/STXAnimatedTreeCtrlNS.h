@@ -26,6 +26,7 @@
 #include <queue>
 #include <set>
 #include <map>
+#include <string>
 
 #include <gdiplus.h>
 #include <atlcomcli.h>

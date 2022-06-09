@@ -40,7 +40,7 @@ public:
 		if (s.size() > 0)
 		{
 			DWORD dwBufferLen = 0;
-			BOOL bSuccess = CryptStringToBinaryA(s.c_str(), s.size(), CRYPT_STRING_BASE64, NULL, &dwBufferLen, NULL, NULL);
+			BOOL bSuccess = CryptStringToBinaryA(s.c_str(), static_cast<DWORD>(s.size()), CRYPT_STRING_BASE64, NULL, &dwBufferLen, NULL, NULL);
 			if (dwBufferLen > 0)
 			{
 				BYTE *pBuffer = new BYTE[dwBufferLen];
@@ -48,7 +48,7 @@ public:
 				{
 					return;
 				}
-				bSuccess = CryptStringToBinaryA(s.c_str(), s.size(), CRYPT_STRING_BASE64, pBuffer, &dwBufferLen, NULL, NULL);
+				bSuccess = CryptStringToBinaryA(s.c_str(), static_cast<DWORD>(s.size()), CRYPT_STRING_BASE64, pBuffer, &dwBufferLen, NULL, NULL);
 				if (bSuccess)
 				{
 					size_t nLenParsed = 0;

@@ -3,6 +3,8 @@
 #include <atlwin.h>
 #include <atlapp.h>
 #include <atlctrls.h>
+#include <string>
+#include <vector>
 #include "Resource.h"
 #include "STXAnchor.h"
 #include <set>

@@ -163,12 +163,12 @@ CSimpleHttpServer::CSimpleHttpServer()
 	_httpServerName = "SimpleHttpServer/1.0";
 }
 
-CSTXIOCPServerClientContext *CSimpleHttpServer::OnCreateClientContext( tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext )
+CSTXIOCPServerClientContext *CSimpleHttpServer::OnCreateClientContext( shared_ptr<CSTXIOCPTcpServerContext> pServerContext )
 {
 	return new CSimpleHttpClient();
 }
 
-DWORD CSimpleHttpServer::IsClientDataReadable( tr1::shared_ptr<CSTXIOCPServerClientContext> pClientContext )
+DWORD CSimpleHttpServer::IsClientDataReadable( shared_ptr<CSTXIOCPServerClientContext> pClientContext )
 {
 	return pClientContext->GetBufferedMessageLength();		//for text stream protocol, Always readable. OnClientReceived would handle each incoming byte.
 }

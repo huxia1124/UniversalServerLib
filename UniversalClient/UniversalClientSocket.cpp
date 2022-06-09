@@ -19,6 +19,8 @@
 #include "UniversalClientSocket.h"
 #include "STXProtocol.h"
 #include "STXProtocolDialog.h"
+#include <stdexcept>
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 

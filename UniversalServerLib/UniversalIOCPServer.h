@@ -288,7 +288,7 @@ protected:
 protected:
 	virtual CSTXServerContextBase* OnCreateServerContext();
 	virtual CSTXUdpServerContextBase* OnCreateUdpServerContext(DWORD_PTR dwServerParam);
-	virtual CSTXIOCPServerClientContext *OnCreateClientContext(tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext);
+	virtual CSTXIOCPServerClientContext *OnCreateClientContext(shared_ptr<CSTXIOCPTcpServerContext> pServerContext);
 	virtual CSTXIOCPTcpConnectionContext*OnCreateTcpConnectionContext();
 	virtual BOOL OnAccepted(CSTXIOCPServerClientContext *pClientContext);
 	virtual DWORD IsClientDataReadable(CSTXIOCPServerClientContext *pClientContext);

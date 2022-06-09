@@ -990,7 +990,7 @@ BOOL CSTXAnimatedTreeCtrlNS::Create( LPCTSTR lpszWindowText, DWORD dwStyle, int 
 	if(hWnd == NULL)
 		return FALSE;
 
-	SetWindowLongPtr(hWnd, GWL_USERDATA, (LONG_PTR)this);
+	SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)this);
 	m_hwndControl = hWnd;
 
 //	HFONT hFont = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
@@ -1024,7 +1024,7 @@ void CSTXAnimatedTreeCtrlNS::OnTimer(UINT nIDEvent)
 
 LRESULT CALLBACK CSTXAnimatedTreeCtrlNS::STXAnimatedTreeWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
-	CSTXAnimatedTreeCtrlNS *pThis = (CSTXAnimatedTreeCtrlNS*)GetWindowLongPtr(hwnd, GWL_USERDATA);
+	CSTXAnimatedTreeCtrlNS *pThis = (CSTXAnimatedTreeCtrlNS*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	if(pThis == NULL)
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 

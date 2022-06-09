@@ -105,8 +105,8 @@ protected:
 	std::string _httpServerName;
 
 protected:
-	virtual CSTXIOCPServerClientContext *OnCreateClientContext(tr1::shared_ptr<CSTXIOCPTcpServerContext> pServerContext);
-	virtual DWORD IsClientDataReadable(tr1::shared_ptr<CSTXIOCPServerClientContext> pClientContext);
+	virtual CSTXIOCPServerClientContext *OnCreateClientContext(shared_ptr<CSTXIOCPTcpServerContext> pServerContext);
+	virtual DWORD IsClientDataReadable(shared_ptr<CSTXIOCPServerClientContext> pClientContext);
 	virtual BOOL OnClientReceived(CSTXIOCPServerClientContext *pClientContext, CSTXIOCPBuffer *pBuffer);
 
 protected:
